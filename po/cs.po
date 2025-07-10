@@ -1,0 +1,3371 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: rpm-maint@lists.rpm.org\n"
+"POT-Creation-Date: 2022-04-07 13:03+0300\n"
+"PO-Revision-Date: 2024-02-09 08:36+0000\n"
+"Last-Translator: Petr Ptacek <petr106@atlas.cz>\n"
+"Language-Team: Czech <https://translate.fedoraproject.org/projects/rpm/"
+"rpm-l10n/cs/>\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Weblate 5.3.1\n"
+
+#, c-format
+msgid "%s: %s\n"
+msgstr "%s: %s\n"
+
+#, c-format
+msgid "RPM version %s\n"
+msgstr "RPM verze %s\n"
+
+#, c-format
+msgid "Copyright (C) 1998-2002 - Red Hat, Inc.\n"
+msgstr "Copyright (C) 1998-2002 - Red Hat, Inc.\n"
+
+#, c-format
+msgid ""
+"This program may be freely redistributed under the terms of the GNU GPL\n"
+msgstr "Tento program lze volně šířit podle podmínek GNU GPL\n"
+
+#, c-format
+msgid "creating a pipe for --pipe failed: %m\n"
+msgstr "vytvoření roury pro --pipe selhalo: %m\n"
+
+#, c-format
+msgid "exec failed\n"
+msgstr "spuštění selhalo\n"
+
+msgid "create uncompressed tar file"
+msgstr "vytvořit nekomprimovaný soubor tar"
+
+#, c-format
+msgid "argument is not an RPM package\n"
+msgstr "parametr není RPM balíček\n"
+
+#, c-format
+msgid "error reading header from package\n"
+msgstr "chyba při čtení hlavičky balíčku\n"
+
+#, c-format
+msgid "cannot re-open payload: %s\n"
+msgstr "nemohu znovu otevřít payload: %s\n"
+
+#, c-format
+msgid "files over 4GB not supported by cpio, use rpm2archive instead\n"
+msgstr ""
+"soubory nad 4 GB nejsou podporovány cpio, použijte místo toho rpm2archive\n"
+
+#, c-format
+msgid "buildroot already specified, ignoring %s\n"
+msgstr "buildroot byl již nastaven, ignoruji %s\n"
+
+#, c-format
+msgid "build through %prep (unpack sources and apply patches) from <specfile>"
+msgstr ""
+"sestavení podle %prep (rozbalení zdrojových kódů a aplikace patchů) podle "
+"<spec_soubor>"
+
+msgid "<specfile>"
+msgstr "<spec_soubor>"
+
+#, c-format
+msgid "build through %conf (%prep, then %conf) from <specfile>"
+msgstr "sestavit pomocí %conf (%prep, poté %conf) z <specfile>"
+
+msgid "build through %build (%prep, %conf, then compile) from <specfile>"
+msgstr "sestavit pomocí %build (%prep, %conf, poté zkompilovat) z <specfile>"
+
+msgid "check build dependencies <specfile>"
+msgstr "kontrola závislostí sestavení <specfile>"
+
+msgid ""
+"build through %install (%prep, %conf, %build, then install) from <specfile>"
+msgstr ""
+"sestavit pomocí %install (%prep, %conf, %build, pak nainstalovat) z "
+"<specfile>"
+
+#, c-format
+msgid "verify %files section from <specfile>"
+msgstr "kontrola části %files ve <spec_soubor>"
+
+msgid "build source and binary packages from <specfile>"
+msgstr "vytvoření zdrojového a binárního balíčku podle <spec_soubor>"
+
+msgid "build binary package only from <specfile>"
+msgstr "vytvoření pouze binárního balíčku podle <spec_soubor>"
+
+msgid "build source package only from <specfile>"
+msgstr "vytvoření zdrojového balíčku podle <spec_soubor>"
+
+msgid ""
+"build source package only from <specfile> - calculate dynamic build requires"
+msgstr ""
+"sestavit zdrojový balíček pouze ze <specfile> - vypočítat požadavky "
+"dynamického sestavení"
+
+#, c-format
+msgid ""
+"build through %prep (unpack sources and apply patches) from <source package>"
+msgstr ""
+"sestavit pomocí %prep (rozbalit zdroje a použít opravy) ze <zdrojového "
+"balíčku>"
+
+msgid "<source package>"
+msgstr "<zdrojový balíček>"
+
+msgid "build through %build (%prep, %conf, then compile) from <source package>"
+msgstr ""
+"sestavit pomocí %build (%prep, %conf, poté zkompilovat) ze <zdrojového "
+"balíčku>"
+
+msgid "check build dependencies <source package>"
+msgstr "kontrola závislostí sestavení <zdrojového balíčku>"
+
+msgid ""
+"build through %install (%prep, %conf, %build, then install) from <source "
+"package>"
+msgstr ""
+"sestavit pomocí %install (%prep, %conf, %build, pak nainstalovat) ze "
+"<zdrojového balíčku>"
+
+#, c-format
+msgid "verify %files section from <source package>"
+msgstr "ověřte sekci %files ze <zdrojového balíčku>"
+
+msgid "build source and binary packages from <source package>"
+msgstr "sestavit zdrojové a binární balíčky ze <zdrojového balíčku>"
+
+msgid "build binary package only from <source package>"
+msgstr "sestavit binární balíček pouze ze <zdrojového balíčku>"
+
+msgid "build source package only from <source package>"
+msgstr "sestavit zdrojový balíček pouze ze <zdrojového balíčku>"
+
+msgid ""
+"build source package only from <source package> - calculate dynamic build "
+"requires"
+msgstr ""
+"sestavit zdrojový balíček pouze ze <zdrojového balíčku> - vypočítat "
+"požadavky dynamického sestavení"
+
+#, c-format
+msgid "build through %prep (unpack sources and apply patches) from <tarball>"
+msgstr ""
+"sestavení podle %prep (rozbalení zdrojových kódů, aplikace patchů) z "
+"<tar_soubor>"
+
+msgid "<tarball>"
+msgstr "<tar_soubor>"
+
+msgid "build through %build (%prep, %conf, then compile) from <tarball>"
+msgstr "sestavit pomocí %build (%prep, %conf, poté zkompilovat) z <tar_souboru>"
+
+msgid "check build dependencies <tarball>"
+msgstr "kontrola závislostí sestavení <tar_souboru>"
+
+msgid ""
+"build through %install (%prep, %conf, %build, then install) from <tarball>"
+msgstr ""
+"sestavit pomocí %install (%prep, %conf, %build, pak nainstalovat) z "
+"<tar_souboru>"
+
+#, c-format
+msgid "verify %files section from <tarball>"
+msgstr "kontrola části %files z <tar_soubor>"
+
+msgid "build source and binary packages from <tarball>"
+msgstr "vytvoření zdrojového a binárního balíčku z <tar_soubor>"
+
+msgid "build binary package only from <tarball>"
+msgstr "vytvoření pouze binárního balíčku z <tar_soubor>"
+
+msgid "build source package only from <tarball>"
+msgstr "vytvoření pouze zdrojového balíčku z <tar_soubor>"
+
+msgid ""
+"build source package only from <tarball> - calculate dynamic build requires"
+msgstr ""
+"sestavit zdrojový balíček pouze z <tar_souboru> - vypočítat požadavky "
+"dynamického sestavení"
+
+msgid "build binary package from <source package>"
+msgstr "vytvoření binárního balíčku ze <zdrojový balíček>"
+
+msgid ""
+"build through %install (%prep, %build, then install) from <source package>"
+msgstr "sestavení podle %%install (včetně %prep, %build) ze <zdrojový balíček>"
+
+msgid "override build root"
+msgstr "build root předefinován"
+
+msgid "run build in current directory"
+msgstr "spustit sestavení v aktuálním adresáři"
+
+msgid "remove build tree when done"
+msgstr "po dokončení odstranit sestavovací strom"
+
+msgid "ignore ExcludeArch: directives from spec file"
+msgstr "ignorovat ExcludeArch: direktivy ve spec souboru"
+
+msgid "debug file state machine"
+msgstr "ladit nástroj stavu souborů"
+
+msgid "do not execute any stages of the build"
+msgstr "nespouštět žádné etapy vytváření balíčku"
+
+msgid "do not verify build dependencies"
+msgstr "nekontrolovat závislosti balíčků"
+
+msgid "generate package header(s) compatible with (legacy) rpm v3 packaging"
+msgstr ""
+"vygenerovat hlavičku(y) balíčku kompatibilní se (staršími) balíčkovači rpm v3"
+
+#, c-format
+msgid "do not execute %clean stage of the build"
+msgstr "neprovádějte %clean fázi sestavení"
+
+#, c-format
+msgid "do not execute %prep stage of the build"
+msgstr "neprovádějte %prep fázi sestavení"
+
+#, c-format
+msgid "do not execute %check stage of the build"
+msgstr "neprovádějte %check fázi sestavení"
+
+msgid "do not accept i18N msgstr's from specfile"
+msgstr "neakceptovat i18N popisky ze spec souboru"
+
+msgid "remove sources when done"
+msgstr "po dokončení odstranit zdrojové kódy"
+
+msgid "remove specfile when done"
+msgstr "po dokončení odstranit spec soubor"
+
+msgid "skip straight to specified stage (only for c,i)"
+msgstr "přeskočit přímo na určenou etapu (pouze pro c,i)"
+
+msgid "override target platform"
+msgstr "cílová platforma předefinována"
+
+msgid "Build options with [ <specfile> | <tarball> | <source package> ]:"
+msgstr ""
+"Sestavovací volby s [ <spec_soubor> | <tar_soubor> | <zdrojový_balíček> ]:"
+
+msgid "Common options for all rpm modes and executables:"
+msgstr "Společné volby pro všechny rpm režimy a spustitelné soubory:"
+
+#, c-format
+msgid "Unable to open spec file %s: %s\n"
+msgstr "Nelze otevřít spec soubor %s: %s\n"
+
+#, c-format
+msgid "Failed to open tar pipe: %m\n"
+msgstr "Nelze otevřít rouru pro tar: %m\n"
+
+#, c-format
+msgid "Found more than one spec file in %s\n"
+msgstr "V %s bylo nalezeno více než jeden soubor specifikací\n"
+
+#, c-format
+msgid "Failed to read spec file from %s\n"
+msgstr "Nelze číst spec soubor z %s\n"
+
+#, c-format
+msgid "Failed to rename %s to %s: %m\n"
+msgstr "Nelze přejmenovat %s na %s: %m\n"
+
+#, c-format
+msgid "failed to stat %s: %m\n"
+msgstr "nemohu zjistit stav %s: %m\n"
+
+#, c-format
+msgid "File %s is not a regular file.\n"
+msgstr "Soubor %s není obyčejný soubor.\n"
+
+#, c-format
+msgid "File %s does not appear to be a specfile.\n"
+msgstr "Nezdá se, že by %s byl spec soubor.\n"
+
+#, c-format
+msgid "Building target platforms: %s\n"
+msgstr "Sestavuji cílové platformy: %s\n"
+
+#, c-format
+msgid "Building for target %s\n"
+msgstr "Sestavuji pro cíl %s\n"
+
+msgid "arguments to --root (-r) must begin with a /"
+msgstr "parametry pro --root (-r) musejí začínat znakem /"
+
+msgid "initialize database"
+msgstr "inicializuj databázi"
+
+msgid "rebuild database inverted lists from installed package headers"
+msgstr "znovu sestav obrácené seznamy z instalovaných hlaviček balíčků"
+
+msgid "verify database files"
+msgstr "zkontrolovat databázové soubory"
+
+msgid "salvage database"
+msgstr "záchranná databáze"
+
+msgid "export database to stdout header list"
+msgstr "export databáze do seznamu hlaviček stdout"
+
+msgid "import database from stdin header list"
+msgstr "import databáze ze seznamu hlaviček stdin"
+
+msgid "Database options:"
+msgstr "Volby databáze:"
+
+msgid "only one major mode may be specified"
+msgstr "specifikovat lze jen jeden hlavní režim"
+
+msgid "verify package signature(s)"
+msgstr "ověřit podpis v balíčku"
+
+msgid "import an armored public key"
+msgstr "importuj obrněný veřejný klíč"
+
+msgid "don't import, but tell if it would work or not"
+msgstr "neimportujte, ale řekněte, zda by to fungovalo nebo ne"
+
+msgid "list keys from RPM keyring"
+msgstr "seznam klíčů ze klíčenky klíčů RPM"
+
+msgid "Keyring options:"
+msgstr "Volby klíčenky:"
+
+msgid "no arguments given"
+msgstr "nezadány žádné parametry"
+
+msgid "Query/Verify package selection options:"
+msgstr "Dotaz/Ověření na možnosti výběru balíčku:"
+
+msgid "Query/Verify file selection options:"
+msgstr "Dotazu/Ověření na možnosti výběru souboru:"
+
+msgid "Query options (with -q or --query):"
+msgstr "Volby dotazů (s -q nebo --query):"
+
+msgid "Verify options (with -V or --verify):"
+msgstr "Vollby kontroly (s -V nebo --verify):"
+
+msgid "Install/Upgrade/Erase options:"
+msgstr "Volby pro Instalaci/Aktualizaci/Mazání:"
+
+msgid "one type of query/verify may be performed at a time"
+msgstr "najednou lze provést jen jeden typ dotazu či ověření"
+
+msgid "unexpected query flags"
+msgstr "neočekávaný příznak pro dotaz"
+
+msgid "unexpected query format"
+msgstr "neočekávaný formát dotazu"
+
+msgid "unexpected query source"
+msgstr "neočekávaný zdroj dotazu"
+
+msgid "only installation and upgrading may be forced"
+msgstr "pouze instalace a aktualizace mohou být vynuceny"
+
+msgid "files may only be relocated during package installation"
+msgstr "soubory mohou být přemístěny jen při instalaci balíčků"
+
+msgid "cannot use --prefix with --relocate or --excludepath"
+msgstr "nemohu použít --prefix s --relocate nebo --excludepath"
+
+msgid ""
+"--relocate and --excludepath may only be used when installing new packages"
+msgstr ""
+"--relocate a --excludepath je možno použít jen při instalaci nových balíčků"
+
+msgid "--prefix may only be used when installing new packages"
+msgstr "--prefix je možno použít jen při instalaci nových balíčků"
+
+msgid "arguments to --prefix must begin with a /"
+msgstr "parametry pro --prefix musejí začínat znakem /"
+
+msgid ""
+"--hash (-h) may only be specified during package installation and erasure"
+msgstr "--hash (-h) lze zadat pouze během instalace a mazání balíčku"
+
+msgid "--percent may only be specified during package installation and erasure"
+msgstr "--percent lze zadat pouze během instalace a mazání balíčku"
+
+msgid "--replacepkgs may only be specified during package installation"
+msgstr "--replacepkgs může být použit jen při instalaci balíčků"
+
+msgid "--excludedocs may only be specified during package installation"
+msgstr "--excludedocs může být použit jen při instalaci balíčků"
+
+msgid "--includedocs may only be specified during package installation"
+msgstr "--includedocs může být použit jen při instalaci balíčků"
+
+msgid "only one of --excludedocs and --includedocs may be specified"
+msgstr "použít lze jen jeden z parametrů --excludedocs a --includedocs"
+
+msgid "--ignorearch may only be specified during package installation"
+msgstr "--ignorearch může být použit jen při instalaci balíčků"
+
+msgid "--ignoreos may only be specified during package installation"
+msgstr "--ignoreos může být použit jen při instalaci balíčků"
+
+msgid "--ignoresize may only be specified during package installation"
+msgstr "--ignoresize může být použit jen při instalaci balíčků"
+
+msgid "--allmatches may only be specified during package erasure"
+msgstr "--allmatches může být použit jen při instalaci balíčků"
+
+msgid "--allfiles may only be specified during package installation"
+msgstr "--allfiles může být použit jen při instalaci balíčků"
+
+msgid "--justdb may only be specified during package installation and erasure"
+msgstr "--justdb může být použit jen při instalaci a odstraňování balíčků"
+
+msgid ""
+"script disabling options may only be specified during package installation "
+"and erasure"
+msgstr ""
+"volba pro potlačení skriptů může být použita jen při instalaci nebo při "
+"odstraňování balíčků"
+
+msgid ""
+"trigger disabling options may only be specified during package installation "
+"and erasure"
+msgstr ""
+"volba pro potlačení triggerů může být použita jen při instalaci nebo "
+"odstraňování balíčků"
+
+msgid ""
+"--nodeps may only be specified during package installation, erasure, and "
+"verification"
+msgstr "--nodeps lze zadat pouze během instalace, mazání a ověřování balíčku"
+
+msgid "--test may only be specified during package installation and erasure"
+msgstr "--test lze zadat pouze během instalace a mazání balíčku"
+
+msgid "no packages given for erase"
+msgstr "nezadány žádné balíčky pro vymazání"
+
+msgid "no packages given for install"
+msgstr "nezadány žádné balíčky pro instalaci"
+
+msgid "no arguments given for query"
+msgstr "k dotazu nezadány žádné parametry"
+
+msgid "no arguments given for verify"
+msgstr "pro kontrolu nezadány žádné balíčky"
+
+msgid "sign package(s)"
+msgstr "podepsat balíček(y)"
+
+msgid "sign package(s) (identical to --addsign)"
+msgstr "podepsat balíček (identické s --addsign)"
+
+msgid "delete package signatures"
+msgstr "vymazat podpisy balíčku"
+
+msgid "delete IMA and fsverity file signatures"
+msgstr "odstranit IMA a fsverity podpisů souborů"
+
+msgid "create rpm v3 header+payload signatures"
+msgstr "vytvořit hlavičku rpm v3 + podpisy užitečného zatížení"
+
+msgid "sign package(s) files"
+msgstr "podepsat soubory balíčku(ů)"
+
+msgid "generate fsverity signatures for package(s) files"
+msgstr "generovat podpisy fsverity pro soubory balíčku(ů)"
+
+msgid "algorithm to use for verity signatures, default sha256"
+msgstr "algoritmus, který se používá pro podpisy pravosti, výchozí sha256"
+
+msgid "<algorithm>"
+msgstr "<algoritmus>"
+
+msgid "use file signing cert <cert>"
+msgstr "použijte certifikát <certifikát> pro podepisování souborů"
+
+msgid "<cert>"
+msgstr "<certifikát>"
+
+msgid "use file signing key <key>"
+msgstr "použijte klíč <klíč> pro podepisování souborů"
+
+msgid "<key>"
+msgstr "<klíč>"
+
+msgid "prompt for file signing key password"
+msgstr "výzva k zadání hesla klíče pro podepisování souborů"
+
+msgid "Signature options:"
+msgstr "Volby signatury:"
+
+#, c-format
+msgid "You must set \"%%_gpg_name\" in your macro file\n"
+msgstr "Je nutné nastavit \"%%_gpg_name\" ve vašem souboru maker\n"
+
+#, c-format
+msgid ""
+"You must set \"%%_file_signing_key\" in your macro file or on the command "
+"line with --fskpath\n"
+msgstr ""
+"Musíte nastavit \"%%_file_signing_key\" ve vašem souboru makra nebo na "
+"příkazovém řádku pomocí --fskpath\n"
+
+msgid "--fskpath may only be specified when signing files"
+msgstr "--fskpath lze zadat pouze při podepisování souborů"
+
+msgid "parse spec file(s) to stdout"
+msgstr "parsovat spec soubor(y) na stdout"
+
+msgid "query spec file(s)"
+msgstr "spec soubor(y) dotazu"
+
+msgid "interactive macro shell"
+msgstr "interaktivní makro shell"
+
+msgid "operate on binary rpms generated by spec (default)"
+msgstr "pracovat s binárními rpms generovanými spec (výchozí)"
+
+msgid "operate on binary package header(s) that would be built from spec"
+msgstr ""
+"pracovat s binárními hlavičkami balíčků, které by byly sestaveny ze spec"
+
+msgid "operate on source package header generated by spec"
+msgstr "pracovat s hlavičkou zdrojového balíčku generovanou spec"
+
+msgid "use the following query format"
+msgstr "použij následující formát dotazů"
+
+msgid "Spec options:"
+msgstr "Spec volby:"
+
+#, c-format
+msgid "RPM version %s macro shell\n"
+msgstr "Verze RPM %s makro shell\n"
+
+msgid "no arguments given for parse"
+msgstr "nejsou uvedeny žádné argumenty pro parsování"
+
+msgid "unable to parse SOURCE_DATE_EPOCH\n"
+msgstr "nelze parsovat SOURCE_DATE_EPOCH\n"
+
+#, c-format
+msgid "Could not canonicalize hostname: %s\n"
+msgstr "Nemohu získat jméno počítače: %s\n"
+
+#, c-format
+msgid "Unable to open temp file: %s\n"
+msgstr "Nelze otevřít dočasný soubor: %s\n"
+
+#, c-format
+msgid "Unable to open stream: %s\n"
+msgstr "Nelze otevřít stream: %s\n"
+
+#, c-format
+msgid "Executing(%s): %s\n"
+msgstr "Provádění(%s): %s\n"
+
+#, c-format
+msgid "Bad exit status from %s (%s)\n"
+msgstr "Špatný návratový kód z %s (%s)\n"
+
+msgid "Failed build dependencies:\n"
+msgstr "Chybné závislosti při sestavování:\n"
+
+#, c-format
+msgid "setting %s=%s\n"
+msgstr "nastavení %s=%s\n"
+
+#, c-format
+msgid "source_date_epoch_from_changelog set but %%changelog is missing\n"
+msgstr "source_date_epoch_from_changelog je nastaven, ale %%changelog chybí\n"
+
+msgid ""
+"\n"
+"RPM build warnings:\n"
+msgstr ""
+"\n"
+"Upozornění sestavení RPM:\n"
+
+msgid ""
+"\n"
+"RPM build errors:\n"
+msgstr ""
+"\n"
+"chyby sestavení RPM:\n"
+
+#, c-format
+msgid "Missing '(' in %s %s\n"
+msgstr "Chybí '(' v %s %s\n"
+
+#, c-format
+msgid "Missing ')' in %s(%s\n"
+msgstr "Chybí ')' v %s(%s\n"
+
+#, c-format
+msgid "Invalid %s token: %s\n"
+msgstr "Neplatný %s token: %s\n"
+
+#, c-format
+msgid "Missing %s in %s(%s)\n"
+msgstr "Chybí %s v %s(%s)\n"
+
+#, c-format
+msgid "Non-white space follows %s(): %s\n"
+msgstr "Následuje neprázdný znak %s(): %s\n"
+
+#, c-format
+msgid "Bad syntax: %s(%s)\n"
+msgstr "Špatná syntaxe: %s(%s)\n"
+
+#, c-format
+msgid "Bad mode spec: %s(%s)\n"
+msgstr "Špatná práva spec: %s(%s)\n"
+
+#, c-format
+msgid "Bad dirmode spec: %s(%s)\n"
+msgstr "Špatná práva adresáře: %s(%s)\n"
+
+#, c-format
+msgid "Unusual locale length: \"%s\" in %%lang(%s)\n"
+msgstr "Neobvyklá délka národního prostředí: \"%s\" v %%lang(%s)\n"
+
+#, c-format
+msgid "Duplicate locale %s in %%lang(%s)\n"
+msgstr "Duplicitní národní prostředí %s v %%lang(%s)\n"
+
+#, c-format
+msgid "Invalid capability: %s\n"
+msgstr "Neplatná funkce: %s\n"
+
+msgid "File capability support not built in\n"
+msgstr "Podpora funkcí souborů není integrována\n"
+
+#, c-format
+msgid "File must begin with \"/\": %s\n"
+msgstr "Soubor musí začínat na \"/\": %s\n"
+
+#, c-format
+msgid "unable to parse %s=%s\n"
+msgstr "nelze parsovat %s=%s\n"
+
+#, c-format
+msgid "Unknown file digest algorithm %u, falling back to MD5\n"
+msgstr "Neznámý soubor volby algoritmu %u, návrat k MD5\n"
+
+#, c-format
+msgid "File listed twice: %s\n"
+msgstr "Soubor uveden dvakrát: %s\n"
+
+#, c-format
+msgid "reading symlink %s failed: %s\n"
+msgstr "čtení symbolického odkazu %s selhalo: %s\n"
+
+#, c-format
+msgid "absolute symlink: %s -> %s\n"
+msgstr "absolutní symbolický odkaz: %s -> %s\n"
+
+#, c-format
+msgid "Symlink points to BuildRoot: %s -> %s\n"
+msgstr "Symbolická linka ukazuje na BuildRoot: %s -> %s\n"
+
+#, c-format
+msgid "Illegal character (0x%x) in filename: %s\n"
+msgstr "Neplatný znak (0x%x) v názvu souboru: %s\n"
+
+#, c-format
+msgid "Path is outside buildroot: %s\n"
+msgstr "Cesta je mimo kořenový adresář sestavení: %s\n"
+
+#, c-format
+msgid "Directory not found: %s\n"
+msgstr "Adresář nenalezen: %s\n"
+
+#, c-format
+msgid "File not found: %s\n"
+msgstr "Soubor nenalezen: %s\n"
+
+#, c-format
+msgid "Not a directory: %s\n"
+msgstr "Není to adresář: %s\n"
+
+#, c-format
+msgid "Can't read content of file: %s\n"
+msgstr "Nelze přečíst obsah souboru: %s\n"
+
+#, c-format
+msgid "%s: can't load unknown tag (%d).\n"
+msgstr "%s: nemohu nahrát neznámou značku (%d).\n"
+
+#, c-format
+msgid "%s: public key read failed.\n"
+msgstr "%s: čtení veřejného klíče selhalo.\n"
+
+#, c-format
+msgid "%s: not an armored public key.\n"
+msgstr "%s: není obrněný veřejný klíč.\n"
+
+#, c-format
+msgid "%s: failed to encode\n"
+msgstr "%s: kódování se nezdařilo\n"
+
+msgid "failed symlink"
+msgstr "neúspěšný symbolický odkaz"
+
+#, c-format
+msgid "Duplicate build-id, stat %s: %m\n"
+msgstr "Duplicitní ID sestavení, stat %s: %m\n"
+
+#, c-format
+msgid "Duplicate build-ids %s and %s\n"
+msgstr "Duplicitní ID sestavení %s a %s\n"
+
+msgid "_build_id_links macro not set, assuming 'compat'\n"
+msgstr "Makro _build_id_links není nastaveno, předpokládá se 'compat'\n"
+
+#, c-format
+msgid "_build_id_links macro set to unknown value '%s'\n"
+msgstr "Makro _build_id_links nastaveno na neznámou hodnotu '%s'\n"
+
+#, c-format
+msgid "error reading build-id in %s: %s\n"
+msgstr "chyba při čtení ID sestavení v %s: %s\n"
+
+#, c-format
+msgid "Missing build-id in %s\n"
+msgstr "Chybí ID sestavení v %s\n"
+
+#, c-format
+msgid "build-id found in %s too small\n"
+msgstr "ID sestavení v %s je příliš malé\n"
+
+#, c-format
+msgid "build-id found in %s too large\n"
+msgstr "ID sestavení v %s je příliš velké\n"
+
+msgid "failed to create directory"
+msgstr "nepodařilo se vytvořit adresář"
+
+msgid "Mixing main ELF and debug files in package"
+msgstr ""
+
+#, c-format
+msgid "File needs leading \"/\": %s\n"
+msgstr "Soubor potřebuje úvodní \"/\": %s\n"
+
+#, c-format
+msgid "%%dev glob not permitted: %s\n"
+msgstr ""
+
+#, c-format
+msgid "Directory not found by glob: %s. Trying without globbing.\n"
+msgstr ""
+
+#, c-format
+msgid "File not found by glob: %s. Trying without globbing.\n"
+msgstr ""
+
+#, c-format
+msgid "Could not open %s file %s: %m\n"
+msgstr "Nelze otevřít %s soubor %s: %m\n"
+
+#, c-format
+msgid "Empty %s file %s\n"
+msgstr "Vyprázdnit %s soubor %s\n"
+
+#, c-format
+msgid "illegal _docdir_fmt %s: %s\n"
+msgstr "illegal _docdir_fmt %s: %s\n"
+
+#, c-format
+msgid "File not found by glob: %s\n"
+msgstr "Soubor nenalezen globem: %s\n"
+
+#, c-format
+msgid "Special file in generated file list: %s\n"
+msgstr "Speciální soubor ve vygenerovaném seznamu souborů: %s\n"
+
+#, c-format
+msgid "Can't mix special %s with other forms: %s\n"
+msgstr "Nelze kombinovat speciální %s s jinými formami: %s\n"
+
+#, c-format
+msgid "More than one file on a line: %s\n"
+msgstr "Více než jeden soubor na řádku: %s\n"
+
+msgid "Generating build-id links failed\n"
+msgstr "Generování odkazů ID sestavení se nezdařilo\n"
+
+#, c-format
+msgid "Bad file: %s: %s\n"
+msgstr "Špatný soubor: %s: %s\n"
+
+#, c-format
+msgid "Checking for unpackaged file(s): %s\n"
+msgstr "Kontroluji nezabalené soubory: %s\n"
+
+#, c-format
+msgid ""
+"Installed (but unpackaged) file(s) found:\n"
+"%s"
+msgstr ""
+"Nalezeny instalované, ale nezabalené soubory:\n"
+"%s"
+
+#, c-format
+msgid "package %s already exists\n"
+msgstr "balíček %s je již existuje\n"
+
+#, c-format
+msgid "%s was mapped to multiple filenames"
+msgstr "%s byl namapován na více názvů souborů"
+
+#, c-format
+msgid "Processing files: %s\n"
+msgstr "Zpracovávání souborů: %s\n"
+
+#, c-format
+msgid "Binaries arch (%d) not matching the package arch (%d).\n"
+msgstr "Archív binárních souborů (%d) neodpovídá archívu balíčku (%d).\n"
+
+msgid "Arch dependent binaries in noarch package\n"
+msgstr "Binární soubory závislé na Arch v noarch balíčku\n"
+
+#, c-format
+msgid "create archive failed on file %s: %s\n"
+msgstr "vytvoření archivu se nezdařilo u souboru %s: %s\n"
+
+#, c-format
+msgid "create archive failed: %s\n"
+msgstr "vytvoření archivu se nezdařilo: %s\n"
+
+#, c-format
+msgid "Unknown payload compression: %s\n"
+msgstr "Neznámá komprese payloadu: %s\n"
+
+#, c-format
+msgid "Could not seek in file %s: %s\n"
+msgstr "Nelze hledat v souboru %s: %s\n"
+
+#, c-format
+msgid "Failed to read %jd bytes in file %s: %s\n"
+msgstr "Nepodařilo se přečíst %jd bajtů v souboru %s: %s\n"
+
+msgid "Unable to create immutable header region\n"
+msgstr "Nelze vytvořit neměnnou oblast hlavičky\n"
+
+#, c-format
+msgid "Unable to write header to %s: %s\n"
+msgstr "Nelze zapsat hlavičku do %s: %s\n"
+
+#, c-format
+msgid "Could not open %s: %s\n"
+msgstr "Nemohu otevřít %s: %s\n"
+
+#, c-format
+msgid "Unable to write package: %s\n"
+msgstr "Nemohu zapsat balíček: %s\n"
+
+#, c-format
+msgid "Wrote: %s\n"
+msgstr "Zapsáno: %s\n"
+
+#, c-format
+msgid "Executing \"%s\":\n"
+msgstr "Probíhá \"%s\":\n"
+
+#, c-format
+msgid "Execution of \"%s\" failed.\n"
+msgstr "Vykonání \"%s\" se nezdařilo.\n"
+
+#, c-format
+msgid "Package check \"%s\" failed.\n"
+msgstr "Kontrola balíčku \"%s\" se nezdařila.\n"
+
+#, c-format
+msgid "cannot create %s: %s\n"
+msgstr "nemohu vytvořit %s: %s\n"
+
+#, c-format
+msgid "Could not generate output filename for package %s: %s\n"
+msgstr "Nemohu vygenerovat jméno souboru pro balíček %s: %s\n"
+
+#, c-format
+msgid "Finished binary package job, result %d, filename %s\n"
+msgstr "Dokončena úloha binárního balíčku, výsledek %d, název souboru %s\n"
+
+#, c-format
+msgid "line %d: second %s\n"
+msgstr "řádek: %d: druhý %s\n"
+
+#, c-format
+msgid "bogus date in %%changelog: %s\n"
+msgstr "falešné datum v %%changelog: %s\n"
+
+#, c-format
+msgid "%%changelog entries must start with *\n"
+msgstr "Položky v %%changelog musí začínat znakem *\n"
+
+#, c-format
+msgid "incomplete %%changelog entry\n"
+msgstr "nekompletní položka v %%changelog\n"
+
+#, c-format
+msgid "bad date in %%changelog: %s\n"
+msgstr "špatný datum v %%changelog: %s\n"
+
+#, c-format
+msgid "%%changelog not in descending chronological order\n"
+msgstr "%%changelog není seřazen sestupně podle času\n"
+
+#, c-format
+msgid "missing name in %%changelog\n"
+msgstr "chybějící jméno v %%changelog\n"
+
+#, c-format
+msgid "no description in %%changelog\n"
+msgstr "žádný popis v %%changelog\n"
+
+#, c-format
+msgid "line %d: second %%changelog\n"
+msgstr "řádek %d: druhý %%changelog\n"
+
+#, c-format
+msgid "line %d: Error parsing %%description: %s\n"
+msgstr "řádek %d: Chyba při parsování %%description: %s\n"
+
+#, c-format
+msgid "line %d: Bad option %s: %s\n"
+msgstr "řádek %d: špatná volba %s: %s\n"
+
+#, c-format
+msgid "line %d: Too many names: %s\n"
+msgstr "řádek %d: Příliš mnoho jmen: %s\n"
+
+#, c-format
+msgid "line %d: Error parsing %%files: %s\n"
+msgstr "řádek %d: Chyba při parsování %%files: %s\n"
+
+#, c-format
+msgid "line %d: multiple %%files for package '%s'\n"
+msgstr "řádek %d: více %%files pro balíček '%s'\n"
+
+#, c-format
+msgid "line %d: Error parsing %%policies: %s\n"
+msgstr "řádek %d: Chyba při parsování %%policies: %s\n"
+
+#, c-format
+msgid "Error parsing tag field: %s\n"
+msgstr "Chyba při parsování pole značky: %s\n"
+
+#, c-format
+msgid "line %d: Bad number: %s\n"
+msgstr "řádek %d: Špatné číslo: %s\n"
+
+#, c-format
+msgid "line %d: Bad no%s number: %u\n"
+msgstr "řádek %d: Špatné číslo %s: %u\n"
+
+#, c-format
+msgid "Downloading %s to %s\n"
+msgstr "Stahování %s do %s\n"
+
+#, c-format
+msgid "Couldn't download %s\n"
+msgstr "Nelze stáhnout %s\n"
+
+#, c-format
+msgid "line %d: Bad %s number: %s\n"
+msgstr "řádek %d: Špatné číslo %s: %s\n"
+
+#, c-format
+msgid "%s %d defined multiple times\n"
+msgstr "%s %d definováno vícekrát\n"
+
+#, c-format
+msgid "Architecture is excluded: %s\n"
+msgstr "Architektura je vyřazena: %s\n"
+
+#, c-format
+msgid "Architecture is not included: %s\n"
+msgstr "Architektura není zahrnuta: %s\n"
+
+#, c-format
+msgid "OS is excluded: %s\n"
+msgstr "OS je vyřazen: %s\n"
+
+#, c-format
+msgid "OS is not included: %s\n"
+msgstr "OS není zahrnut: %s\n"
+
+#, c-format
+msgid "%s field must be present in package: %s\n"
+msgstr "Položka %s musí být v balíčku přítomna: %s\n"
+
+#, c-format
+msgid "Duplicate %s entries in package: %s\n"
+msgstr "Duplikovaná položka %s v balíčku: %s\n"
+
+#, c-format
+msgid "Unable to open icon %s: %s\n"
+msgstr "Nemohu otevřít ikonu %s: %s\n"
+
+#, c-format
+msgid "Unable to read icon %s: %s\n"
+msgstr "Nemohu přečíst ikonu %s: %s\n"
+
+#, c-format
+msgid "Unknown icon type: %s\n"
+msgstr "Neznámý typ ikony: %s\n"
+
+#, c-format
+msgid "line %d: Tag takes single token only: %s\n"
+msgstr "řádek %d: Značka má jen jeden token: %s\n"
+
+#, c-format
+msgid "line %d: %s in: %s\n"
+msgstr "řádek %d: %s v: %s\n"
+
+#, c-format
+msgid "%s in: %s\n"
+msgstr "%s v: %s\n"
+
+#, c-format
+msgid "Illegal char '%c' (0x%x)"
+msgstr "Neplatný znak '%c' (0x%x)"
+
+msgid "Possible unexpanded macro"
+msgstr "Možná nerozbalené makro"
+
+msgid "Illegal sequence \"..\""
+msgstr "Neplatná posloupnost \"..\""
+
+#, c-format
+msgid "line %d: Malformed tag: %s\n"
+msgstr "řádek %d: Počkozená značka: %s\n"
+
+#, c-format
+msgid "line %d: Empty tag: %s\n"
+msgstr "řádek %d: Prázdná značka: %s\n"
+
+#, c-format
+msgid "line %d: Prefixes must not end with \"/\": %s\n"
+msgstr "řádek %d: Prefixy nesmí končit znakem \"/\": %s\n"
+
+#, c-format
+msgid "line %d: Docdir must begin with '/': %s\n"
+msgstr "řádek %d: Docdir musí začínat na '/': %s\n"
+
+#, c-format
+msgid "line %d: Epoch field must be an unsigned number: %s\n"
+msgstr "řádek %d: Pole Epocha musí být číslo bez znaménka: %s\n"
+
+#, c-format
+msgid "line %d: Bad %s: qualifiers: %s\n"
+msgstr "řádek %d: Špatné určení %s: %s\n"
+
+#, c-format
+msgid "line %d: Bad BuildArchitecture format: %s\n"
+msgstr "řádek %d: Špatný formát BuildArchitecture: %s\n"
+
+#, c-format
+msgid "line %d: Duplicate BuildArch entry: %s\n"
+msgstr "řádek %d: Duplicitní položka BuildArch: %s\n"
+
+#, c-format
+msgid "line %d: Only noarch subpackages are supported: %s\n"
+msgstr "řádek %d: Podporovány jsou pouze dílčí balíčky noarch: %s\n"
+
+#, c-format
+msgid "Internal error: Bogus tag %d\n"
+msgstr "Interní chyba: Špatná značka: %d\n"
+
+#, c-format
+msgid "line %d: %s is deprecated: %s\n"
+msgstr "řádek %d: %s je zastaralé: %s\n"
+
+#, c-format
+msgid "Bad package specification: %s\n"
+msgstr "Špatná specifikace balíčku: %s\n"
+
+msgid "Binary rpm package found. Expected spec file!\n"
+msgstr "Byl nalezen binární rpm balíček. Očekávaný spec soubor!\n"
+
+#, c-format
+msgid "line %d: Unknown tag: %s\n"
+msgstr "řádek %d: Neznámá značka: %s\n"
+
+#, c-format
+msgid "%%{buildroot} couldn't be empty\n"
+msgstr "%%{buildroot} nemohlo být prázdné\n"
+
+#, c-format
+msgid "%%{buildroot} can not be \"/\"\n"
+msgstr "%%{buildroot} nemůže být \"/\"\n"
+
+#, c-format
+msgid "No patch number %u\n"
+msgstr "Žádné číslo opravy %u\n"
+
+#, c-format
+msgid "No source number %u\n"
+msgstr "Žádné číslo zdroje %u\n"
+
+#, c-format
+msgid "Error parsing %%setup: %s\n"
+msgstr "Chyba při parsování %%setup: %s\n"
+
+#, c-format
+msgid "line %d: Bad arg to %%setup: %s\n"
+msgstr "řádek %d: Špatný parametr v %%setup: %s\n"
+
+#, c-format
+msgid "line %d: Bad %%setup option %s: %s\n"
+msgstr "řádek %d: Špatná volba v %%setup %s: %s\n"
+
+#, c-format
+msgid "Patch number not specified: %s\n"
+msgstr "Číslo opravy není zadáno: %s\n"
+
+#, c-format
+msgid "Invalid patch number %s: %s\n"
+msgstr "Neplatné číslo záplaty %s: %s\n"
+
+#, c-format
+msgid "line %d: second %%prep\n"
+msgstr "řádek %d: druhý %%prep\n"
+
+msgid "Dependency tokens must begin with alpha-numeric, '_' or '/'"
+msgstr "Tokeny závislosti musí začínat alfanumerickými znaky, '_' nebo '/'"
+
+msgid "Versioned file name not permitted"
+msgstr "Název souboru verze není povolen"
+
+msgid "No rich dependencies allowed for this type"
+msgstr "Pro tento typ nejsou povoleny žádné bohaté závislosti"
+
+msgid "invalid dependency"
+msgstr "neplatná závislost"
+
+msgid "Version required"
+msgstr "Je vyžadována verze"
+
+msgid "Only package names are allowed in Obsoletes"
+msgstr "V Zastaralých verzích jsou povoleny pouze názvy balíčků"
+
+msgid "It's not recommended to have unversioned Obsoletes"
+msgstr "Nedoporučuje se mít neverzované zastaralé verze"
+
+msgid "It's not recommended to use '>' in Obsoletes"
+msgstr "V Zastaralých verzích se nedoporučuje používat '>'"
+
+msgid "Only absolute paths are allowed in file triggers"
+msgstr "V souborových triggerech jsou povoleny pouze absolutní cesty"
+
+msgid "Trigger fired by the same package is already defined in spec file"
+msgstr "Spouštěč spouštěný stejným balíčkem je již definován v souboru spec"
+
+#, c-format
+msgid "line %d: %s: %s\n"
+msgstr "řádek %d: %s: %s\n"
+
+#, c-format
+msgid "line %d: triggers must have --: %s\n"
+msgstr "řádek %d: spouště (triggery) musí mít --: %s\n"
+
+#, c-format
+msgid "line %d: missing trigger condition: %s\n"
+msgstr "řádek %d: chybějící spouštěcí podmínka: %s\n"
+
+#, c-format
+msgid "line %d: Error parsing %s: %s\n"
+msgstr "řádek %d: Chyba při parsování %s: %s\n"
+
+#, c-format
+msgid "line %d: internal script must end with '>': %s\n"
+msgstr "řádek %d: vnitřní skript musí končit na '>': %s\n"
+
+#, c-format
+msgid "line %d: script program must begin with '/': %s\n"
+msgstr "řádek %d: jméno skriptu musí začínat na '/': %s\n"
+
+#, c-format
+msgid "line %d: Priorities are allowed only for file triggers : %s\n"
+msgstr "řádek %d: Priority jsou povoleny pouze pro souborové spouštěče: %s\n"
+
+#, c-format
+msgid "line %d: Second %s\n"
+msgstr "řádek %d: Druhý %s\n"
+
+#, c-format
+msgid "line %d: unsupported internal script: %s\n"
+msgstr "řádek %d: nepodporovaný interní skript: %s\n"
+
+#, c-format
+msgid "line %d: file trigger condition must begin with '/': %s"
+msgstr "řádek %d: spouštěcí podmínka souboru musí začínat '/': %s"
+
+#, c-format
+msgid "line %d: interpreter arguments not allowed in triggers: %s\n"
+msgstr "řádek %d: argumenty interpretu nejsou povoleny ve spouštěčích: %s\n"
+
+#, c-format
+msgid "extra tokens at the end of %s directive in line %d:  %s\n"
+msgstr "extra tokeny na konci direktivy %s na řádku %d: %s\n"
+
+#, c-format
+msgid "Macro expanded in comment on line %d: %s\n"
+msgstr "Makro rozšířeno v komentáři na řádku %d: %s\n"
+
+#, c-format
+msgid "Unable to open %s: %s\n"
+msgstr "Nemohu otevřít %s: %s\n"
+
+#, c-format
+msgid "%s:%d: Argument expected for %s\n"
+msgstr "%s:%d: Očekávaný argument pro %s\n"
+
+#, c-format
+msgid "line %d: Unclosed %%if\n"
+msgstr "řádek %d: Neuzavřený %%if\n"
+
+#, c-format
+msgid "line %d: unclosed macro or bad line continuation\n"
+msgstr "řádek %d: neuzavřené makro nebo špatné pokračování řádku\n"
+
+#, c-format
+msgid "%s: line %d: %s with no %%if\n"
+msgstr "%s: řádek %d: %s bez %%if\n"
+
+#, c-format
+msgid "%s: line %d: %s after %s\n"
+msgstr "%s: řádek %d: %s po %s\n"
+
+#, c-format
+msgid "%s:%d: bad %s condition: %s\n"
+msgstr "%s:%d: špatně %s podmínka: %s\n"
+
+#, c-format
+msgid "%s:%d: malformed %%include statement\n"
+msgstr "%s:%d: chybný příkaz %%include\n"
+
+#, c-format
+msgid "encoding %s not supported by system\n"
+msgstr "kódování %s není systémem podporováno\n"
+
+#, c-format
+msgid "Package %s: invalid %s encoding in %s: %s - %s\n"
+msgstr "Balíček %s: neplatné kódování %s v %s: %s - %s\n"
+
+#, c-format
+msgid "line %d: %%end doesn't take any arguments: %s\n"
+msgstr "řádek %d: %%end nemá žádné argumenty: %s\n"
+
+#, c-format
+msgid "line %d: %%end not expected here, no section to close: %s\n"
+msgstr "řádek %d: %%end se zde neočekává, žádná sekce k uzavření: %s\n"
+
+#, c-format
+msgid "line %d doesn't belong to any section: %s\n"
+msgstr "řádek %d nepatří do žádné sekce: %s\n"
+
+msgid "No compatible architectures found for build\n"
+msgstr "Nenalezeny žádné kompatibilní architektury pro sestavení\n"
+
+#, c-format
+msgid "Package has no %%description: %s\n"
+msgstr "Balíček nemá žádné %%description: %s\n"
+
+#, c-format
+msgid "Policy module '%s' duplicated with overlapping types\n"
+msgstr "Modul zásad '%s' duplikován s překrývajícími se typy\n"
+
+#, c-format
+msgid "Base modules '%s' and '%s' have overlapping types\n"
+msgstr "Základní moduly '%s' a '%s' mají překrývající se typy\n"
+
+msgid "Failed to get policies from header\n"
+msgstr "Nepodařilo se získat zásady z hlavičky\n"
+
+#, c-format
+msgid "%%semodule requires a file path\n"
+msgstr "%%semodule vyžaduje cestu k souboru\n"
+
+#, c-format
+msgid "Failed to read  policy file: %s\n"
+msgstr "Nepodařilo se přečíst soubor zásad: %s\n"
+
+#, c-format
+msgid "Failed to encode policy file: %s\n"
+msgstr "Nepodařilo se zakódovat soubor zásad: %s\n"
+
+#, c-format
+msgid "Failed to determine a policy name: %s\n"
+msgstr "Nepodařilo se určit název zásady: %s\n"
+
+#, c-format
+msgid ""
+"'%s' type given with other types in %%semodule %s. Compacting types to "
+"'%s'.\n"
+msgstr ""
+"Typ '%s' uvedený s ostatními typy v %%semodulu %s. Zhutňování typů na '%s'.\n"
+
+#, c-format
+msgid "Error parsing %s: %s\n"
+msgstr "Chyba při parsování %s: %s\n"
+
+#, c-format
+msgid "Expecting %%semodule tag: %s\n"
+msgstr "Očekává se značka %%semodule: %s\n"
+
+#, c-format
+msgid "Missing module path in line: %s\n"
+msgstr "Chybějící cesta modulu na řádku: %s\n"
+
+#, c-format
+msgid "Too many arguments in line: %s\n"
+msgstr "Příliš mnoho argumentů na řádku: %s\n"
+
+#, c-format
+msgid "Processing policies: %s\n"
+msgstr "Zpracování zásad: %s\n"
+
+#, c-format
+msgid "Ignoring invalid regex %s\n"
+msgstr "Ignorování neplatného regulárního výrazu %s\n"
+
+#, c-format
+msgid "%s: mime and magic supplied, only mime will be used\n"
+msgstr "%s: mime a magic dodány, bude použito pouze mime\n"
+
+#, c-format
+msgid "Couldn't create pipe for %s: %m\n"
+msgstr "Nemohu vytvořit rouru pro %s: %m\n"
+
+#, c-format
+msgid "Couldn't fork %s: %s\n"
+msgstr "Nemohu provést fork %s: %s\n"
+
+#, c-format
+msgid "Couldn't exec %s: %s\n"
+msgstr "Nemohu spustit %s: %s\n"
+
+#, c-format
+msgid "%s failed: %x\n"
+msgstr "%s se nezdařilo: %x\n"
+
+#, c-format
+msgid "failed to write all data to %s: %s\n"
+msgstr "nepodařilo se zapsat všechna data do %s: %s\n"
+
+msgid "Empty file classifier\n"
+msgstr "Prázdný klasifikátor souboru\n"
+
+msgid "No file attributes configured\n"
+msgstr "Nejsou nakonfigurovány žádné atributy souboru\n"
+
+#, c-format
+msgid "magic_open(0x%x) failed: %s\n"
+msgstr "magic_open(0x%x) selhalo: %s\n"
+
+#, c-format
+msgid "magic_load failed: %s\n"
+msgstr "magic_load selhal: %s\n"
+
+#, c-format
+msgid "Recognition of file \"%s\" failed: mode %06o %s\n"
+msgstr "Rozpoznání souboru \"%s\" se nezdařilo: režim %06o %s\n"
+
+#, c-format
+msgid "Recognition of file mtype \"%s\" failed: mode %06o %s\n"
+msgstr "Rozpoznání mtype souboru \"%s\" se nezdařilo: režim %06o %s\n"
+
+#, c-format
+msgid "Finding  %s: %s\n"
+msgstr "Hledám   %s: %s\n"
+
+#, c-format
+msgid "Failed to find %s:\n"
+msgstr "Selhalo vyhledání %s:\n"
+
+msgid "Deprecated external dependency generator is used!\n"
+msgstr "Je použit zastaralý externí generátor závislostí!\n"
+
+#, c-format
+msgid "line %d: %s: package %s does not exist\n"
+msgstr "řádek %d: %s: balíček %s neexistuje\n"
+
+#, c-format
+msgid "line %d: %s: package %s already exists\n"
+msgstr "řádek %d: %s: balíček %s již existuje\n"
+
+#, c-format
+msgid "query of specfile %s failed, can't parse\n"
+msgstr "dotaz na spec soubor %s selhal, nemohu parsovat\n"
+
+#, c-format
+msgid "invalid %%_db_backend: %s\n"
+msgstr "neplatný %%_db_backend: %s\n"
+
+#, c-format
+msgid "Converting database from %s to %s backend\n"
+msgstr "Konverze databáze z %s na %s na pozadí\n"
+
+#, c-format
+msgid "Found %s %s database while attempting %s backend: using %s backend.\n"
+msgstr ""
+"Nalezena %s databáze %s při pokusu o %s na pozadí: pomocí %s na pozadí.\n"
+
+msgid "Detected outdated index databases\n"
+msgstr "Zjištěny zastaralé indexové databáze\n"
+
+msgid "Rebuilding outdated index databases\n"
+msgstr "Znovu sestavení zastaralých indexových databází\n"
+
+#, c-format
+msgid "rpmidx: Version mismatch. Expected version: %u. Found version: %u\n"
+msgstr "rpmidx: Neshoda verzí. Očekávaná verze: %u. Nalezená verze: %u\n"
+
+#, c-format
+msgid "rpmpkg: Version mismatch. Expected version: %u. Found version: %u\n"
+msgstr "rpmpkg: Neshoda verzí. Očekávaná verze: %u. Nalezená verze: %u\n"
+
+msgid "rpmpkg: detected non-zero blob, trying auto repair\n"
+msgstr "rpmpkg: detekován nenulový blob, pokus o automatickou opravu\n"
+
+#, c-format
+msgid "rpmxdb: Version mismatch. Expected version: %u. Found version: %u\n"
+msgstr "rpmxdb: Neshoda verzí. Očekávaná verze: %u. Nalezená verze: %u\n"
+
+#, c-format
+msgid "Unable to open sqlite database %s: %s\n"
+msgstr "Nelze otevřít sqlite databázi %s: %s\n"
+
+#, c-format
+msgid "%s is a Delta RPM and cannot be directly installed\n"
+msgstr "%s is a Delta RPM a nemůže být přímo instalován\n"
+
+#, c-format
+msgid "Unsupported payload (%s) in package %s\n"
+msgstr "Nepodporovaný payload (%s) in balíčku %s\n"
+
+#, c-format
+msgid "package %s was already added, skipping %s\n"
+msgstr "balíček %s byl již přidán, přeskakuji %s\n"
+
+#, c-format
+msgid "package %s was already added, replacing with %s\n"
+msgstr "balíček %s byl již přidán, nahrazuji ho s %s\n"
+
+msgid "(not a blob)"
+msgstr "(není blob)"
+
+msgid "(not a number)"
+msgstr "(není číslo)"
+
+msgid "(not a string)"
+msgstr "(ne řetězec)"
+
+msgid "(invalid type)"
+msgstr "(neplatný typ)"
+
+msgid "(not base64)"
+msgstr "(není base64)"
+
+msgid "(invalid xml type)"
+msgstr "(neplatný typ xml)"
+
+msgid "(not an OpenPGP signature)"
+msgstr "(není OpenPGP podpis)"
+
+#, c-format
+msgid "Invalid date %u"
+msgstr "Neplatné datum %u"
+
+msgid "normal"
+msgstr "normální"
+
+msgid "replaced"
+msgstr "nahrazeno"
+
+msgid "not installed"
+msgstr "není instalován"
+
+msgid "net shared"
+msgstr "síť sdílená"
+
+msgid "wrong color"
+msgstr "špatná barva"
+
+msgid "missing"
+msgstr "chybějící"
+
+msgid "(unknown)"
+msgstr "(neznámý)"
+
+#, c-format
+msgid "failed to open dir %s of %s: %s\n"
+msgstr "nepodařilo se otevřít adresář %s z %s: %s\n"
+
+#, c-format
+msgid "%s%s saved as %s%s\n"
+msgstr "%s%s uloženo jako %s%s\n"
+
+#, c-format
+msgid "%s%s created as %s%s\n"
+msgstr "%s%s vytvořeno jako %s%s\n"
+
+#, c-format
+msgid "%s %s: remove failed: %s\n"
+msgstr "%s %s: odstranění se nezdařilo: %s\n"
+
+msgid "directory"
+msgstr "adresář"
+
+msgid "file"
+msgstr "soubor"
+
+#, c-format
+msgid "tag[%d]: BAD, tag %d type %d offset %d count %d len %d"
+msgstr "značka[%d]: ŠPATNǍ, značka %d typ %d posun %d počet %d délka %d"
+
+msgid "hdr load: BAD"
+msgstr "hdr načtení: ŠPATNÉ"
+
+msgid "region: no tags"
+msgstr "oblast: žádné značky"
+
+#, c-format
+msgid "region tag: BAD, tag %d type %d offset %d count %d"
+msgstr "značka oblasti: ŠPATNÁ, značka %d typ %d posun %d počet %d"
+
+#, c-format
+msgid "region offset: BAD, tag %d type %d offset %d count %d"
+msgstr "posun oblasti: ŠPATNÝ, typ značky %d %d posun %d počet %d"
+
+#, c-format
+msgid "region trailer: BAD, tag %d type %d offset %d count %d"
+msgstr "oblastní trailer: ŠPATNÝ, značka %d typ %d posun %d počet %d"
+
+#, c-format
+msgid "region %d size: BAD, ril %d il %d rdl %d dl %d"
+msgstr "oblast %d velikost: ŠPATNÁ, ril %d il %d rdl %d dl %d"
+
+#, c-format
+msgid "region %d: tag number mismatch il %d ril %d dl %d rdl %d\n"
+msgstr "oblast %d: Neshoda čísla značky il %d ril %d dl %d rdl %d\n"
+
+#, c-format
+msgid "hdr tags: BAD, no. of tags(%<PRIu32>) out of range"
+msgstr "hdr značky: ŠPATNĚ, počet značek (%<PRIu32>) je mimo rozsah"
+
+#, c-format
+msgid "hdr data: BAD, no. of bytes(%<PRIu32>) out of range"
+msgstr "hdr data: ŠPATNĚ, počet bytů (%<PRIu32>) je mimo rozsah"
+
+#, c-format
+msgid "hdr size(%d): BAD, read returned %d"
+msgstr "hdr velikost(%d): ŠPATNĚ, čtení vrátilo %d"
+
+msgid "hdr magic: BAD"
+msgstr "hdr magic: ŠPATNĚ"
+
+#, c-format
+msgid "hdr blob(%zd): BAD, read returned %d"
+msgstr "hdr blob(%zd): ŠPATNĚ, čtení vrátilo %d"
+
+#, c-format
+msgid "sigh pad(%zd): BAD, read %zd bytes"
+msgstr "povzdech (%zd): ŠPATNĚ, přečteno %zd bajtů"
+
+msgid "signature "
+msgstr "podpis "
+
+msgid "hdr length: BAD"
+msgstr "hdr délka: ŠPATNÁ"
+
+#, c-format
+msgid "blob size(%d): BAD, 8 + 16 * il(%d) + dl(%d)"
+msgstr "velikost blobu (%d): ŠPATNǍ, 8 + 16 * il (%d) + dl (%d)"
+
+msgid "invalid field width"
+msgstr "neplatná šířka pole"
+
+#, c-format
+msgid "missing { after %%"
+msgstr "chybějící { po %%"
+
+#, c-format
+msgid "missing } after %%{"
+msgstr "chybějící } po %%{"
+
+msgid "empty tag format"
+msgstr "prázdný formát značky"
+
+msgid "empty tag name"
+msgstr "prázdné jméno značky"
+
+#, c-format
+msgid "unknown tag: \"%s\""
+msgstr "neznámá značka: \"%s\""
+
+msgid "] expected at end of array"
+msgstr "na konci pole očekáváno ]"
+
+msgid "unexpected ]"
+msgstr "neočekávaná ]"
+
+msgid "unexpected }"
+msgstr "neočekávaná }"
+
+msgid "escaped char expected after \\"
+msgstr "escapovaný znak je očekáván po \\"
+
+msgid "? expected in expression"
+msgstr "ve výrazu očekáván ?"
+
+msgid "{ expected after ? in expression"
+msgstr "ve výrazu je po ? očekávána {"
+
+msgid "} expected in expression"
+msgstr "ve výrazu je očekávána }"
+
+msgid ": expected following ? subexpression"
+msgstr "v podvýrazu je po ? očekávána :"
+
+msgid "{ expected after : in expression"
+msgstr "ve výrazu je po : očekávána {"
+
+msgid "| expected at end of expression"
+msgstr "na konci výrazu je očekáváno |"
+
+msgid "array iterator used with different sized arrays"
+msgstr "iterátor pole použitý s poli jiné délky"
+
+#, c-format
+msgid "RPM v3 packages are deprecated: %s\n"
+msgstr "Balíčky RPM v3 jsou zastaralé: %s\n"
+
+msgid "Error writing to stdout"
+msgstr "Chyba při zápisu do stdout"
+
+#, c-format
+msgid "failed to load macro file %s\n"
+msgstr "nepodařilo se načíst soubor makra %s\n"
+
+#, c-format
+msgid "arguments to --dbpath must begin with '/'\n"
+msgstr "argumenty pro --dbpath musí začínat znakem '/'\n"
+
+#, c-format
+msgid ""
+"%s: error: more than one --pipe specified (incompatible popt aliases?)\n"
+msgstr "%s: chyba: zadáno více než jedno --pipe (nekompatibilní popt aliasy?)\n"
+
+msgid "predefine MACRO with value EXPR"
+msgstr "předefinuj <makro> s hodnotou <výraz>"
+
+msgid "'MACRO EXPR'"
+msgstr "'<makro> <výraz>'"
+
+msgid "define MACRO with value EXPR"
+msgstr "definuj <makro> s hodnotou <výraz>"
+
+msgid "undefine MACRO"
+msgstr "nedefinované MAKRO"
+
+msgid "MACRO"
+msgstr "MAKRO"
+
+msgid "print macro expansion of EXPR"
+msgstr "vypsat expanzi makra <výraz>"
+
+msgid "'EXPR'"
+msgstr "'<výraz>'"
+
+msgid "Specify target platform"
+msgstr "Zadejte cílovou platformu"
+
+msgid "CPU-VENDOR-OS"
+msgstr "CPU-VENDOR-OS"
+
+msgid "read <FILE:...> instead of default file(s)"
+msgstr "číst <soubor:...> místo implicitního souboru"
+
+msgid "<FILE:...>"
+msgstr "<SOUBOR:...>"
+
+msgid "load a single macro file"
+msgstr "načíst jeden soubor makra"
+
+msgid "<FILE>"
+msgstr "<FILE>"
+
+msgid "don't enable any plugins"
+msgstr "nepovolujte žádné pluginy"
+
+msgid "don't verify package digest(s)"
+msgstr "nekontrolovat souhrny balíčku"
+
+msgid "don't verify database header(s) when retrieved"
+msgstr "nekontrolovat získané hlavičky databáze"
+
+msgid "don't verify package signature(s)"
+msgstr "nekontrolovat podpisy balíčku"
+
+msgid "send stdout to CMD"
+msgstr "odeslat stdout do <příkazu>"
+
+msgid "CMD"
+msgstr "<příkaz>"
+
+msgid "use ROOT as top level directory"
+msgstr "použít <adr> jako adresář nejvyšší úrovně"
+
+msgid "ROOT"
+msgstr "<adr>"
+
+msgid "use database in DIRECTORY"
+msgstr "použít databázi v ADRESÁŘI"
+
+msgid "DIRECTORY"
+msgstr "ADRESÁŘ"
+
+msgid "display known query tags"
+msgstr "zobrazit známé značky pro dotazy"
+
+msgid "display final rpmrc and macro configuration"
+msgstr "zobrazit finální konfiguraci rpmrc a maker"
+
+msgid "provide less detailed output"
+msgstr "poskytnout výstu s méně detaily"
+
+msgid "provide more detailed output"
+msgstr "poskytnout detailnější výstup"
+
+msgid "print the version of rpm being used"
+msgstr "vypsat používanou verzi rpm"
+
+msgid "debug payload file state machine"
+msgstr "ladit nástroj stavu souboru payload"
+
+msgid "debug rpmio I/O"
+msgstr "ladit rpmio I/O"
+
+msgid "disable user namespace support"
+msgstr "zakázat podporu uživatelského jmenného prostoru"
+
+#, c-format
+msgid "%s: option table misconfigured (%d)\n"
+msgstr "%s: tabulka voleb špatně nakonfigurována (%d)\n"
+
+msgid "exclude paths must begin with a /"
+msgstr "vynechané cesty musí začínat znakem /"
+
+msgid "relocations must begin with a /"
+msgstr "přemístění musejí začínat znakem /"
+
+msgid "relocations must contain a ="
+msgstr "přemístění musejí obsahovat ="
+
+msgid "relocations must have a / following the ="
+msgstr "přemístění musejí mít za znakem = znak /"
+
+msgid "install all files, even configurations which might otherwise be skipped"
+msgstr ""
+"nainstalovat všechny soubory i konfigurace, které by se jinak mohly vynechat"
+
+msgid ""
+"remove all packages which match <package> (normally an error is generated if "
+"<package> specified multiple packages)"
+msgstr ""
+"odstranit všechny balíčky odpovídající <balíčku> (obvykle se generuje chyba, "
+"specifikuje-li <balíček> více balíčků)"
+
+msgid "relocate files in non-relocatable package"
+msgstr "přemístění souborů v nepřemístitelném balíčku"
+
+msgid "print dependency loops as warning"
+msgstr "zobraz závislostní smyčky jako varování"
+
+msgid "erase (uninstall) package"
+msgstr "smazat (deinstalovat) balíček"
+
+msgid "<package>+"
+msgstr "<balíček>"
+
+msgid "do not install artifacts"
+msgstr "neinstalujte artefakty"
+
+msgid "do not install configuration files"
+msgstr "neinstaluj konfigurační soubory"
+
+msgid "do not install documentation"
+msgstr "neinstalovat dokumentaci"
+
+msgid "skip files with leading component <path> "
+msgstr "přeskočit soubory s úvodní cestou <cesta> "
+
+msgid "<path>"
+msgstr "<cesta>"
+
+msgid "short hand for --replacepkgs --replacefiles"
+msgstr "zkratka pro --replacepkgs --replacefiles"
+
+msgid "upgrade package(s) if already installed"
+msgstr "aktualizace balíčku jestliže je již nainstalován"
+
+msgid "<packagefile>+"
+msgstr "<soubor_balíčku>+"
+
+msgid "print hash marks as package installs (good with -v)"
+msgstr "během instalace balíčku zobrazit dvojité křížky (dobré s -v)"
+
+msgid "don't verify package architecture"
+msgstr "nekontrolovat architekturu balíčku"
+
+msgid "don't verify package operating system"
+msgstr "nekontrolovat operační systém balíčku"
+
+msgid "don't check disk space before installing"
+msgstr "nekontrolovat volné místo na disku před instalací"
+
+msgid "short hand for --ignorepayload --ignoresignature"
+msgstr "zkratka pro --ignorepayload --ignoresignature"
+
+msgid "install documentation"
+msgstr "nainstalovat dokumentaci"
+
+msgid "install package(s)"
+msgstr "nainstalovat balíčky"
+
+msgid "update the database, but do not modify the filesystem"
+msgstr "upravit databázi, ale neupravovat systém souborovů"
+
+msgid "do not update the database, but modify the filesystem"
+msgstr "neaktualizujte databázi, ale upravte souborový systém"
+
+msgid "do not verify package dependencies"
+msgstr "nekontrolovat závislosti balíčků"
+
+msgid "don't verify digest of files"
+msgstr "neověřovat výběr souborů"
+
+msgid "don't verify digest of files (obsolete)"
+msgstr "neověřovat volbu souborů (zastaralé)"
+
+msgid "don't install file security contexts"
+msgstr "neinstalovat bezpečnostní kontexty souboru"
+
+msgid "don't install file capabilities"
+msgstr "neinstalujte funkce souboru"
+
+msgid "do not reorder package installation to satisfy dependencies"
+msgstr "pro vyřešení závislostí neměnit pořadí instalace balíčků"
+
+msgid "do not execute package scriptlet(s)"
+msgstr "nespouštět žádné skripty určené pro balíčky"
+
+#, c-format
+msgid "do not execute %%pre scriptlet (if any)"
+msgstr "nespouštět žádné skripty (jsou-li nějaké)"
+
+#, c-format
+msgid "do not execute %%post scriptlet (if any)"
+msgstr "nespouštět žádné skripty (jsou-li nějaké)"
+
+#, c-format
+msgid "do not execute %%preun scriptlet (if any)"
+msgstr "nespouštět žádné skripty (jsou-li nějaké)"
+
+#, c-format
+msgid "do not execute %%postun scriptlet (if any)"
+msgstr "nespouštět žádné skripty (jsou-li nějaké)"
+
+#, c-format
+msgid "do not execute %%pretrans scriptlet (if any)"
+msgstr "nespouštět skriptlet %%pretrans (pokud existuje)"
+
+#, c-format
+msgid "do not execute %%posttrans scriptlet (if any)"
+msgstr "nespouštět skriptlet %%posttrans (pokud existuje)"
+
+msgid "do not execute any scriptlet(s) triggered by this package"
+msgstr "nespouštět žádné skripty aktivované tímto balíčkem"
+
+#, c-format
+msgid "do not execute any %%triggerprein scriptlet(s)"
+msgstr "nespouštět žádné skripty určené pro balíčky"
+
+#, c-format
+msgid "do not execute any %%triggerin scriptlet(s)"
+msgstr "nespouštět žádné instalační skripty"
+
+#, c-format
+msgid "do not execute any %%triggerun scriptlet(s)"
+msgstr "nespouštět žádné instalační skripty"
+
+#, c-format
+msgid "do not execute any %%triggerpostun scriptlet(s)"
+msgstr "nespouštět žádné instalační skripty"
+
+msgid ""
+"upgrade to an old version of the package (--force on upgrades does this "
+"automatically)"
+msgstr ""
+"aktualizovat na starou verzi balíčku (--force to dělá při aktualizacích "
+"automaticky)"
+
+msgid "print percentages as package installs"
+msgstr "během instalace balíčku zobrazit procenta"
+
+msgid "relocate the package to <dir>, if relocatable"
+msgstr "přemístit soubory do <adr>, jsou-li přemístitelné"
+
+msgid "<dir>"
+msgstr "<adresář>"
+
+msgid "relocate files from path <old> to <new>"
+msgstr "přemístit soubory ze <staré_cesty> do <nové_cesty>"
+
+msgid "<old>=<new>"
+msgstr "<stará_cesta>=<nová_cesta>"
+
+msgid "ignore file conflicts between packages"
+msgstr "ignoruj souborové konflikty mezi balíčky"
+
+msgid "reinstall if the package is already present"
+msgstr "přeinstalovat, i když je již balíček přítomen"
+
+msgid "don't install, but tell if it would work or not"
+msgstr "neinstalovat ale sdělit, zda-li by to fungovalo či nikoli"
+
+msgid "upgrade package(s)"
+msgstr "aktualizace balíčku"
+
+msgid "reinstall package(s)"
+msgstr "přeinstalovat balíček(balíčky)"
+
+msgid "restore package(s)"
+msgstr "obnovit balíček(y)"
+
+msgid "query/verify all packages"
+msgstr "dotázat/ověřit všechny balíčky"
+
+msgid "rpm checksig mode"
+msgstr "režim rpm checksig"
+
+msgid "query/verify package(s) owning installed file"
+msgstr "dotaz/ověření balíčku(ů) vlastnící nainstalovaný soubor"
+
+msgid "query/verify package(s) owning path, installed or not"
+msgstr "dotaz/ověření balíčku(ů) vlastnící cestu, nainstalované nebo ne"
+
+msgid "query/verify package(s) in group"
+msgstr "dotaz/ověření balíčku(ů) ve skupině"
+
+msgid "query/verify a package file"
+msgstr "dotaz/ověření souboru balíčku"
+
+msgid "query/verify package(s) with package identifier"
+msgstr "dotaz/ověření balíčku(ů) s identifikátorem balíčku"
+
+msgid "query/verify package(s) with header identifier"
+msgstr "dotaz/ověření balíčku(ů) s hlavičkovým identifikátorem"
+
+msgid "rpm query mode"
+msgstr "režim dotazů"
+
+msgid "query/verify a header instance"
+msgstr "dotaz/ověření hlavičkové instance"
+
+msgid "query/verify package(s) from install transaction"
+msgstr "dotaz/ověření balíčku(ů) z instalační transakce"
+
+msgid "query the package(s) triggered by the package"
+msgstr "dotaz na balíček(y) aktivovaný balíčkem"
+
+msgid "rpm verify mode"
+msgstr "režim kontroly"
+
+msgid "query/verify the package(s) which require a dependency"
+msgstr "dotaz/ověření balíčků vyžadujících závislost"
+
+msgid "query/verify the package(s) which obsolete a dependency"
+msgstr "dotaz/ověření balíčku(ů), kterým zastarává závislost"
+
+msgid "query/verify the package(s) which provide a dependency"
+msgstr "dotaz/ověření balíčků poskytujících závislost"
+
+msgid "query/verify the package(s) which recommends a dependency"
+msgstr "dotaz/ověření balíčku(ů), který(é) doporučuje(í) závislost"
+
+msgid "query/verify the package(s) which suggests a dependency"
+msgstr "dotaz/ověření balíčku(ů), který(é) navrhují závislost"
+
+msgid "query/verify the package(s) which supplements a dependency"
+msgstr "dotaz/ověření balíčku(ů), který(é) doplňují závislost"
+
+msgid "query/verify the package(s) which enhances a dependency"
+msgstr "dotaz/ověření balíčku(ů), který(é) zvyšují závislost"
+
+msgid "do not glob arguments"
+msgstr "neseparuj argumenty"
+
+msgid "do not process non-package files as manifests"
+msgstr "nezpracovávej nebalíčkové soubory jako seznamy"
+
+msgid "only include configuration files"
+msgstr "obsahuje pouze konfigurační soubory"
+
+msgid "only include documentation files"
+msgstr "obsahuje pouze soubory dokumentace"
+
+msgid "only include license files"
+msgstr "obsahuje pouze licenční soubory"
+
+msgid "only include artifact files"
+msgstr "obsahuje pouze soubory artefaktů"
+
+#, c-format
+msgid "exclude %%ghost files"
+msgstr "vyloučit soubory %%ghost"
+
+#, c-format
+msgid "exclude %%config files"
+msgstr "vyloučit soubory %%config"
+
+#, c-format
+msgid "exclude %%artifact files"
+msgstr "vyloučit soubory %%artifact"
+
+msgid "dump basic file information"
+msgstr "zobrazit základní informace o souborech"
+
+msgid "list files in package"
+msgstr "vypsat soubory v balíčku"
+
+msgid "display the states of the listed files"
+msgstr "zobrazit stav vypsaných souborů"
+
+msgid "don't verify size of files"
+msgstr "nekontrolovat velikost souborů"
+
+msgid "don't verify symlink path of files"
+msgstr "nekontrolovat cesty symbolických linek"
+
+msgid "don't verify owner of files"
+msgstr "nekontrolovat vlastníka souborů"
+
+msgid "don't verify group of files"
+msgstr "nekontrolovat skupinu souborů"
+
+msgid "don't verify modification time of files"
+msgstr "nekontrolovat čas změny souboru"
+
+msgid "don't verify mode of files"
+msgstr "nekontrolovat mód souborů"
+
+msgid "don't verify file security contexts"
+msgstr "nekontrolovat bezpečnostní kontexty souboru"
+
+msgid "don't verify capabilities of files"
+msgstr "neověřujte možnosti souborů"
+
+msgid "don't verify files in package"
+msgstr "nekontrolovat soubory v balíčku"
+
+msgid "don't verify package dependencies"
+msgstr "nekontrolovat závislosti balíčků"
+
+msgid "don't execute verify script(s)"
+msgstr "nespouštět kontrolní skripty"
+
+#, c-format
+msgid "Missing rpmlib features for %s:\n"
+msgstr "Chybí funkce rpmlib pro %s:\n"
+
+msgid "source package expected, binary found\n"
+msgstr "očekávám balíček se zdrojovými kódy, nalezen však binární\n"
+
+msgid "source package contains no .spec file\n"
+msgstr "zdrojový balíček neobsahuje .spec soubor\n"
+
+#, c-format
+msgid "unpacking of archive failed%s%s: %s\n"
+msgstr "rozbalování archívu selhalo %s%s: %s\n"
+
+msgid " on file "
+msgstr " na souboru "
+
+#, c-format
+msgid "incorrect format: %s\n"
+msgstr "nesprávný formát: %s\n"
+
+msgid "(contains no files)\n"
+msgstr "(neobsahuje žádné soubory)\n"
+
+msgid "normal        "
+msgstr "normální        "
+
+msgid "replaced      "
+msgstr "nahrazen      "
+
+msgid "not installed "
+msgstr "neinstalován "
+
+msgid "net shared    "
+msgstr "sdílen v síti    "
+
+msgid "wrong color   "
+msgstr "špatná barva   "
+
+msgid "(no state)    "
+msgstr "(žádný stav)    "
+
+#, c-format
+msgid "(unknown %3d) "
+msgstr "(neznámý %3d) "
+
+msgid "package has not file owner/group lists\n"
+msgstr "balíček nemá vlastníka souboru ani seznamy skupin\n"
+
+msgid "package has neither file owner or id lists\n"
+msgstr "balíček nemá vlastníka souboru ani seznamy id\n"
+
+#, c-format
+msgid "group %s does not contain any packages\n"
+msgstr "skupina %s neobsahuje žádné balíčky\n"
+
+#, c-format
+msgid "no package triggers %s\n"
+msgstr "žádný balíček neaktivuje %s\n"
+
+#, c-format
+msgid "malformed %s: %s\n"
+msgstr "poškozený %s: %s\n"
+
+#, c-format
+msgid "no package matches %s: %s\n"
+msgstr "žádný balíček se neshoduje s %s: %s\n"
+
+#, c-format
+msgid "no package conflicts %s\n"
+msgstr "žádné konflikty balíčků %s\n"
+
+#, c-format
+msgid "no package obsoletes %s\n"
+msgstr "žádné zastarávající balíčky %s\n"
+
+#, c-format
+msgid "no package requires %s\n"
+msgstr "žádný balíček nevyžaduje %s\n"
+
+#, c-format
+msgid "no package recommends %s\n"
+msgstr "žádné doporučující balíčky %s\n"
+
+#, c-format
+msgid "no package suggests %s\n"
+msgstr "žádné navrhované balíčky %s\n"
+
+#, c-format
+msgid "no package supplements %s\n"
+msgstr "žádné doplňující balíčky %s\n"
+
+#, c-format
+msgid "no package enhances %s\n"
+msgstr "žádná vylepšení balíčků %s\n"
+
+#, c-format
+msgid "no package provides %s\n"
+msgstr "žádný balíček neposkytuje %s\n"
+
+#, c-format
+msgid "file %s: %s\n"
+msgstr "soubor %s: %s\n"
+
+#, c-format
+msgid "file %s is not owned by any package\n"
+msgstr "soubor %s nevlastní žádný balíček\n"
+
+#, c-format
+msgid "invalid package number: %s\n"
+msgstr "neplatné číslo balíčku: %s\n"
+
+#, c-format
+msgid "record %u could not be read\n"
+msgstr "záznam %u nelze přečíst\n"
+
+#, c-format
+msgid "package %s is not installed\n"
+msgstr "balíček %s není nainstalován\n"
+
+#, c-format
+msgid "unknown tag: \"%s\"\n"
+msgstr "neznámá značka: \"%s\"\n"
+
+#, c-format
+msgid "%s: key %d import failed.\n"
+msgstr "%s: import klíče %d se nezdařil.\n"
+
+#, c-format
+msgid "%s: key %d not an armored public key.\n"
+msgstr "%s: klíč %d není veřejný klíč v textovém formátu kódovaný base64.\n"
+
+#, c-format
+msgid "%s: import read failed(%d).\n"
+msgstr "%s: importní čtení selhalo(%d).\n"
+
+#, c-format
+msgid "Fread failed: %s"
+msgstr "Fread se nezdařilo: %s"
+
+msgid "DIGESTS"
+msgstr "VOLBY"
+
+msgid "digests"
+msgstr "volby"
+
+msgid "SIGNATURES"
+msgstr "PODPISY"
+
+msgid "signatures"
+msgstr "podpisy"
+
+msgid "NOT OK"
+msgstr "NENÍ OK"
+
+msgid "OK"
+msgstr "OK"
+
+#, c-format
+msgid "%s: open failed: %s\n"
+msgstr "%s: otevření selhalo: %s\n"
+
+#, c-format
+msgid "Unable to open current directory: %m\n"
+msgstr "Nelze otevřít aktuální adresář: %m\n"
+
+#, c-format
+msgid "%s: chroot directory not set\n"
+msgstr "%s: chroot adresář není nastaven\n"
+
+#, c-format
+msgid "Unable to change root directory: %m\n"
+msgstr "Není možné změnit kořenový adresář: %m\n"
+
+#, c-format
+msgid "Unable to restore root directory: %m\n"
+msgstr "Nelze obnovit kořenový adresář: %m\n"
+
+#, c-format
+msgid "Generating %d missing index(es), please wait...\n"
+msgstr "Generování %d chybějících indexu(ů), čekejte prosím...\n"
+
+#, c-format
+msgid "cannot open %s index using %s - %s (%d)\n"
+msgstr "nelze otevřít index %s pomocí %s - %s (%d)\n"
+
+msgid "no dbpath has been set\n"
+msgstr "nebyla nastavena dbpath\n"
+
+msgid "miFreeHeader: skipping"
+msgstr "miFreeHeader: přeskakuji"
+
+#, c-format
+msgid "error(%d) storing record #%d into %s\n"
+msgstr "chyba(%d) ukládání záznamu #%d do %s\n"
+
+#, c-format
+msgid "%s: regexec failed: %s\n"
+msgstr "%s: regexec selhal: %s\n"
+
+#, c-format
+msgid "%s: regcomp failed: %s\n"
+msgstr "%s: regcomp selhal: %s\n"
+
+msgid "rpmdbNextIterator: skipping"
+msgstr "rpmdbNextIterator: přeskakuji"
+
+#, c-format
+msgid "rpmdb: damaged header #%u retrieved -- skipping.\n"
+msgstr "rpmdb: poškozená hlavička #%u získáno -- přeskakuji.\n"
+
+#, c-format
+msgid "%s: cannot read header at 0x%x\n"
+msgstr "%s: nemohu číst hlavičku na 0x%x\n"
+
+msgid "could not move new database in place\n"
+msgstr "nelze přesunout novou databázi na místo\n"
+
+#, c-format
+msgid "could also not restore old database from %s\n"
+msgstr "také nelze obnovit starou databázi z %s\n"
+
+#, c-format
+msgid "replace files in %s with files from %s to recover\n"
+msgstr "nahraďte soubory v %s soubory z %s, které chcete obnovit\n"
+
+#, c-format
+msgid "Could not get public keys from %s\n"
+msgstr "Nelze získat veřejné klíče od %s\n"
+
+#, c-format
+msgid "could not delete old database at %s\n"
+msgstr "nelze odstranit starou databázi v %s\n"
+
+msgid "no dbpath has been set"
+msgstr "žádný dbpath nebyl nastaven"
+
+#, c-format
+msgid "failed to create directory %s: %s\n"
+msgstr "selhání při vytváření adresáře %s: %s\n"
+
+#, c-format
+msgid "header #%u in the database is bad -- skipping.\n"
+msgstr "hlavička #%u v databázi je špatná -- přeskakuji.\n"
+
+#, c-format
+msgid "cannot add record originally at %u\n"
+msgstr "nemohu přidat záznam původně na %u\n"
+
+msgid "failed to rebuild database: original database remains in place\n"
+msgstr "selhalo znovusestavení databáze: původní databáze zůstává na místě\n"
+
+msgid "failed to replace old database with new database!\n"
+msgstr "selhalo nahrazení staré databáze novou databází!\n"
+
+msgid "NO "
+msgstr "NE "
+
+msgid "YES"
+msgstr "ANO"
+
+msgid "PreReq:, Provides:, and Obsoletes: dependencies support versions."
+msgstr "PreReq:, Provides:, a Obsoletes: verze pro podporu závislostí."
+
+msgid "file name(s) stored as (dirName,baseName,dirIndex) tuple, not as path."
+msgstr "jména souborů uložená jako diName,baseName,dirIndex, ne jako cesta."
+
+msgid "package payload can be compressed using bzip2."
+msgstr "payload balíčku může být komprimován pomocí bzip2."
+
+msgid "package payload can be compressed using xz."
+msgstr "payload balíčku lze komprimovat pomocí xz."
+
+msgid "package payload can be compressed using lzma."
+msgstr "payload balíčku může být komprimován pomocí lzma."
+
+msgid "package payload file(s) have \"./\" prefix."
+msgstr "soubory payloadu balíčku mají předponu \"./\"."
+
+msgid "package name-version-release is not implicitly provided."
+msgstr "NVR balíčku není implicitně zprostředkována."
+
+msgid "header tags are always sorted after being loaded."
+msgstr "značky hlavičky jsou vždy setřízeny po nahrátí."
+
+msgid "the scriptlet interpreter can use arguments from header."
+msgstr "interpret skriptletů může použít argumenty z hlavičky."
+
+msgid "a hardlink file set may be installed without being complete."
+msgstr "hardlinkovaný soubor může být instalován bez toho, aby byl kompletní."
+
+msgid "package scriptlets may access the rpm database while installing."
+msgstr "skriptlety balíčku mohou přistupovat k rpm databázi při instalaci."
+
+msgid "internal support for lua scripts."
+msgstr "interní podpora pro lua skripty."
+
+msgid "file digest algorithm is per package configurable"
+msgstr "algoritmus volby souboru je konfigurovatelný pro každý balíček"
+
+msgid "support for POSIX.1e file capabilities"
+msgstr "podpora pro možnosti souborů POSIX.1e"
+
+msgid "package scriptlets can be expanded at install time."
+msgstr "skriptlety balíčku lze rozbalit v době instalace."
+
+msgid "dependency comparison supports versions with tilde."
+msgstr "porovnání závislostí podporuje verze s vlnovkou."
+
+msgid "dependency comparison supports versions with caret."
+msgstr "porovnání závislostí podporuje verze s stříškou."
+
+msgid "support files larger than 4GB"
+msgstr "podporuje soubory větší než 4 GB"
+
+msgid "support for rich dependencies."
+msgstr "podpora bohatých závislostí."
+
+msgid "support for dynamic buildrequires."
+msgstr "podpora dynamických požadavků na sestavení."
+
+msgid "package payload can be compressed using zstd."
+msgstr "payload balíčku lze komprimovat pomocí zstd."
+
+#, c-format
+msgid "Unknown rich dependency op '%.*s'"
+msgstr "Neznámá bohatá závislost op '%.*s'"
+
+msgid "Name required"
+msgstr "Jméno je vyžadováno"
+
+msgid "Illegal ops in with/without"
+msgstr "Neplatná operace s/bez"
+
+msgid "Illegal context for 'unless', please use 'or' instead"
+msgstr "Neplatný kontext pro 'unless', prosím, použijte místo toho 'or'"
+
+msgid "Illegal context for 'if', please use 'and' instead"
+msgstr "Neplatný kontext pro 'if', prosím, použijte místo toho 'and'"
+
+msgid "Rich dependency does not start with '('"
+msgstr "Bohatá závislost nezačíná znakem '('"
+
+msgid "Missing argument to rich dependency op"
+msgstr "Chybějící argument pro bohatou závislost op"
+
+msgid "Empty rich dependency"
+msgstr "Prázdná bohatá závislost"
+
+#, c-format
+msgid "Unterminated rich dependency: %s"
+msgstr "Neukončená bohatá závislost: %s"
+
+msgid "Cannot chain different ops"
+msgstr "Nelze řetězit různé operace"
+
+msgid "Can only chain and/or/with ops"
+msgstr "Lze řetězit pouze operace and/or/with"
+
+msgid "Junk after rich dependency"
+msgstr "Nevyžádané po bohaté závislosti"
+
+#, c-format
+msgid "user %s does not exist - using %s\n"
+msgstr "uživatel %s neexistuje - používá se %s\n"
+
+#, c-format
+msgid "group %s does not exist - using %s\n"
+msgstr "skupina %s neexistuje - používá se %s\n"
+
+#, c-format
+msgid "Wrong number of entries for tag %s: %u found but %u expected.\n"
+msgstr ""
+"Nesprávný počet záznamů pro značku %s: %u bylo nalezeno, ale očekáváno je %u."
+"\n"
+
+#, c-format
+msgid "Malformed data for tag %s: %u bytes found but %lu expected.\n"
+msgstr ""
+"Chybná data pro značku %s: %u bajtů bylo nalezeno, ale očekáváno je %lu.\n"
+
+#, c-format
+msgid "%s: base64 decode failed, len %li\n"
+msgstr "%s: dekódování base64 se nezdařilo, délka %li\n"
+
+#, c-format
+msgid "%s: base64 decode success, len %li\n"
+msgstr "%s: dekódování base64 bylo úspěšné, délka %li\n"
+
+msgid "Bad magic"
+msgstr "Špatné magické číslo"
+
+msgid "Bad/unreadable  header"
+msgstr "Špatná nebo nečitelná hlavička"
+
+msgid "Header size too big"
+msgstr "Velikost hlavičky je přiliš velká"
+
+msgid "File too large for archive"
+msgstr "Soubor je pro archiv příliš velký"
+
+msgid "Unknown file type"
+msgstr "Neznámý typ souboru"
+
+msgid "Missing file(s)"
+msgstr "Chybějící soubor(y)"
+
+msgid "Digest mismatch"
+msgstr "Neshoda ve volbě"
+
+msgid "Internal error"
+msgstr "Interní chyba"
+
+msgid "Archive file not in header"
+msgstr "Soubor z archivu není v hlavičce"
+
+msgid "Invalid symlink"
+msgstr "Neplatný symbolický odkaz"
+
+msgid "File from package already exists as a directory in system"
+msgstr "Soubor z balíčku již existuje jako adresář v systému"
+
+msgid " failed - "
+msgstr " selhal - "
+
+#, c-format
+msgid "%s: (error 0x%x)"
+msgstr "%s: (chyba 0x%x)"
+
+#, c-format
+msgid "open of %s failed: %s\n"
+msgstr "otevření %s selhalo: %s\n"
+
+#, c-format
+msgid "Max level of manifest recursion exceeded: %s\n"
+msgstr "Byla překročena maximální úroveň rekurze manifestu: %s\n"
+
+#, c-format
+msgid "%s: not an rpm package (or package manifest)\n"
+msgstr "%s: není rpm balíček (nebo manifest balíčku)\n"
+
+#, c-format
+msgid "Updating / installing...\n"
+msgstr "Aktualizace / instalace...\n"
+
+#, c-format
+msgid "Cleaning up / removing...\n"
+msgstr "Čištění / odstranění...\n"
+
+msgid "Preparing..."
+msgstr "Připravuji..."
+
+msgid "Verifying..."
+msgstr "Ověřování..."
+
+msgid "Preparing packages..."
+msgstr "Příprava balíčků..."
+
+msgid "Verifying packages..."
+msgstr "Ověřování balíčků..."
+
+msgid "Failed dependencies:\n"
+msgstr "Selhalé závislosti:\n"
+
+#, c-format
+msgid "%s: not an rpm package (or package manifest): %s\n"
+msgstr "%s: není rpm balíčkem (nebo seznamem balíčků): %s\n"
+
+#, c-format
+msgid "%s cannot be installed\n"
+msgstr "%s nemůže být nainstalován\n"
+
+#, c-format
+msgid "Retrieving %s\n"
+msgstr "Získávám %s\n"
+
+#, c-format
+msgid "skipping %s - transfer failed\n"
+msgstr "přeskakování %s – přenos se nezdařil\n"
+
+#, c-format
+msgid "package %s is not relocatable\n"
+msgstr "balíček %s není přemístitelný\n"
+
+#, c-format
+msgid "error reading from file %s\n"
+msgstr "chyba při vytváření dočasného souboru %s\n"
+
+#, c-format
+msgid "\"%s\" specifies multiple packages:\n"
+msgstr "\"%s\" určuje více balíčků:\n"
+
+#, c-format
+msgid "cannot open %s: %s\n"
+msgstr "nemohu otevřít %s: %s\n"
+
+#, c-format
+msgid "Installing %s\n"
+msgstr "Instaluji: %s\n"
+
+msgid "not an rpm package"
+msgstr "není rpm balíček"
+
+msgid "illegal signature type"
+msgstr "nepovolený typ podpisu"
+
+msgid "unsupported RPM package version"
+msgstr "nepodporovaná verze RPM balíčku"
+
+#, c-format
+msgid "read failed: %s (%d)\n"
+msgstr "čtení selhalo: %s (%d)\n"
+
+msgid "not an rpm package\n"
+msgstr "není rpm balíček\n"
+
+#, c-format
+msgid "can't create %s lock on %s (%s)\n"
+msgstr "nelze vytvořit %s zámek na %s (%s)\n"
+
+#, c-format
+msgid "waiting for %s lock on %s\n"
+msgstr "čekání na zámek %s na %s\n"
+
+#, c-format
+msgid "Failed to dlopen %s %s\n"
+msgstr "dlopen se nezdařilo %s %s\n"
+
+#, c-format
+msgid "Failed to resolve symbol %s: %s\n"
+msgstr "Nepodařilo se vyřešit symbol %s: %s\n"
+
+#, c-format
+msgid "Plugin %%__%s_%s not configured\n"
+msgstr "Plugin %%__%s_%s není nakonfigurován\n"
+
+#, c-format
+msgid "Plugin %s not loaded\n"
+msgstr "Plugin %s není načten\n"
+
+msgid "different"
+msgstr "jiný"
+
+#, c-format
+msgid "package %s is intended for a %s architecture"
+msgstr "balíček %s je určený pro architekturu %s"
+
+#, c-format
+msgid "package %s is intended for a %s operating system"
+msgstr "balíček %s je určený pro operační systém %s"
+
+#, c-format
+msgid "package %s is already installed"
+msgstr "balíček %s je již nainstalován"
+
+#, c-format
+msgid "package %s is not installed"
+msgstr "balíček %s není nainstalován"
+
+#, c-format
+msgid "path %s in package %s is not relocatable"
+msgstr "cesta %s v balíčku %s není přemístitelná"
+
+#, c-format
+msgid "file %s conflicts between attempted installs of %s and %s"
+msgstr "soubor %s způsobuje konflikt mezi instalovaným %s a %s"
+
+#, c-format
+msgid "file %s from install of %s conflicts with file from package %s"
+msgstr "soubor %s z instalace %s koliduje se souborem z balíčku %s"
+
+#, c-format
+msgid "package %s (which is newer than %s) is already installed"
+msgstr "balíček %s (který je novější, než %s) je již nainstalován"
+
+#, c-format
+msgid ""
+"installing package %s needs %<PRIu64>%cB more space on the %s filesystem"
+msgstr ""
+"instalace balíčku %s potřebuje o %<PRIu64>%cB více místa na souborovém "
+"systému %s"
+
+#, c-format
+msgid "installing package %s needs %<PRIu64> more inodes on the %s filesystem"
+msgstr ""
+"instalace balíčku %s potřebuje o %<PRIu64> více inodů na souborovém systému "
+"%s"
+
+#, c-format
+msgid "%s is needed by %s%s"
+msgstr "%s je potřeba pro %s%s"
+
+msgid "(installed) "
+msgstr "(instalován) "
+
+#, c-format
+msgid "%s conflicts with %s%s"
+msgstr "%s koliduje s %s%s"
+
+#, c-format
+msgid "%s is obsoleted by %s%s"
+msgstr "%s je zastaralé %s%s"
+
+#, c-format
+msgid "package %s does not verify: %s"
+msgstr "balíček %s neověřuje: %s"
+
+#, c-format
+msgid "unknown error %d encountered while manipulating package %s"
+msgstr "neznámá chyba %d vznikla při manipulaci s balíčkem %s"
+
+#, c-format
+msgid "missing second ':' at %s:%d\n"
+msgstr "chybí druhé ':' na %s:%d\n"
+
+#, c-format
+msgid "missing architecture name at %s:%d\n"
+msgstr "chybí jméno architektury na %s:%d\n"
+
+#, c-format
+msgid "Incomplete data line at %s:%d\n"
+msgstr "Neúplný datový řádek %s:%d\n"
+
+#, c-format
+msgid "Too many args in data line at %s:%d\n"
+msgstr "Příliš mnoho argumentů na datovém řádku na %s:%d\n"
+
+#, c-format
+msgid "Bad arch/os number: %s (%s:%d)\n"
+msgstr "Špatné číslo architektury nebo operačního systému: %s (%s:%d)\n"
+
+#, c-format
+msgid "Incomplete default line at %s:%d\n"
+msgstr "Neúplný implicitní řádek na %s:%d\n"
+
+#, c-format
+msgid "Too many args in default line at %s:%d\n"
+msgstr "Příliš mnoho argumentů v implicitním řádku na %s:%d\n"
+
+#, c-format
+msgid "missing ':' (found 0x%02x) at %s:%d\n"
+msgstr "chybějící ':' (nalezeno 0x%02x) na %s:%d\n"
+
+#, c-format
+msgid "missing argument for %s at %s:%d\n"
+msgstr "chybí argument pro %s na %s:%d\n"
+
+#, c-format
+msgid "cannot open %s at %s:%d: %m\n"
+msgstr "nemohu otevřít %s na %s:%d: %m\n"
+
+#, c-format
+msgid "missing architecture for %s at %s:%d\n"
+msgstr "chybí arcitektura pro %s na %s:%d\n"
+
+#, c-format
+msgid "bad option '%s' at %s:%d\n"
+msgstr "špatný parametr'%s' na %s:%d\n"
+
+msgid "Failed to read auxiliary vector, /proc not mounted?\n"
+msgstr "Nepodařilo se přečíst pomocný vektor, /proc není připojen?\n"
+
+#, c-format
+msgid "Unknown system: %s\n"
+msgstr "Neznámý systém: %s\n"
+
+#, c-format
+msgid "Please contact %s\n"
+msgstr "Prosím kontaktujte %s\n"
+
+#, c-format
+msgid "Unable to open %s for reading: %m.\n"
+msgstr "Nemohu otevřít %s pro čtení: %m.\n"
+
+msgid "No exec() called after fork() in lua scriptlet\n"
+msgstr ""
+
+#, c-format
+msgid "Unable to restore current directory: %m"
+msgstr "Nelze obnovit aktuální adresář: %m"
+
+#, c-format
+msgid "failed to exec scriptlet interpreter %s: %s\n"
+msgstr "nepodařilo se spustit interpret skriptů %s: %s\n"
+
+#, c-format
+msgid "Couldn't create temporary file for %s: %s\n"
+msgstr "Nelze vytvořit dočasný soubor pro %s: %s\n"
+
+#, c-format
+msgid "Couldn't duplicate file descriptor: %s: %s\n"
+msgstr "Nelze duplikovat deskriptor souboru: %s: %s\n"
+
+#, c-format
+msgid "Fwrite failed: %s"
+msgstr "Fwrite se nezdařilo: %s"
+
+#, c-format
+msgid "%s scriptlet failed, waitpid(%d) rc %d: %s\n"
+msgstr "%s scriptlet selhal, waitpid(%d) rc %d: %s\n"
+
+#, c-format
+msgid "%s scriptlet failed, signal %d\n"
+msgstr "%s skriplet selhal, signál %d\n"
+
+#, c-format
+msgid "%s scriptlet failed, exit status %d\n"
+msgstr "provedení %s skripletu selhalo, návratový kód: %d\n"
+
+msgid "Unknown format"
+msgstr "Neznámý formát"
+
+msgid "install"
+msgstr "nainstalovat"
+
+msgid "erase"
+msgstr "smazat"
+
+msgid "rpmdb"
+msgstr "rpmdb"
+
+msgid "restored"
+msgstr "obnoveno"
+
+#, c-format
+msgid "cannot open Packages database in %s\n"
+msgstr "nemohu otevřít Packages databázi v %s\n"
+
+#, c-format
+msgid "extra '(' in package label: %s\n"
+msgstr "nadbytečná '(' v názvu balíčku: %s\n"
+
+#, c-format
+msgid "missing '(' in package label: %s\n"
+msgstr "chybějící '(' v názvu balíčku: %s\n"
+
+#, c-format
+msgid "missing ')' in package label: %s\n"
+msgstr "chybějící ')' v názvu balíčku: %s\n"
+
+#, c-format
+msgid "%s: reading of public key failed.\n"
+msgstr "%s: čtení veřejného klíče se nezdařilo.\n"
+
+#, c-format
+msgid "unknown keyring type: %s, using rpmdb\n"
+msgstr "neznámý typ klíčenky: %s, používá se rpmdb\n"
+
+#, c-format
+msgid "failed to import key: %s: %s\n"
+msgstr "nepodařilo se importovat klíč: %s: %s\n"
+
+#, c-format
+msgid "invalid package verify level %s\n"
+msgstr "neplatná úroveň ověření balíčku %s\n"
+
+msgid "transaction"
+msgstr "transakce"
+
+#, c-format
+msgid "%s tag %u: invalid type %u"
+msgstr "%s značka %u: neplatný typ %u"
+
+#, c-format
+msgid "%s: tag %u: invalid count %u"
+msgstr "%s: značka %u: neplatný počet %u"
+
+#, c-format
+msgid "%s tag %u: invalid data %p (%u)"
+msgstr "%s značka %u: neplatná data %p (%u)"
+
+#, c-format
+msgid "%s tag %u: invalid size %u"
+msgstr "%s značka %u: neplatná velikost %u"
+
+#, c-format
+msgid "%s tag %u: invalid OpenPGP signature"
+msgstr "%s značka %u: neplatný OpenPGP podpis"
+
+#, c-format
+msgid "%s: tag %u: invalid hex"
+msgstr "%s: značka %u: neplatný hex"
+
+#, c-format
+msgid "%s%s%s %s"
+msgstr "%s%s%s %s"
+
+msgid "digest"
+msgstr "výběr"
+
+#, c-format
+msgid "%s%s"
+msgstr "%s%s"
+
+msgid "signature"
+msgstr "podpis"
+
+msgid "header"
+msgstr "hlavička"
+
+msgid "package"
+msgstr "balíček"
+
+msgid "Header "
+msgstr "Hlavička "
+
+msgid "Payload "
+msgstr "Užitečné zatížení "
+
+msgid "Unable to reload signature header.\n"
+msgstr "Nemohu znovu přečíst hlavičku podpisu.\n"
+
+msgid "no signature"
+msgstr "žádný podpis"
+
+msgid "no digest"
+msgstr "žádná volba"
+
+msgid "skipped"
+msgstr "přeskočeno"
+
+msgid "failed"
+msgstr "selhalo"
+
+msgid "no state"
+msgstr "žádný stav"
+
+msgid "unknown state"
+msgstr "neznámý stav"
+
+#, c-format
+msgid "missing   %c %s"
+msgstr "chybí     %c %s"
+
+#, c-format
+msgid "Unsatisfied dependencies for %s:\n"
+msgstr "Nesplněné závislosti pro %s:\n"
+
+#, c-format
+msgid "Unable to reset nice value: %s"
+msgstr "Nelze resetovat hodnotu: %s"
+
+#, c-format
+msgid "Unable to reset I/O priority: %s"
+msgstr "Nelze resetovat prioritu I/O: %s"
+
+msgid "syntax error while parsing =="
+msgstr "chyba syntaxe při parsování =="
+
+msgid "syntax error while parsing &&"
+msgstr "chyba syntaxe při parsování &&"
+
+msgid "syntax error while parsing ||"
+msgstr "chyba syntaxe při parsování ||"
+
+msgid "macro expansion returned a bare word, please use \"...\""
+msgstr "rozšíření makra vrátilo holé slovo, použijte prosím \"...\""
+
+msgid "macro expansion did not return an integer"
+msgstr "rozšíření makra nevrátilo celé číslo"
+
+#, c-format
+msgid "expanded string: %s\n"
+msgstr "rozšířený řetězec: %s\n"
+
+msgid "unterminated string in expression"
+msgstr "neukončený řetězec ve výrazu"
+
+msgid "invalid version"
+msgstr "neplatná verze"
+
+msgid "bare words are no longer supported, please use \"...\""
+msgstr "holá slova již nejsou podporována, použijte prosím \"...\""
+
+msgid "parse error in expression"
+msgstr "chyba při parsování ve výrazu"
+
+msgid "unsupported function argument type"
+msgstr "nepodporovaný typ argumentu funkce"
+
+msgid "syntax error in expression"
+msgstr "chyba syntaxe ve výrazu"
+
+msgid "unsupported funcion"
+msgstr "nepodporovaná funkce"
+
+msgid "unmatched ("
+msgstr "neodpovídající ("
+
+msgid "- only on numbers"
+msgstr "- jen na číslech"
+
+msgid "unexpected end of expression"
+msgstr "neočekávaný konec výrazu"
+
+msgid "types must match"
+msgstr "typy se musí shodovat"
+
+msgid "division by zero"
+msgstr "dělení nulou"
+
+msgid "* and / not supported for versions"
+msgstr "* a / nejsou podporovány pro verze"
+
+msgid "* and / not supported for strings"
+msgstr "* / nejsou podporovány pro řetězce"
+
+msgid "+ and - not supported for versions"
+msgstr "+ a - nejsou podporovány pro verze"
+
+msgid "- not supported for strings"
+msgstr "- není podporováno pro řetězce"
+
+#, c-format
+msgid "%3d>%*s(empty)\n"
+msgstr "%3d>%*s(prázdné)\n"
+
+msgid ""
+"Too many levels of recursion in macro expansion. It is likely caused by "
+"recursive macro declaration.\n"
+msgstr ""
+"Příliš mnoho úrovní rekurze v rozšíření makra. Je to pravděpodobně způsobeno "
+"rekurzivní deklarací makra.\n"
+
+#, c-format
+msgid "Failed to open shell expansion pipe for command: %s: %m \n"
+msgstr "Nepodařilo se otevřít rouru pro příkaz: %s: %m \n"
+
+#, c-format
+msgid "Macro %%%s has illegal name (%s)\n"
+msgstr "Makro %%%s má neplatný název (%s)\n"
+
+#, c-format
+msgid "Macro %%%s is a built-in (%s)\n"
+msgstr "Makro %%%s je vestavěné (%s)\n"
+
+#, c-format
+msgid "Macro %%%s has unterminated opts\n"
+msgstr "Makro %%%s má neukončené parametry\n"
+
+#, c-format
+msgid "Macro %%%s has unterminated body\n"
+msgstr "Makro %%%s má neukončené tělo\n"
+
+#, c-format
+msgid "Macro %%%s has empty body\n"
+msgstr "Makro %%%s má prázdné tělo\n"
+
+#, c-format
+msgid "Macro %%%s needs whitespace before body\n"
+msgstr "Makro %%%s potřebuje před tělem mezery\n"
+
+#, c-format
+msgid "Macro %%%s failed to expand\n"
+msgstr "Selhalo vyhodnocení makra %%%s\n"
+
+#, c-format
+msgid "Unknown option %c in %s(%s)\n"
+msgstr "Neznámý parametr %c v %s(%s)\n"
+
+#, c-format
+msgid "Macro %%%s defined but not used within scope\n"
+msgstr "Makro %%%s je definováno, ale není použito v rámci rozsahu\n"
+
+#, c-format
+msgid "no such macro: '%s'\n"
+msgstr "žádné takové makro: '%s'\n"
+
+msgid "argument expected"
+msgstr "argument je očekáván"
+
+msgid "unexpected argument"
+msgstr "neočekávaný argument"
+
+#, c-format
+msgid "Unterminated %c: %s\n"
+msgstr "Neukončené %c: %s\n"
+
+#, c-format
+msgid "A %% is followed by an unparseable macro\n"
+msgstr "Po %% následuje nezpracovatelné makro\n"
+
+#, c-format
+msgid "======================== active %d empty %d\n"
+msgstr "======================== aktivní %d prázdné %d\n"
+
+#, c-format
+msgid "error creating temporary file %s: %m\n"
+msgstr "chyba při vytváření dočasného souboru %s: %m\n"
+
+#, c-format
+msgid "File %s: %s\n"
+msgstr "Soubor %s: %s\n"
+
+#, c-format
+msgid "File %s is smaller than %u bytes\n"
+msgstr "Soubor %s je menší než %u bajtů\n"
+
+msgid "[none]"
+msgstr "[žádné]"
+
+msgid "(no error)"
+msgstr "(žádná chyba)"
+
+msgid "fatal error: "
+msgstr "fatální chyba: "
+
+msgid "error: "
+msgstr "chyba: "
+
+msgid "warning: "
+msgstr "varování: "
+
+msgid "Error writing to log"
+msgstr "Chyba při zápisu do logu"
+
+#, c-format
+msgid "invalid syntax in lua scriptlet: %s\n"
+msgstr "neplatná syntax v lua skriptletu: %s\n"
+
+#, c-format
+msgid "invalid syntax in lua script: %s\n"
+msgstr "neplatná syntax v lua skriptu: %s\n"
+
+#, c-format
+msgid "lua script failed: %s\n"
+msgstr "lua skript selhal: %s\n"
+
+#, c-format
+msgid "result print failed: %s\n"
+msgstr "tisk výsledku se nezdařil: %s\n"
+
+#, c-format
+msgid "invalid syntax in lua file: %s\n"
+msgstr "neplatné syntax v lua souboru: %s\n"
+
+#, c-format
+msgid "lua hook failed: %s\n"
+msgstr "lua obsloužení selhalo: %s\n"
+
+#, c-format
+msgid "memory alloc (%u bytes) returned NULL.\n"
+msgstr "alokace paměti (%u bajtů) vrátila NULL.\n"
+
+#, c-format
+msgid "Unsupported version of signature: V%d\n"
+msgstr ""
+
+#, c-format
+msgid "Unsupported version of key: V%d\n"
+msgstr ""
+
+#, c-format
+msgid "V%d %s/%s %s, key ID %s"
+msgstr "V%d %s/%s %s, ID klíče %s"
+
+msgid "(none)"
+msgstr "(žádné)"
+
+#, c-format
+msgid "exiting on signal %d from pid %d\n"
+msgstr ""
+
+#, c-format
+msgid "%s: Fwrite failed: %s\n"
+msgstr "%s: Fwrite selhalo: %s\n"
+
+#, c-format
+msgid "%s: Fread failed: %s\n"
+msgstr "%s: Fread selhalo: %s\n"
+
+#, c-format
+msgid "%s: Fflush failed: %s\n"
+msgstr "%s: Fflush selhal: %s\n"
+
+msgid "Unsupported PGP signature\n"
+msgstr ""
+
+#, c-format
+msgid "Unsupported PGP hash algorithm %u\n"
+msgstr ""
+
+#, c-format
+msgid "Unsupported PGP pubkey algorithm %u\n"
+msgstr ""
+
+#, c-format
+msgid "Could not create pipe for signing: %m\n"
+msgstr "Nelze vytvořit rouru pro podepisování: %m\n"
+
+#, c-format
+msgid "Could not set GPG_TTY to stdin: %m\n"
+msgstr "Nelze nastavit GPG_TTY na stdin: %m\n"
+
+#, c-format
+msgid "Could not exec %s: %s\n"
+msgstr "Nemohu spustit %s: %s\n"
+
+#, c-format
+msgid "Could not open pipe for writing: %m\n"
+msgstr "Nelze otevřít rouru pro zápis: %m\n"
+
+msgid "Could not write to pipe\n"
+msgstr "Nelze zapisovat do roury\n"
+
+#, c-format
+msgid "Could not read from file %s: %s\n"
+msgstr "Nelze číst ze souboru %s: %s\n"
+
+#, c-format
+msgid "gpg exec failed (%d)\n"
+msgstr "spuštění gpg selhalo (%d)\n"
+
+msgid "gpg failed to write signature\n"
+msgstr "gpg selhal při zápisu podpisu\n"
+
+msgid "unable to read the signature\n"
+msgstr "nemohu přečíst podpis\n"
+
+msgid "file signing support not built in\n"
+msgstr "není zabudována podpora podepisování souborů\n"
+
+#, c-format
+msgid "Searching for algorithm %s got %i\n"
+msgstr "Hledání algoritmu %s dalo %i\n"
+
+#, c-format
+msgid "Unsupported fsverity algorithm %s\n"
+msgstr "Nepodporovaný algoritmus fsverity %s\n"
+
+msgid "fsverity signatures requires a key and a cert\n"
+msgstr "Podpisy fsverity vyžadují klíč a certifikát\n"
+
+msgid "fsverity signing support not built in\n"
+msgstr "Podpora podepisování fsverity není zabudována\n"
+
+#, c-format
+msgid "%s: rpmReadSignature failed: %s"
+msgstr "%s: rpmReadSignature selhalo: %s"
+
+#, c-format
+msgid "%s: headerRead failed: %s\n"
+msgstr "%s: čtení hlavičky se nezdařilo: %s\n"
+
+msgid "Cannot sign RPM v3 packages\n"
+msgstr "Nelze podepsat balíčky RPM v3\n"
+
+#, c-format
+msgid "%s already contains identical signature, skipping\n"
+msgstr "%s již obsahuje identický podpis, přeskakování\n"
+
+#, c-format
+msgid "%s: rpmWriteSignature failed: %s\n"
+msgstr "%s: Fwrite selhalo: %s\n"
+
+msgid "rpmMkTemp failed\n"
+msgstr "rpmMkTemp selhal\n"
+
+#, c-format
+msgid "%s: writeLead failed: %s\n"
+msgstr "%s: writeLead selhalo: %s\n"
+
+#, c-format
+msgid "replacing %s failed: %s\n"
+msgstr "nahrazení %s se nezdařilo: %s\n"
+
+msgid "sign_hash failed\n"
+msgstr "sign_hash se nezdařilo\n"
+
+msgid "File digest algorithm id is invalid"
+msgstr "ID algoritmu volby souboru je neplatné"
+
+msgid "signFile failed\n"
+msgstr "signFile se nezdařilo\n"
+
+msgid "headerPutString failed\n"
+msgstr "headerPutString se nezdařilo\n"
+
+#, c-format
+msgid "%s: read manifest failed: %s\n"
+msgstr "%s: čtení seznamu selhalo: %s\n"
+
+msgid "don't verify header+payload signature"
+msgstr "neověřuj podpis hlavičky a payloadu"
+
+msgid "getopt string for scripts options"
+msgstr "getopt řetězec pro volby skriptů"
+
+msgid "execute statement"
+msgstr "provést příkaz"
+
+msgid "interactive session"
+msgstr "interaktivní sezení"
+
+msgid "extract an archive"
+msgstr "extrahovat archiv"
+
+msgid "only print what would be done"
+msgstr "vytisknout pouze to, co by se udělalo"
+
+#~ msgid "build through %build (%prep, then compile) from <specfile>"
+#~ msgstr "sestavení podle %build (%prep, pak kompilace) podle <spec_soubor>"
+
+#~ msgid "build through %install (%prep, %build, then install) from <specfile>"
+#~ msgstr ""
+#~ "sestavení podle %install (%prep, %build, pak install) podle <spec_soubor>"
+
+#~ msgid "build through %build (%prep, then compile) from <tarball>"
+#~ msgstr "sestavení podle %build (%prep, pak kompilace) z <tar_soubor>"
+
+#~ msgid "build through %install (%prep, %build, then install) from <tarball>"
+#~ msgstr ""
+#~ "sestavení podle %%install (%prep, %build, pak install) z <tar_soubor>"
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "RPM build errors:\n"
+#~ msgstr ""
+#~ "\n"
+#~ "\n"
+#~ "chyby sestavení RPM:\n"
+
+#~ msgid "Bad source: %s: %s\n"
+#~ msgstr "Špatný zdrojový soubor: %s: %s\n"
+
+#~ msgid "%s: %s: %s\n"
+#~ msgstr "%s: %s: %s\n"
+
+#~ msgid "unrecognized db option: \"%s\" ignored.\n"
+#~ msgstr "nerozpoznaný db parametr: \"%s\" ignorován.\n"
+
+#~ msgid "%s has invalid numeric value, skipped\n"
+#~ msgstr "%s má neplatnou číselnou hodnotu, přeskakuji\n"
+
+#~ msgid "%s has too large or too small long value, skipped\n"
+#~ msgstr "%s má příliš velkou nebo příliš malou long hodnotu, přeskakuji\n"
+
+#~ msgid "%s has too large or too small integer value, skipped\n"
+#~ msgstr "%s má příliš velkou nebo příliš malou int hodnotu, přeskakuji\n"
+
+#~ msgid "cannot get %s lock on %s/%s\n"
+#~ msgstr "nemohu získat zámek %s na %s/%s\n"
+
+#~ msgid "shared"
+#~ msgstr "sdílen"
+
+#~ msgid "exclusive"
+#~ msgstr "exkluzivní"
+
+#~ msgid "error(%d) storing record \"%s\" into %s\n"
+#~ msgstr "chyba(%d) při ukládání záznamu \"%s\" do %s\n"
+
+#~ msgid "error(%d) removing record \"%s\" from %s\n"
+#~ msgstr "chyba(%d) v odstraňování \"%s\" z %s\n"
+
+#~ msgid "error(%d) allocating new package instance\n"
+#~ msgstr "chyba(%d) při alokaci nové instance balíčku\n"
+
+#~ msgid "%c"
+#~ msgstr "%c"
+
+#~ msgid "%a %b %d %Y"
+#~ msgstr "%a %b %d %Y"
+
+#~ msgid "%s saved as %s\n"
+#~ msgstr "%s uloženo jako %s\n"
+
+#~ msgid "%s created as %s\n"
+#~ msgstr "%s vytvořen jako %s\n"
+
+#~ msgid "query/verify package(s) owning file"
+#~ msgstr "dotaz/ověření balíčků vlastnícího soubor"
+
+#~ msgid "%3d<%*s(empty)\n"
+#~ msgstr "%3d<%*s(prázdné)\n"

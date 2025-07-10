@@ -1,0 +1,527 @@
+#    rpmdb.at: test rpmdb access
+#
+#    Copyright (C) 2007  Ralf Corsépius <corsepiu@fedoraproject.org>
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+AT_BANNER([RPM database access])
+
+# ------------------------------
+# Attempt to initialize a rpmdb
+AT_SETUP([rpm --initdb])
+AT_KEYWORDS([rpmdb])
+RPMTEST_CHECK([
+RPMDB_INIT
+],
+[0],
+[ignore],
+[ignore])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# Run rpm -qa on an empty rpmdb
+AT_SETUP([rpm -qa 1])
+AT_KEYWORDS([rpmdb query])
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm \
+  -qa
+],
+[0])
+RPMTEST_CLEANUP
+
+# Run rpm -qa on a non-existent rpmdb
+AT_SETUP([rpm -qa 2])
+AT_KEYWORDS([rpmdb query])
+RPMTEST_CHECK([
+RPMTEST_SETUP
+rm -rf "${RPMTEST}"`rpm --eval '%_dbpath'`
+runroot rpm \
+  -qa
+],
+[0],
+[],
+[ignore])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -qa 3])
+AT_KEYWORDS([rpmdb query])
+RPMTEST_SETUP
+
+RPMTEST_CHECK([
+runroot rpm -U --nodeps --ignorearch --ignoreos --nosignature \
+	/data/RPMS/foo-1.0-1.noarch.rpm \
+	/data/RPMS/hello-2.0-1.x86_64-signed.rpm
+
+# Assert that there are at least 3 packages in the rpmdb (we are using that of
+# the test image here so that is pretty much guaranteed).
+runroot rpm -qa | wc -l | xargs test 2 -lt || exit 1
+
+runroot rpm -qa foo hello | sort
+],
+[0],
+[foo-1.0-1.noarch
+hello-2.0-1.x86_64
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmdb --export and --import])
+AT_KEYWORDS([rpmdb])
+
+# This needs to run *without* RPMDB_INIT to test behavior on read-only mount
+RPMTEST_CHECK([
+run rpmdb --exportdb --dbpath ${RPMTEST}/data/misc/ > rdonly.list
+test -s rdonly.list
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /data/RPMS/hlinktest-1.0-1.noarch.rpm
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+# Need to pass the dbpath explicitly since we're not going through run/runroot
+runroot_other /sbin/runuser -u nobody -- rpmdb --dbpath /var/lib/rpm --exportdb > hdr.list
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -qa --dbpath ${PWD}
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+runroot rpmdb --importdb --dbpath ${PWD} < hdr.list
+runroot rpm -qa --dbpath ${PWD}
+],
+[0],
+[hlinktest-1.0-1.noarch
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -qa and rpmkeys])
+AT_KEYWORDS([rpmdb query])
+AT_SKIP_IF([test x$PGP = xdummy])
+RPMDB_INIT
+
+RPMTEST_CHECK([
+runroot rpm -U --nodeps --ignorearch --ignoreos --nosignature \
+	/data/RPMS/foo-1.0-1.noarch.rpm \
+	/data/RPMS/hello-2.0-1.x86_64-signed.rpm
+runroot rpm -qa | sort
+],
+[0],
+[foo-1.0-1.noarch
+hello-2.0-1.x86_64
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpmkeys --import /data/keys/rpm.org-rsa-2048-test.pub
+runroot rpm -qa | sort
+],
+[0],
+[foo-1.0-1.noarch
+gpg-pubkey-1964c5fc-58e63918
+hello-2.0-1.x86_64
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpmkeys --list
+],
+[0],
+[1964c5fc-58e63918: rpm.org RSA testkey <rsa@rpm.org> public key
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpmkeys --list 1964c5fc
+],
+[0],
+[1964c5fc-58e63918: rpm.org RSA testkey <rsa@rpm.org> public key
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpmkeys --list XXX
+],
+[1],
+[package gpg-pubkey-XXX is not installed
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpmkeys --delete 1964c5fc
+runroot rpmkeys --list
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# Run rpm -q <package> where <package> exists in the db.
+AT_SETUP([rpm -q foo])
+AT_KEYWORDS([rpmdb query])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -i \
+  /data/RPMS/foo-1.0-1.noarch.rpm
+
+runroot rpm -q foo
+
+],
+[0],
+[foo-1.0-1.noarch
+],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# Run rpm -q <package>- where <package> exists in the db.
+AT_SETUP([rpm -q foo-])
+AT_KEYWORDS([rpmdb query])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -i \
+  /data/RPMS/foo-1.0-1.noarch.rpm
+
+runroot rpm -q foo-
+
+],
+[1],
+[package foo- is not installed
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmdb header numbering])
+AT_KEYWORDS([rpmdb])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+for i in 1 2 3; do
+    runroot rpm -i /data/RPMS/foo-1.0-1.noarch.rpm
+    runroot rpm -q --qf "%{dbinstance} %{name}\n" foo
+    runroot rpm -e foo
+done
+
+],
+[0],
+[1 foo
+2 foo
+3 foo
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -q --querybynumber])
+AT_KEYWORDS([rpmdb query])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -i \
+  /data/RPMS/foo-1.0-1.noarch.rpm
+
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -q --querybynumber 1
+],
+[0],
+[foo-1.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -q --querybynumber 999
+],
+[1],
+[],
+[error: record 999 could not be read
+])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# install a noarch package into a local rpmdb without --relocate and --nodeps
+# * Should always succeed
+AT_SETUP([rpm -i *.noarch.rpm])
+AT_KEYWORDS([rpmdb install])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -i \
+  /data/RPMS/foo-1.0-1.noarch.rpm
+],
+[0])
+
+RPMTEST_CLEANUP
+
+# ------------------------------
+# reinstall a noarch package (with no files)
+AT_SETUP([rpm -U --replacepkgs 1])
+AT_KEYWORDS([rpmdb install])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+
+tpkg="/data/RPMS/foo-1.0-1.noarch.rpm"
+
+runroot rpm -i "${tpkg}" && 
+  runroot rpm -U --replacepkgs "${tpkg}" &&
+  runroot rpm -qa
+],
+[0],
+[foo-1.0-1.noarch
+],
+[])
+
+RPMTEST_CLEANUP
+
+# ------------------------------
+# reinstall a package with different file policies
+AT_SETUP([rpm -U --replacepkgs 2])
+AT_KEYWORDS([rpmdb install])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+
+tpkg="/data/RPMS/hello-2.0-1.i686.rpm"
+
+runroot rpm -U --nodeps --ignorearch "${tpkg}" && 
+  runroot rpm -U --nodeps --ignorearch --nodocs --replacepkgs "${tpkg}" &&
+  runroot rpm -e hello
+test -d "${RPMTEST}"/usr/share/doc/hello-2.0
+],
+[1],
+[],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# reinstall a package with different file policies
+AT_SETUP([rpm --reinstall 1])
+AT_KEYWORDS([rpmdb install])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+
+tpkg="/data/RPMS/hello-2.0-1.i686.rpm"
+
+runroot rpm -U --nodeps --ignorearch "${tpkg}" && 
+  runroot rpm --reinstall --nodeps --ignorearch --nodocs "${tpkg}" &&
+  runroot rpm -e hello
+test -d "${RPMTEST}"/usr/share/doc/hello-2.0
+],
+[1],
+[],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# install a package into a local rpmdb
+# * Shall only work with relocation
+# * Use --ignorearch because we don't know the arch
+AT_SETUP([rpm -i --relocate=.. *.i386.rpm])
+AT_KEYWORDS([rpmdb install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -i \
+  --noscripts --nodeps --ignorearch --relocate=/usr=/check \
+  /data/RPMS/hello-1.0-1.i386.rpm
+],
+[0])
+
+RPMTEST_CLEANUP
+
+
+# ------------------------------
+# install a package into a local rpmdb
+# * Shall only work with relocation
+# * Use --ignorearch because we don't know the arch
+AT_SETUP([rpm -i --relocate=.. *.ppc64.rpm])
+AT_KEYWORDS([rpmdb install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -i \
+  --noscripts --nodeps --ignorearch --relocate=/usr=/check \
+  /data/RPMS/hello-1.0-1.ppc64.rpm
+],
+[0],
+[ignore],
+[ignore])
+
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmdb --rebuilddb])
+AT_KEYWORDS([rpmdb])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -U --noscripts --nodeps --ignorearch \
+  /data/RPMS/hello-1.0-1.i386.rpm
+runroot rpm -qa --qf "%{nevra} %{dbinstance}\n"
+runroot rpm -U --noscripts --nodeps --ignorearch \
+  /data/RPMS/hello-2.0-1.i686.rpm
+runroot rpm -qa --qf "%{nevra} %{dbinstance}\n"
+runroot rpmdb --rebuilddb
+runroot rpm -qa --qf "%{nevra} %{dbinstance}\n"
+],
+[],
+[hello-1.0-1.i386 1
+hello-2.0-1.i686 2
+hello-2.0-1.i686 1
+],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# Attempt to initialize, rebuild and verify a db
+AT_SETUP([rpmdb --rebuilddb and verify empty database])
+AT_KEYWORDS([rpmdb])
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpmdb --rebuilddb
+runroot rpmdb --verifydb
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# Install and verify status
+AT_SETUP([rpm -U and verify status])
+AT_KEYWORDS([install rpmdb query])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb \
+        --define "pkg status" \
+	--define "filedata same_stuff" \
+          /data/SPECS/conflicttest.spec
+
+runroot rpm -U /build/RPMS/noarch/conflictstatus-1.0-1.noarch.rpm
+runroot rpm -qls conflictstatus
+],
+[0],
+[normal        /usr/share/my.version
+],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# Install and verify status
+AT_SETUP([rpm -U with _install_lang and verify status])
+AT_KEYWORDS([install rpmdb query])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb \
+          /data/SPECS/flangtest.spec
+
+runroot rpm -U --define "_install_langs de:fi" /build/RPMS/noarch/flangtest-1.0-1.noarch.rpm
+runroot rpm -qls flangtest
+],
+[0],
+[normal        /usr/share/flangtest/de.txt
+normal        /usr/share/flangtest/empty.txt
+not installed /usr/share/flangtest/en.txt
+normal        /usr/share/flangtest/fi.txt
+normal        /usr/share/flangtest/none.txt
+not installed /usr/share/flangtest/pl.txt
+],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+AT_SETUP([rpmdb query special chars])
+AT_KEYWORDS([install rpmdb query])
+RPMDB_INIT
+for v in "1.0+2" "1.0^2" "1.0~2"; do
+    runroot rpmbuild --quiet -bb \
+        --define "ver $v" \
+          /data/SPECS/versiontest.spec
+done
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U '/build/RPMS/noarch/versiontest-1.0+2-1.noarch.rpm'
+runroot rpm -q 'versiontest-1.0+2-1'
+],
+[0],
+[versiontest-1.0+2-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U '/build/RPMS/noarch/versiontest-1.0^2-1.noarch.rpm'
+runroot rpm -q 'versiontest-1.0^2-1'
+],
+[0],
+[versiontest-1.0^2-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U '/build/RPMS/noarch/versiontest-1.0~2-1.noarch.rpm'
+runroot rpm -q 'versiontest-1.0~2-1'
+],
+[0],
+[versiontest-1.0~2-1.noarch
+],
+[])
+
+RPMTEST_CLEANUP
+
+# ------------------------------
+AT_SETUP([rpmdb vacuum])
+AT_KEYWORDS([install rpmdb sqlite])
+RPMDB_INIT
+RPMTEST_CHECK([
+runroot rpm -U --noscripts --nodeps --ignorearch --noverify \
+  /data/RPMS/hello-1.0-1.i386.rpm
+runroot rpm -D "_sqlite_vacuum_kb 1" -vv -U --noscripts --nodeps --ignorearch \
+  /data/RPMS/hello-2.0-1.i686.rpm 2>&1 | grep VACUUM
+],
+[0],
+[D: VACUUM: 0
+D: rpmdb sqlite backend VACUUM maxfree: 1kB, free: 8kB -> 0kB
+],
+[])
+RPMTEST_CLEANUP

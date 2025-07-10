@@ -1,0 +1,664 @@
+#    rpmvercmp.at: rpm config file behavior tests
+
+AT_BANNER([RPM config file behavior])
+
+AT_SETUP([config file install/upgrade/erase])
+AT_KEYWORDS([install])
+RPMDB_INIT
+for v in "1.0" "2.0"; do
+    runroot rpmbuild --quiet -bb \
+        --define "ver $v" \
+	--define "filedata foo" \
+          /data/SPECS/configtest.spec
+done
+
+# Install over existing config file
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+echo "otherstuff" > "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+runroot rpm -e configtest
+cat "${cf}.rpmorig"
+],
+[0],
+[foo
+otherstuff
+],
+[warning: /etc/my.conf saved as /etc/my.conf.rpmorig]
+)
+
+# Install over existing identical config file, no backup needed
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+echo "foo" > "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+runroot rpm -e configtest
+test ! -f "${cf}"
+],
+[0],
+[foo
+],
+[])
+
+# Erase unmodified config file, no backup here
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+runroot rpm -e configtest
+test ! -f "${cf}"
+],
+[0],
+[foo
+],
+[])
+
+# Erase modified config file
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+echo "otherstuff" > "${cf}"
+runroot rpm -e configtest
+cat "${cf}.rpmsave"
+test ! -f "${cf}"
+],
+[0],
+[foo
+otherstuff
+],
+[warning: /etc/my.conf saved as /etc/my.conf.rpmsave]
+)
+
+# Upgrade package with config file, no backup here
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-2.0-1.noarch.rpm
+cat "${cf}"
+],
+[0],
+[foo
+foo
+],
+[])
+
+# Upgrade package with config file, no backup here
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+runroot rpm -Uvv --fsmdebug /build/RPMS/noarch/configtest-2.0-1.noarch.rpm > output.txt 2>&1
+grep -c  "touch" output.txt
+],
+[0],
+[1
+],
+[])
+
+# Upgrade package with locally modified config file, unchanged in pkg
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+echo "otherstuff" > "${cf}"
+cat "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-2.0-1.noarch.rpm
+cat "${cf}"
+],
+[0],
+[foo
+otherstuff
+otherstuff
+],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+AT_SETUP([config(noreplace) file install/upgrade/erase])
+AT_KEYWORDS([install])
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb \
+        --define "ver 1.0" \
+	--define "filedata foo" \
+	--define "noreplace 1" \
+          /data/SPECS/configtest.spec
+
+# Install over existing config file
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+echo "otherstuff" > "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+cat "${cf}.rpmnew"
+runroot rpm -e configtest
+cat "${cf}.rpmsave"
+cat "${cf}.rpmnew"
+],
+[0],
+[otherstuff
+foo
+otherstuff
+foo
+],
+[warning: /etc/my.conf created as /etc/my.conf.rpmnew
+warning: /etc/my.conf saved as /etc/my.conf.rpmsave]
+)
+
+# Erase modified config(noreplace) file
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+echo "otherstuff" > "${cf}"
+runroot rpm -e configtest
+cat "${cf}.rpmsave"
+test ! -f "${cf}"
+],
+[0],
+[foo
+otherstuff
+],
+[warning: /etc/my.conf saved as /etc/my.conf.rpmsave]
+)
+RPMTEST_CLEANUP
+
+# ------------------------------
+AT_SETUP([upgrade changing config])
+AT_KEYWORDS([install])
+RPMDB_INIT
+
+for v in "1.0" "2.0"; do
+    runroot rpmbuild --quiet -bb \
+        --define "ver $v" \
+	--define "filedata foo-$v" \
+          /data/SPECS/configtest.spec
+done
+
+# Upgrade package with unmodified config file, changed in pkg
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-2.0-1.noarch.rpm
+cat "${cf}"
+],
+[0],
+[foo-1.0
+foo-2.0
+],
+[])
+
+# ------------------------------
+# Upgrade package with locally modified config file, changed in pkg
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+echo "otherstuff" > "${RPMTEST}"/etc/my.conf
+cat "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-2.0-1.noarch.rpm
+cat "${cf}"
+cat "${cf}.rpmsave"
+],
+[0],
+[foo-1.0
+otherstuff
+foo-2.0
+otherstuff
+],
+[warning: /etc/my.conf saved as /etc/my.conf.rpmsave]
+)
+
+# ------------------------------
+# Modified config file matches the content from new package.
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+echo "foo-2.0" > "${RPMTEST}"/etc/my.conf
+cat "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-2.0-1.noarch.rpm
+cat "${cf}"
+],
+[0],
+[foo-1.0
+foo-2.0
+foo-2.0
+],
+[])
+RPMTEST_CLEANUP
+
+# config(noreplace) variants of the same cases.
+# ------------------------------
+AT_SETUP([upgrade changing config(noreplace)])
+AT_KEYWORDS([install])
+RPMDB_INIT
+
+for v in "1.0" "2.0"; do
+    runroot rpmbuild --quiet -bb \
+        --define "ver $v" \
+	--define "filedata foo" \
+	--define "noreplace 1" \
+          /data/SPECS/configtest.spec
+done
+#
+# Upgrade package with config file, no backup here
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-2.0-1.noarch.rpm
+cat "${cf}"
+],
+[0],
+[foo
+foo
+],
+[])
+
+# Upgrade package with locally modified config file, unchanged in pkg
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+echo "otherstuff" > "${cf}"
+cat "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-2.0-1.noarch.rpm
+cat "${cf}"
+],
+[0],
+[foo
+otherstuff
+otherstuff
+],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# noreplace variants of the same
+AT_SETUP([upgrade changing config(noreplace)])
+AT_KEYWORDS([install])
+RPMDB_INIT
+for v in "1.0" "2.0"; do
+    runroot rpmbuild --quiet -bb \
+        --define "ver $v" \
+	--define "filedata foo-$v" \
+	--define "noreplace 1" \
+          /data/SPECS/configtest.spec
+done
+
+# Upgrade package with unmodified config file, changed in pkg
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-2.0-1.noarch.rpm
+cat "${cf}"
+],
+[0],
+[foo-1.0
+foo-2.0
+],
+[])
+
+# Upgrade package with locally modified config file, changed in pkg
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+echo "otherstuff" > "${RPMTEST}"/etc/my.conf
+cat "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-2.0-1.noarch.rpm
+cat "${cf}"
+cat "${cf}.rpmnew"
+],
+[0],
+[foo-1.0
+otherstuff
+otherstuff
+foo-2.0
+],
+[warning: /etc/my.conf created as /etc/my.conf.rpmnew]
+)
+
+# Modified config file matches the content from new package.
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+echo "foo-2.0" > "${RPMTEST}"/etc/my.conf
+cat "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-2.0-1.noarch.rpm
+cat "${cf}"
+],
+[0],
+[foo-1.0
+foo-2.0
+foo-2.0
+],
+[])
+RPMTEST_CLEANUP
+
+# Shared config file variants of the same cases
+# ------------------------------
+AT_SETUP([upgrade shared config])
+AT_KEYWORDS([install])
+RPMDB_INIT
+for s in "A" "B"; do
+    for v in "1.0" "2.0"; do
+        runroot rpmbuild --quiet -bb \
+            --define "subpkg $s" \
+            --define "ver $v" \
+	    --define "filedata foo" \
+              /data/SPECS/configtest.spec
+    done
+done
+
+# Upgrade package with config file, no backup here
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-1.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-1.0-1.noarch.rpm
+cat "${cf}"
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-2.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-2.0-1.noarch.rpm
+cat "${cf}"
+],
+[0],
+[foo
+foo
+],
+[])
+
+# Upgrade package with locally modified config file, unchanged in pkg
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-1.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-1.0-1.noarch.rpm
+cat "${cf}"
+echo "otherstuff" > "${cf}"
+cat "${cf}"
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-2.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-2.0-1.noarch.rpm
+cat "${cf}"
+],
+[0],
+[foo
+otherstuff
+otherstuff
+],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+AT_SETUP([upgrade changing shared config])
+AT_KEYWORDS([install])
+RPMDB_INIT
+for s in "A" "B"; do
+    for v in "1.0" "2.0"; do
+        runroot rpmbuild --quiet -bb \
+            --define "subpkg $s" \
+            --define "ver $v" \
+	    --define "filedata foo-$v" \
+              /data/SPECS/configtest.spec
+    done
+done
+
+# Upgrade package with unmodified config file, changed in pkg
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-1.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-1.0-1.noarch.rpm
+cat "${cf}"
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-2.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-2.0-1.noarch.rpm
+cat "${cf}"
+],
+[0],
+[foo-1.0
+foo-2.0
+],
+[])
+
+# Upgrade package with locally modified config file, changed in pkg
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-1.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-1.0-1.noarch.rpm
+cat "${cf}"
+echo "otherstuff" > "${RPMTEST}"/etc/my.conf
+cat "${cf}"
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-2.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-2.0-1.noarch.rpm
+cat "${cf}"
+cat "${cf}.rpmsave"
+],
+[0],
+[foo-1.0
+otherstuff
+foo-2.0
+otherstuff
+],
+[warning: /etc/my.conf saved as /etc/my.conf.rpmsave]
+)
+
+# Modified config file matches the content from new package.
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-1.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-1.0-1.noarch.rpm
+cat "${cf}"
+echo "foo-2.0" > "${RPMTEST}"/etc/my.conf
+cat "${cf}"
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-2.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-2.0-1.noarch.rpm
+cat "${cf}"
+],
+[0],
+[foo-1.0
+foo-2.0
+foo-2.0
+],
+[])
+RPMTEST_CLEANUP
+
+# Shared config(noreplace) variants of the more interesting cases
+# ------------------------------
+# Upgrade package with locally modified config file, changed in pkg.
+AT_SETUP([upgrade shared config(noreplace)])
+AT_KEYWORDS([install])
+RPMDB_INIT
+
+for s in "A" "B"; do
+    for v in "1.0" "2.0"; do
+        runroot rpmbuild --quiet -bb \
+            --define "subpkg $s" \
+            --define "ver $v" \
+	    --define "filedata foo-$v" \
+	    --define "noreplace 1" \
+              /data/SPECS/configtest.spec
+    done
+done
+
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-1.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-1.0-1.noarch.rpm
+cat "${cf}"
+echo "otherstuff" > "${RPMTEST}"/etc/my.conf
+cat "${cf}"
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-2.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-2.0-1.noarch.rpm
+cat "${cf}"
+cat "${cf}.rpmnew"
+],
+[0],
+[foo-1.0
+otherstuff
+otherstuff
+foo-2.0
+],
+[warning: /etc/my.conf created as /etc/my.conf.rpmnew]
+)
+
+# ------------------------------
+# Modified config file matches the content from new package.
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-1.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-1.0-1.noarch.rpm
+cat "${cf}"
+echo "foo-2.0" > "${RPMTEST}"/etc/my.conf
+cat "${cf}"
+runroot rpm -U \
+    /build/RPMS/noarch/configtest-A-2.0-1.noarch.rpm \
+    /build/RPMS/noarch/configtest-B-2.0-1.noarch.rpm
+cat "${cf}"
+],
+[0],
+[foo-1.0
+foo-2.0
+foo-2.0
+],
+[])
+RPMTEST_CLEANUP
+
+---------
+# Test pre-existing and post-install config ghost survival and erasure
+AT_SETUP([ghost config])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+cf="${RPMTEST}"/etc/my.conf
+rm -rf "${cf}"*
+
+for v in 1.0 2.0; do
+    runroot rpmbuild --quiet -bb \
+        --define "ver ${v}" \
+        --define "filetype file" \
+        --define "filedata buster" \
+        --define "fileattr %ghost" \
+          /data/SPECS/configtest.spec
+done
+
+# pre-existing config, install, erase
+test ! -f "${cf}" && echo OK1
+echo "keaton" > "${cf}"
+cat "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+cat "${cf}"
+runroot rpm -e configtest
+cat "${cf}"
+rm -f "${cf}"
+
+# post-install config, upgrade, erase
+runroot rpm -U /build/RPMS/noarch/configtest-1.0-1.noarch.rpm
+test ! -f "${cf}" && echo OK2
+echo "buster" > "${cf}"
+cat "${cf}"
+runroot rpm -U /build/RPMS/noarch/configtest-2.0-1.noarch.rpm
+cat "${cf}"
+runroot rpm -e configtest
+cat "${cf}"
+],
+[],
+[OK1
+keaton
+keaton
+keaton
+OK2
+buster
+buster
+buster
+],
+[])
+RPMTEST_CLEANUP

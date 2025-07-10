@@ -1,0 +1,831 @@
+#    rpmscript.at: rpm scriptlet tests
+
+AT_BANNER([RPM scriptlets])
+
+AT_SETUP([basic script failures 1])
+AT_KEYWORDS([script])
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb /data/SPECS/fakeshell.spec
+for v in 1.0 2.0; do
+    runroot rpmbuild --quiet --define "ver ${v}" -bb /data/SPECS/scriptfail.spec
+done
+
+runroot rpm -U /build/RPMS/noarch/fakeshell-1.0-1.noarch.rpm
+
+pkgname="scriptfail"
+pkg1="${pkgname}-1.0-1"
+pkg2="${pkgname}-2.0-1"
+pkgfile1="/build/RPMS/noarch/${pkg1}.noarch.rpm"
+pkgfile2="/build/RPMS/noarch/${pkg2}.noarch.rpm"
+
+RPMTEST_CHECK([
+echo PRETRANSFAIL
+runroot rpm -U --define "exitpretrans 1" ${pkgfile1} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+],
+[1],
+[PRETRANSFAIL
+error: %pretrans(scriptfail-1.0-1.noarch) scriptlet failed, exit status 1
+error: scriptfail-1.0-1.noarch: install skipped
+1
+package scriptfail is not installed
+],
+[])
+
+RPMTEST_CHECK([
+echo PRETRANS
+runroot rpm -U --define "exitpretrans 0" ${pkgfile1} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+runroot rpm -e ${pkgname} 2>&1
+],
+[0],
+[PRETRANS
+0
+scriptfail-1.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+echo PREFAIL
+runroot rpm -U --define "exitpre 1" ${pkgfile1} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+],
+[1],
+[PREFAIL
+error: %prein(scriptfail-1.0-1.noarch) scriptlet failed, exit status 1
+error: scriptfail-1.0-1.noarch: install failed
+1
+package scriptfail is not installed
+],
+[])
+
+RPMTEST_CHECK([
+echo PRE
+runroot rpm -U --define "exitpre 0" ${pkgfile1} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+],
+[0],
+[PRE
+0
+scriptfail-1.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+echo PREUNFAIL
+runroot rpm -e --define "exitpreun 1" ${pkgname} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+],
+[0],
+[PREUNFAIL
+error: %preun(scriptfail-1.0-1.noarch) scriptlet failed, exit status 1
+error: scriptfail-1.0-1.noarch: erase failed
+1
+scriptfail-1.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+echo PREUNTRANSFAIL
+runroot rpm -e --define "exitpreuntrans 1" ${pkgname} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+],
+[0],
+[PREUNTRANSFAIL
+error: %preuntrans(scriptfail-1.0-1.noarch) scriptlet failed, exit status 1
+error: scriptfail-1.0-1.noarch: erase skipped
+1
+scriptfail-1.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+echo PREUN
+runroot rpm -e --define "exitpreun 0" ${pkgname} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+],
+[1],
+[PREUN
+0
+package scriptfail is not installed
+],
+[])
+
+RPMTEST_CHECK([
+echo POSTFAIL
+runroot rpm -U ${pkgfile1} 2>&1
+runroot rpm -U --define "exitpost 1" ${pkgfile2} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+runroot rpm -e ${pkgname} 2>&1
+],
+[0],
+[POSTFAIL
+warning: %post(scriptfail-2.0-1.noarch) scriptlet failed, exit status 1
+0
+scriptfail-2.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+echo POST
+runroot rpm -U ${pkgfile1} 2>&1
+runroot rpm -U --define "exitpost 0" ${pkgfile2} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+runroot rpm -e ${pkgname} 2>&1
+],
+[0],
+[POST
+0
+scriptfail-2.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+echo POSTTRANSFAIL
+runroot rpm -U --define "exitposttrans 1" ${pkgfile1} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+runroot rpm -e ${pkgname} 2>&1
+],
+[0],
+[POSTTRANSFAIL
+warning: %posttrans(scriptfail-1.0-1.noarch) scriptlet failed, exit status 1
+0
+scriptfail-1.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+echo POSTTRANS
+runroot rpm -U --define "exitposttrans 0" ${pkgfile1} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+runroot rpm -e ${pkgname} 2>&1
+],
+[0],
+[POSTTRANS
+0
+scriptfail-1.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+echo POSTUNFAIL
+runroot rpm -U ${pkgfile1} 2>&1
+runroot rpm -U --define "exitpostun 1" ${pkgfile2} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+runroot rpm -e ${pkgname} 2>&1
+],
+[0],
+[POSTUNFAIL
+warning: %postun(scriptfail-1.0-1.noarch) scriptlet failed, exit status 1
+0
+scriptfail-2.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+echo POSTUNTRANSFAIL
+runroot rpm -U ${pkgfile1} 2>&1
+runroot rpm -U --define "exitpostuntrans 1" ${pkgfile2} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+runroot rpm -e ${pkgname} 2>&1
+],
+[0],
+[POSTUNTRANSFAIL
+warning: %postuntrans(scriptfail-1.0-1.noarch) scriptlet failed, exit status 1
+0
+scriptfail-2.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+echo POSTUN
+runroot rpm -U ${pkgfile1} 2>&1
+runroot rpm -U --define "exitpostun 0" ${pkgfile2} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+runroot rpm -e ${pkgname} 2>&1
+],
+[0],
+[POSTUN
+0
+scriptfail-2.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+echo POSTUNTRANS
+runroot rpm -U ${pkgfile1} 2>&1
+runroot rpm -U --define "exitpostuntrans 0" ${pkgfile2} 2>&1; echo $?
+runroot rpm -q ${pkgname} 2>&1
+runroot rpm -e ${pkgname} 2>&1
+],
+[],
+[POSTUNTRANS
+0
+scriptfail-2.0-1.noarch
+],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# 
+AT_SETUP([basic scripts and arguments])
+AT_KEYWORDS([verify script])
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb /data/SPECS/fakeshell.spec
+runroot rpmbuild --quiet -bb --define "rel 1" /data/SPECS/scripts.spec
+runroot rpmbuild --quiet -bb --define "rel 2" /data/SPECS/scripts.spec
+
+runroot rpm -U /build/RPMS/noarch/fakeshell-1.0-1.noarch.rpm
+
+RPMTEST_CHECK([
+runroot rpm -Vvp /build/RPMS/noarch/scripts-1.0-1.noarch.rpm
+],
+[0],
+[scripts-1.0-1 VERIFY 0
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/scripts-1.0-1.noarch.rpm
+],
+[0],
+[scripts-1.0-1 PRETRANS 1
+scripts-1.0-1 PRE 1
+scripts-1.0-1 POST 1
+scripts-1.0-1 POSTTRANS 1
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/scripts-1.0-2.noarch.rpm
+],
+[0],
+[scripts-1.0-2 PRETRANS 2
+scripts-1.0-1 PREUNTRANS 1
+scripts-1.0-2 PRE 2
+scripts-1.0-2 POST 2
+scripts-1.0-1 PREUN 1
+scripts-1.0-1 POSTUN 1
+scripts-1.0-2 POSTTRANS 2
+scripts-1.0-1 POSTUNTRANS 1
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -Vv scripts
+],
+[0],
+[scripts-1.0-2 VERIFY 1
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -e scripts
+],
+[0],
+[scripts-1.0-2 PREUNTRANS 0
+scripts-1.0-2 PREUN 0
+scripts-1.0-2 POSTUN 0
+scripts-1.0-2 POSTUNTRANS 0
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([basic trigger scripts: package args])
+AT_KEYWORDS([trigger script])
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb /data/SPECS/fakeshell.spec
+runroot rpmbuild --quiet -bb /data/SPECS/hello-script.spec
+runroot rpmbuild --quiet -bb /data/SPECS/hlinktest.spec
+runroot rpmbuild --quiet -bb \
+		 --define "rel 1" \
+		 --define "trigpkg hello-script hlinktest non-existent" \
+		 /data/SPECS/triggers.spec
+
+runroot rpm -U /build/RPMS/noarch/fakeshell-1.0-1.noarch.rpm
+runroot rpm -U /build/RPMS/noarch/triggers-1.0-1.noarch.rpm
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/hello-script-1.0-1.noarch.rpm
+runroot rpm -e hello-script
+],
+[0],
+[triggers-1.0-1 TRIGGERPREIN 1 0
+triggers-1.0-1 TRIGGERIN 1 1
+triggers-1.0-1 TRIGGERUN 1 0
+triggers-1.0-1 TRIGGERPOSTUN 1 0
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/hlinktest-1.0-1.noarch.rpm
+runroot rpm -e hlinktest
+],
+[0],
+[triggers-1.0-1 TRIGGERPREIN 1 0
+triggers-1.0-1 TRIGGERIN 1 1
+triggers-1.0-1 TRIGGERUN 1 0
+triggers-1.0-1 TRIGGERPOSTUN 1 0
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/hello-script-1.0-1.noarch.rpm \
+	       /build/RPMS/noarch/hlinktest-1.0-1.noarch.rpm
+runroot rpm -e hello-script hlinktest
+],
+[0],
+[triggers-1.0-1 TRIGGERPREIN 1 0
+triggers-1.0-1 TRIGGERIN 1 1
+triggers-1.0-1 TRIGGERPREIN 1 0
+triggers-1.0-1 TRIGGERIN 1 1
+triggers-1.0-1 TRIGGERUN 1 0
+triggers-1.0-1 TRIGGERPOSTUN 1 0
+triggers-1.0-1 TRIGGERUN 1 0
+triggers-1.0-1 TRIGGERPOSTUN 1 0
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -e triggers
+runroot rpm -U /build/RPMS/noarch/hello-script-1.0-1.noarch.rpm \
+	       /build/RPMS/noarch/hlinktest-1.0-1.noarch.rpm
+runroot rpm -U /build/RPMS/noarch/triggers-1.0-1.noarch.rpm
+runroot rpm -e triggers
+],
+[0],
+[triggers-1.0-1 TRIGGERPREIN 0 1
+triggers-1.0-1 TRIGGERIN 1 1
+triggers-1.0-1 TRIGGERUN 0 1
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([basic trigger scripts: runtime args])
+AT_KEYWORDS([trigger script])
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb /data/SPECS/fakeshell.spec
+runroot rpmbuild --quiet -bb --define "rel 1" /data/SPECS/scripts.spec
+runroot rpmbuild --quiet -bb --define "rel 2" /data/SPECS/scripts.spec
+runroot rpmbuild --quiet -bb --define "rel 1" --define "trigpkg scripts" /data/SPECS/triggers.spec
+runroot rpmbuild --quiet -bb --define "rel 2" --define "trigpkg scripts" /data/SPECS/triggers.spec
+
+runroot rpm -U /build/RPMS/noarch/fakeshell-1.0-1.noarch.rpm
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/triggers-1.0-1.noarch.rpm
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/scripts-1.0-1.noarch.rpm
+],
+[0],
+[scripts-1.0-1 PRETRANS 1
+triggers-1.0-1 TRIGGERPREIN 1 0
+scripts-1.0-1 PRE 1
+scripts-1.0-1 POST 1
+triggers-1.0-1 TRIGGERIN 1 1
+scripts-1.0-1 POSTTRANS 1
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/scripts-1.0-2.noarch.rpm
+],
+[0],
+[scripts-1.0-2 PRETRANS 2
+scripts-1.0-1 PREUNTRANS 1
+triggers-1.0-1 TRIGGERPREIN 1 1
+scripts-1.0-2 PRE 2
+scripts-1.0-2 POST 2
+triggers-1.0-1 TRIGGERIN 1 2
+triggers-1.0-1 TRIGGERUN 1 1
+scripts-1.0-1 PREUN 1
+scripts-1.0-1 POSTUN 1
+triggers-1.0-1 TRIGGERPOSTUN 1 1
+scripts-1.0-2 POSTTRANS 2
+scripts-1.0-1 POSTUNTRANS 1
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/triggers-1.0-2.noarch.rpm
+],
+[0],
+[triggers-1.0-2 TRIGGERPREIN 1 1
+triggers-1.0-2 TRIGGERIN 2 1
+triggers-1.0-1 TRIGGERUN 1 1
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -e scripts
+],
+[0],
+[scripts-1.0-2 PREUNTRANS 0
+triggers-1.0-2 TRIGGERUN 1 0
+scripts-1.0-2 PREUN 0
+scripts-1.0-2 POSTUN 0
+triggers-1.0-2 TRIGGERPOSTUN 1 0
+scripts-1.0-2 POSTUNTRANS 0
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([basic file trigger scripts])
+AT_KEYWORDS([filetrigger script])
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb /data/SPECS/fakeshell.spec
+runroot rpmbuild --quiet -bb /data/SPECS/hello-script.spec
+runroot rpmbuild --quiet -bb /data/SPECS/hlinktest.spec
+runroot rpmbuild --quiet -bb /data/SPECS/filetriggers.spec
+
+runroot rpm -U /build/RPMS/noarch/fakeshell-1.0-1.noarch.rpm
+runroot rpm -U /build/RPMS/noarch/filetriggers-1.0-1.noarch.rpm
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/hello-script-1.0-1.noarch.rpm \
+		/build/RPMS/noarch/hlinktest-1.0-1.noarch.rpm
+],
+[0],
+[filetriggerin(/foo*):
+/foo/aaaa
+/foo/copyllo
+/foo/hello
+/foo/hello-bar
+/foo/hello-foo
+/foo/hello-world
+/foo/zzzz
+
+filetriggerin(/foo*)<lua>:
+/foo/aaaa
+/foo/copyllo
+/foo/hello
+/foo/hello-bar
+/foo/hello-foo
+/foo/hello-world
+/foo/zzzz
+
+filetriggerin(/usr/bin*): 1 1
+/usr/bin/hello
+
+filetriggerin(/usr/bin*)<lua>: 1 1
+/usr/bin/hello
+
+transfiletriggerin(/usr/bin*): 1
+/usr/bin/hello
+
+transfiletriggerin(/foo*):
+/foo/aaaa
+/foo/copyllo
+/foo/hello
+/foo/hello-bar
+/foo/hello-foo
+/foo/hello-world
+/foo/zzzz
+
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -e hello-script hlinktest
+],
+[0],
+[transfiletriggerun(/usr/bin*): 1
+/usr/bin/hello
+
+transfiletriggerun(/foo*):
+/foo/aaaa
+/foo/copyllo
+/foo/hello
+/foo/hello-bar
+/foo/hello-foo
+/foo/hello-world
+/foo/zzzz
+
+filetriggerun(/foo*):
+/foo/aaaa
+/foo/copyllo
+/foo/hello
+/foo/hello-bar
+/foo/hello-foo
+/foo/hello-world
+/foo/zzzz
+
+filetriggerpostun(/foo*):
+/foo/aaaa
+/foo/copyllo
+/foo/hello
+/foo/hello-bar
+/foo/hello-foo
+/foo/hello-world
+/foo/zzzz
+
+filetriggerun(/usr/bin*): 1 0
+/usr/bin/hello
+
+filetriggerun(/usr/bin*)<lua>: 1 0
+/usr/bin/hello
+
+filetriggerpostun(/usr/bin*): 1 0
+/usr/bin/hello
+
+transfiletriggerpostun(/usr/bin*): 1
+
+transfiletriggerpostun(/foo*):
+
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([basic file triggers: prefix args])
+AT_KEYWORDS([filetrigger script])
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb /data/SPECS/fakeshell.spec
+runroot rpmbuild --quiet -bb /data/SPECS/hello-script.spec
+runroot rpmbuild --quiet -bb /data/SPECS/hlinktest.spec
+runroot rpmbuild --quiet -bb /data/SPECS/filetriggers-prefix.spec
+
+runroot rpm -U /build/RPMS/noarch/fakeshell-1.0-1.noarch.rpm
+runroot rpm -U /build/RPMS/noarch/filetriggers-prefix-1.0-1.noarch.rpm
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/hello-script-1.0-1.noarch.rpm
+runroot rpm -e hello-script
+],
+[0],
+[filetriggerin:
+/usr/bin
+
+transfiletriggerin:
+/usr/bin
+
+transfiletriggerun:
+/usr/bin
+
+filetriggerun:
+/usr/bin
+
+filetriggerpostun:
+/usr/bin
+
+transfiletriggerpostun:
+/usr/bin
+
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/hlinktest-1.0-1.noarch.rpm
+runroot rpm -e hlinktest
+],
+[0],
+[filetriggerin:
+/foo
+
+transfiletriggerin:
+/foo
+
+transfiletriggerun:
+/foo
+
+filetriggerun:
+/foo
+
+filetriggerpostun:
+/foo
+
+transfiletriggerpostun:
+/foo
+
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/hello-script-1.0-1.noarch.rpm \
+	       /build/RPMS/noarch/hlinktest-1.0-1.noarch.rpm
+runroot rpm -e hello-script hlinktest
+],
+[0],
+[filetriggerin:
+/foo
+
+filetriggerin:
+/usr/bin
+
+transfiletriggerin:
+/foo
+/usr/bin
+
+transfiletriggerun:
+/foo
+/usr/bin
+
+filetriggerun:
+/foo
+
+filetriggerpostun:
+/foo
+
+filetriggerun:
+/usr/bin
+
+filetriggerpostun:
+/usr/bin
+
+transfiletriggerpostun:
+/usr/bin
+
+transfiletriggerpostun:
+/foo
+
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -e filetriggers-prefix
+runroot rpm -U /build/RPMS/noarch/hello-script-1.0-1.noarch.rpm \
+	       /build/RPMS/noarch/hlinktest-1.0-1.noarch.rpm
+runroot rpm -U /build/RPMS/noarch/filetriggers-prefix-1.0-1.noarch.rpm
+runroot rpm -e filetriggers-prefix
+],
+[0],
+[filetriggerin:
+/foo
+/usr/bin
+
+transfiletriggerin:
+/foo
+/usr/bin
+
+transfiletriggerun:
+/foo
+/usr/bin
+
+filetriggerun:
+/foo
+/usr/bin
+
+],
+[])
+
+RPMTEST_CLEANUP
+
+AT_SETUP([basic file triggers: runtime args])
+AT_KEYWORDS([filetrigger script])
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb /data/SPECS/fakeshell.spec
+for v in 1.0 2.0 3.0; do
+    runroot rpmbuild --quiet -bb --define "ver ${v}" /data/SPECS/parallel.spec
+done
+
+runroot rpm -U /build/RPMS/noarch/fakeshell-1.0-1.noarch.rpm 
+runroot rpm -U /build/RPMS/noarch/parallel-trigger-1.0-1.noarch.rpm
+
+RPMTEST_CHECK([
+runroot rpm -i /build/RPMS/noarch/parallel-1.0-1.noarch.rpm
+],
+[0],
+[parallel-trigger-1.0-1 FILETRIGGERIN 1 1 | 12
+parallel-trigger-1.0-1 TRANSFILETRIGGERIN 1 | 12
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/parallel-2.0-1.noarch.rpm
+],
+[0],
+[parallel-trigger-1.0-1 TRANSFILETRIGGERUN 1 | 12
+parallel-trigger-1.0-1 FILETRIGGERIN 1 2 | 12
+parallel-trigger-1.0-1 FILETRIGGERPOSTUN 1 1 | 11
+parallel-trigger-1.0-1 TRANSFILETRIGGERIN 1 | 12
+parallel-trigger-1.0-1 TRANSFILETRIGGERPOSTUN 1 | 0
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/parallel-trigger-2.0-1.noarch.rpm
+],
+[0],
+[parallel-trigger-1.0-1 TRANSFILETRIGGERUN 1 | 12
+parallel-trigger-2.0-1 FILETRIGGERIN 2 1 | 12
+parallel-trigger-2.0-1 TRANSFILETRIGGERIN 2 | 12
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -e parallel
+],
+[0],
+[parallel-trigger-2.0-1 TRANSFILETRIGGERUN 1 | 12
+parallel-trigger-2.0-1 FILETRIGGERPOSTUN 1 0 | 12
+parallel-trigger-2.0-1 TRANSFILETRIGGERPOSTUN 1 | 0
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -e parallel-trigger
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -i \
+	/build/RPMS/noarch/parallel-1.0-1.noarch.rpm \
+	/build/RPMS/noarch/parallel-2.0-1.noarch.rpm \
+	/build/RPMS/noarch/parallel-3.0-1.noarch.rpm
+runroot rpm -U /build/RPMS/noarch/parallel-trigger-1.0-1.noarch.rpm
+],
+[0],
+[parallel-trigger-1.0-1 FILETRIGGERIN 1 3 | 36
+parallel-trigger-1.0-1 TRANSFILETRIGGERIN 1 | 36
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/parallel-trigger-2.0-1.noarch.rpm
+],
+[0],
+[parallel-trigger-1.0-1 TRANSFILETRIGGERUN 1 | 36
+parallel-trigger-2.0-1 FILETRIGGERIN 2 3 | 36
+parallel-trigger-2.0-1 TRANSFILETRIGGERIN 2 | 36
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -e parallel-trigger
+],
+[0],
+[parallel-trigger-2.0-1 TRANSFILETRIGGERUN 0 | 36
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([script running environment])
+AT_KEYWORDS([script])
+AT_SKIP_IF([test ${HAVE_UNSHARE} = 0])
+RPMDB_INIT
+runroot rpmbuild -bb --quiet \
+	/data/SPECS/fakeshell.spec \
+	/data/SPECS/scriptwrite.spec
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot_other rm -f /tmp/scriptwrite.log
+runroot rpm -U /build/RPMS/noarch/fakeshell-1.0-1.noarch.rpm /build/RPMS/noarch/scriptwrite-1.0-1.noarch.rpm
+runroot_other test -f /tmp/scriptwrite.log
+],
+[1],
+[],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot_other rm -f /tmp/scriptwrite.log
+runroot rpm -U --noplugins /build/RPMS/noarch/fakeshell-1.0-1.noarch.rpm /build/RPMS/noarch/scriptwrite-1.0-1.noarch.rpm
+runroot_other test -f /tmp/scriptwrite.log
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([deprecated Lua functions])
+AT_KEYWORDS([script lua])
+
+# binary pre-built on rpm 4.18 should emit no warnings
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /data/RPMS/luafork-1.0-1.noarch.rpm
+],
+[0],
+[child
+],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmbuild -bb --quiet /data/SPECS/luafork.spec
+runroot rpm -U /build/RPMS/noarch/luafork-1.0-1.noarch.rpm
+],
+[0],
+[child
+],
+[warning: posix.fork(): .fork(), .exec(), .wait() and .redirect2null() are deprecated, use rpm.spawn() or rpm.execute() instead
+warning: posix.wait(): .fork(), .exec(), .wait() and .redirect2null() are deprecated, use rpm.spawn() or rpm.execute() instead
+])
+
+RPMTEST_CLEANUP
+

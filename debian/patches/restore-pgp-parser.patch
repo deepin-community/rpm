@@ -1,0 +1,5749 @@
+Description: restore internal OpenPGP parser
+Origin: https://github.com/rpm-software-management/rpmpgp_legacy/commit/af0aea6ba184211eb9378f0b39e10340844f7ee9
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/CMakeLists.txt
+@@ -0,0 +1,20 @@
++# At least for now, this is can't be built as a standalone project. Ie,
++# it can only be built as a part of rpm build tree.
++add_library(rpmpgp_legacy OBJECT)
++
++option(WITH_LEGACY_OPENPGP "Use legacy OpenPGP parser (DEPRECATED)" OFF)
++
++target_sources(rpmpgp_legacy PRIVATE
++	rpmpgp_internal.h rpmpgp_internal.c rpmpgp_internal_armor.c
++	rpmpgp_internal_api.c rpmpgp_internal_lint.c
++	rpmpgp_internal_pubkey.c rpmpgp_internal_merge.c
++)
++if (WITH_OPENSSL)
++	find_package(OpenSSL 1.0.2 REQUIRED)
++	target_sources(rpmpgp_legacy PRIVATE rpmpgp_internal_openssl.c)
++else()
++	target_sources(rpmpgp_legacy PRIVATE rpmpgp_internal_libgcrypt.c)
++endif()
++target_include_directories(rpmpgp_legacy PRIVATE ${CMAKE_SOURCE_DIR}/rpmio)
++target_include_directories(rpmpgp_legacy PRIVATE ${Intl_INCLUDE_DIRS})
++
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/COPYING
+@@ -0,0 +1,830 @@
++
++The rpmpgp_legacy code may be distributed under the terms of the GNU General
++Public License (GPL) or under the GNU Library General Public License (LGPL).
++The complete text of both licenses is supplied below.
++
++---------------------------------------------------------------------------
++
++		    GNU GENERAL PUBLIC LICENSE
++		       Version 2, June 1991
++
++ Copyright (C) 1989, 1991 Free Software Foundation, Inc.
++                          675 Mass Ave, Cambridge, MA 02139, USA
++ Everyone is permitted to copy and distribute verbatim copies
++ of this license document, but changing it is not allowed.
++
++			    Preamble
++
++  The licenses for most software are designed to take away your
++freedom to share and change it.  By contrast, the GNU General Public
++License is intended to guarantee your freedom to share and change free
++software--to make sure the software is free for all its users.  This
++General Public License applies to most of the Free Software
++Foundation's software and to any other program whose authors commit to
++using it.  (Some other Free Software Foundation software is covered by
++the GNU Library General Public License instead.)  You can apply it to
++your programs, too.
++
++  When we speak of free software, we are referring to freedom, not
++price.  Our General Public Licenses are designed to make sure that you
++have the freedom to distribute copies of free software (and charge for
++this service if you wish), that you receive source code or can get it
++if you want it, that you can change the software or use pieces of it
++in new free programs; and that you know you can do these things.
++
++  To protect your rights, we need to make restrictions that forbid
++anyone to deny you these rights or to ask you to surrender the rights.
++These restrictions translate to certain responsibilities for you if you
++distribute copies of the software, or if you modify it.
++
++  For example, if you distribute copies of such a program, whether
++gratis or for a fee, you must give the recipients all the rights that
++you have.  You must make sure that they, too, receive or can get the
++source code.  And you must show them these terms so they know their
++rights.
++
++  We protect your rights with two steps: (1) copyright the software, and
++(2) offer you this license which gives you legal permission to copy,
++distribute and/or modify the software.
++
++  Also, for each author's protection and ours, we want to make certain
++that everyone understands that there is no warranty for this free
++software.  If the software is modified by someone else and passed on, we
++want its recipients to know that what they have is not the original, so
++that any problems introduced by others will not reflect on the original
++authors' reputations.
++
++  Finally, any free program is threatened constantly by software
++patents.  We wish to avoid the danger that redistributors of a free
++program will individually obtain patent licenses, in effect making the
++program proprietary.  To prevent this, we have made it clear that any
++patent must be licensed for everyone's free use or not licensed at all.
++
++  The precise terms and conditions for copying, distribution and
++modification follow.
++
++		    GNU GENERAL PUBLIC LICENSE
++   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
++
++  0. This License applies to any program or other work which contains
++a notice placed by the copyright holder saying it may be distributed
++under the terms of this General Public License.  The "Program", below,
++refers to any such program or work, and a "work based on the Program"
++means either the Program or any derivative work under copyright law:
++that is to say, a work containing the Program or a portion of it,
++either verbatim or with modifications and/or translated into another
++language.  (Hereinafter, translation is included without limitation in
++the term "modification".)  Each licensee is addressed as "you".
++
++Activities other than copying, distribution and modification are not
++covered by this License; they are outside its scope.  The act of
++running the Program is not restricted, and the output from the Program
++is covered only if its contents constitute a work based on the
++Program (independent of having been made by running the Program).
++Whether that is true depends on what the Program does.
++
++  1. You may copy and distribute verbatim copies of the Program's
++source code as you receive it, in any medium, provided that you
++conspicuously and appropriately publish on each copy an appropriate
++copyright notice and disclaimer of warranty; keep intact all the
++notices that refer to this License and to the absence of any warranty;
++and give any other recipients of the Program a copy of this License
++along with the Program.
++
++You may charge a fee for the physical act of transferring a copy, and
++you may at your option offer warranty protection in exchange for a fee.
++
++  2. You may modify your copy or copies of the Program or any portion
++of it, thus forming a work based on the Program, and copy and
++distribute such modifications or work under the terms of Section 1
++above, provided that you also meet all of these conditions:
++
++    a) You must cause the modified files to carry prominent notices
++    stating that you changed the files and the date of any change.
++
++    b) You must cause any work that you distribute or publish, that in
++    whole or in part contains or is derived from the Program or any
++    part thereof, to be licensed as a whole at no charge to all third
++    parties under the terms of this License.
++
++    c) If the modified program normally reads commands interactively
++    when run, you must cause it, when started running for such
++    interactive use in the most ordinary way, to print or display an
++    announcement including an appropriate copyright notice and a
++    notice that there is no warranty (or else, saying that you provide
++    a warranty) and that users may redistribute the program under
++    these conditions, and telling the user how to view a copy of this
++    License.  (Exception: if the Program itself is interactive but
++    does not normally print such an announcement, your work based on
++    the Program is not required to print an announcement.)
++
++These requirements apply to the modified work as a whole.  If
++identifiable sections of that work are not derived from the Program,
++and can be reasonably considered independent and separate works in
++themselves, then this License, and its terms, do not apply to those
++sections when you distribute them as separate works.  But when you
++distribute the same sections as part of a whole which is a work based
++on the Program, the distribution of the whole must be on the terms of
++this License, whose permissions for other licensees extend to the
++entire whole, and thus to each and every part regardless of who wrote it.
++
++Thus, it is not the intent of this section to claim rights or contest
++your rights to work written entirely by you; rather, the intent is to
++exercise the right to control the distribution of derivative or
++collective works based on the Program.
++
++In addition, mere aggregation of another work not based on the Program
++with the Program (or with a work based on the Program) on a volume of
++a storage or distribution medium does not bring the other work under
++the scope of this License.
++
++  3. You may copy and distribute the Program (or a work based on it,
++under Section 2) in object code or executable form under the terms of
++Sections 1 and 2 above provided that you also do one of the following:
++
++    a) Accompany it with the complete corresponding machine-readable
++    source code, which must be distributed under the terms of Sections
++    1 and 2 above on a medium customarily used for software interchange; or,
++
++    b) Accompany it with a written offer, valid for at least three
++    years, to give any third party, for a charge no more than your
++    cost of physically performing source distribution, a complete
++    machine-readable copy of the corresponding source code, to be
++    distributed under the terms of Sections 1 and 2 above on a medium
++    customarily used for software interchange; or,
++
++    c) Accompany it with the information you received as to the offer
++    to distribute corresponding source code.  (This alternative is
++    allowed only for noncommercial distribution and only if you
++    received the program in object code or executable form with such
++    an offer, in accord with Subsection b above.)
++
++The source code for a work means the preferred form of the work for
++making modifications to it.  For an executable work, complete source
++code means all the source code for all modules it contains, plus any
++associated interface definition files, plus the scripts used to
++control compilation and installation of the executable.  However, as a
++special exception, the source code distributed need not include
++anything that is normally distributed (in either source or binary
++form) with the major components (compiler, kernel, and so on) of the
++operating system on which the executable runs, unless that component
++itself accompanies the executable.
++
++If distribution of executable or object code is made by offering
++access to copy from a designated place, then offering equivalent
++access to copy the source code from the same place counts as
++distribution of the source code, even though third parties are not
++compelled to copy the source along with the object code.
++
++  4. You may not copy, modify, sublicense, or distribute the Program
++except as expressly provided under this License.  Any attempt
++otherwise to copy, modify, sublicense or distribute the Program is
++void, and will automatically terminate your rights under this License.
++However, parties who have received copies, or rights, from you under
++this License will not have their licenses terminated so long as such
++parties remain in full compliance.
++
++  5. You are not required to accept this License, since you have not
++signed it.  However, nothing else grants you permission to modify or
++distribute the Program or its derivative works.  These actions are
++prohibited by law if you do not accept this License.  Therefore, by
++modifying or distributing the Program (or any work based on the
++Program), you indicate your acceptance of this License to do so, and
++all its terms and conditions for copying, distributing or modifying
++the Program or works based on it.
++
++  6. Each time you redistribute the Program (or any work based on the
++Program), the recipient automatically receives a license from the
++original licensor to copy, distribute or modify the Program subject to
++these terms and conditions.  You may not impose any further
++restrictions on the recipients' exercise of the rights granted herein.
++You are not responsible for enforcing compliance by third parties to
++this License.
++
++  7. If, as a consequence of a court judgment or allegation of patent
++infringement or for any other reason (not limited to patent issues),
++conditions are imposed on you (whether by court order, agreement or
++otherwise) that contradict the conditions of this License, they do not
++excuse you from the conditions of this License.  If you cannot
++distribute so as to satisfy simultaneously your obligations under this
++License and any other pertinent obligations, then as a consequence you
++may not distribute the Program at all.  For example, if a patent
++license would not permit royalty-free redistribution of the Program by
++all those who receive copies directly or indirectly through you, then
++the only way you could satisfy both it and this License would be to
++refrain entirely from distribution of the Program.
++
++If any portion of this section is held invalid or unenforceable under
++any particular circumstance, the balance of the section is intended to
++apply and the section as a whole is intended to apply in other
++circumstances.
++
++It is not the purpose of this section to induce you to infringe any
++patents or other property right claims or to contest validity of any
++such claims; this section has the sole purpose of protecting the
++integrity of the free software distribution system, which is
++implemented by public license practices.  Many people have made
++generous contributions to the wide range of software distributed
++through that system in reliance on consistent application of that
++system; it is up to the author/donor to decide if he or she is willing
++to distribute software through any other system and a licensee cannot
++impose that choice.
++
++This section is intended to make thoroughly clear what is believed to
++be a consequence of the rest of this License.
++
++  8. If the distribution and/or use of the Program is restricted in
++certain countries either by patents or by copyrighted interfaces, the
++original copyright holder who places the Program under this License
++may add an explicit geographical distribution limitation excluding
++those countries, so that distribution is permitted only in or among
++countries not thus excluded.  In such case, this License incorporates
++the limitation as if written in the body of this License.
++
++  9. The Free Software Foundation may publish revised and/or new versions
++of the General Public License from time to time.  Such new versions will
++be similar in spirit to the present version, but may differ in detail to
++address new problems or concerns.
++
++Each version is given a distinguishing version number.  If the Program
++specifies a version number of this License which applies to it and "any
++later version", you have the option of following the terms and conditions
++either of that version or of any later version published by the Free
++Software Foundation.  If the Program does not specify a version number of
++this License, you may choose any version ever published by the Free Software
++Foundation.
++
++  10. If you wish to incorporate parts of the Program into other free
++programs whose distribution conditions are different, write to the author
++to ask for permission.  For software which is copyrighted by the Free
++Software Foundation, write to the Free Software Foundation; we sometimes
++make exceptions for this.  Our decision will be guided by the two goals
++of preserving the free status of all derivatives of our free software and
++of promoting the sharing and reuse of software generally.
++
++			    NO WARRANTY
++
++  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
++FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
++OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
++PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED
++OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS
++TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE
++PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING,
++REPAIR OR CORRECTION.
++
++  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
++WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
++REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,
++INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING
++OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED
++TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY
++YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER
++PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
++POSSIBILITY OF SUCH DAMAGES.
++
++		     END OF TERMS AND CONDITIONS
++
++	    How to Apply These Terms to Your New Programs
++
++  If you develop a new program, and you want it to be of the greatest
++possible use to the public, the best way to achieve this is to make it
++free software which everyone can redistribute and change under these terms.
++
++  To do so, attach the following notices to the program.  It is safest
++to attach them to the start of each source file to most effectively
++convey the exclusion of warranty; and each file should have at least
++the "copyright" line and a pointer to where the full notice is found.
++
++    <one line to give the program's name and a brief idea of what it does.>
++    Copyright (C) 19yy  <name of author>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++
++Also add information on how to contact you by electronic and paper mail.
++
++If the program is interactive, make it output a short notice like this
++when it starts in an interactive mode:
++
++    Gnomovision version 69, Copyright (C) 19yy name of author
++    Gnomovision comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
++    This is free software, and you are welcome to redistribute it
++    under certain conditions; type `show c' for details.
++
++The hypothetical commands `show w' and `show c' should show the appropriate
++parts of the General Public License.  Of course, the commands you use may
++be called something other than `show w' and `show c'; they could even be
++mouse-clicks or menu items--whatever suits your program.
++
++You should also get your employer (if you work as a programmer) or your
++school, if any, to sign a "copyright disclaimer" for the program, if
++necessary.  Here is a sample; alter the names:
++
++  Yoyodyne, Inc., hereby disclaims all copyright interest in the program
++  `Gnomovision' (which makes passes at compilers) written by James Hacker.
++
++  <signature of Ty Coon>, 1 April 1989
++  Ty Coon, President of Vice
++
++This General Public License does not permit incorporating your program into
++proprietary programs.  If your program is a subroutine library, you may
++consider it more useful to permit linking proprietary applications with the
++library.  If this is what you want to do, use the GNU Library General
++Public License instead of this License.
++
++---------------------------------------------------------------------------
++
++		  GNU LIBRARY GENERAL PUBLIC LICENSE
++		       Version 2, June 1991
++
++ Copyright (C) 1991 Free Software Foundation, Inc.
++                    675 Mass Ave, Cambridge, MA 02139, USA
++ Everyone is permitted to copy and distribute verbatim copies
++ of this license document, but changing it is not allowed.
++
++[This is the first released version of the library GPL.  It is
++ numbered 2 because it goes with version 2 of the ordinary GPL.]
++
++			    Preamble
++
++  The licenses for most software are designed to take away your
++freedom to share and change it.  By contrast, the GNU General Public
++Licenses are intended to guarantee your freedom to share and change
++free software--to make sure the software is free for all its users.
++
++  This license, the Library General Public License, applies to some
++specially designated Free Software Foundation software, and to any
++other libraries whose authors decide to use it.  You can use it for
++your libraries, too.
++
++  When we speak of free software, we are referring to freedom, not
++price.  Our General Public Licenses are designed to make sure that you
++have the freedom to distribute copies of free software (and charge for
++this service if you wish), that you receive source code or can get it
++if you want it, that you can change the software or use pieces of it
++in new free programs; and that you know you can do these things.
++
++  To protect your rights, we need to make restrictions that forbid
++anyone to deny you these rights or to ask you to surrender the rights.
++These restrictions translate to certain responsibilities for you if
++you distribute copies of the library, or if you modify it.
++
++  For example, if you distribute copies of the library, whether gratis
++or for a fee, you must give the recipients all the rights that we gave
++you.  You must make sure that they, too, receive or can get the source
++code.  If you link a program with the library, you must provide
++complete object files to the recipients so that they can relink them
++with the library, after making changes to the library and recompiling
++it.  And you must show them these terms so they know their rights.
++
++  Our method of protecting your rights has two steps: (1) copyright
++the library, and (2) offer you this license which gives you legal
++permission to copy, distribute and/or modify the library.
++
++  Also, for each distributor's protection, we want to make certain
++that everyone understands that there is no warranty for this free
++library.  If the library is modified by someone else and passed on, we
++want its recipients to know that what they have is not the original
++version, so that any problems introduced by others will not reflect on
++the original authors' reputations.
++
++  Finally, any free program is threatened constantly by software
++patents.  We wish to avoid the danger that companies distributing free
++software will individually obtain patent licenses, thus in effect
++transforming the program into proprietary software.  To prevent this,
++we have made it clear that any patent must be licensed for everyone's
++free use or not licensed at all.
++
++  Most GNU software, including some libraries, is covered by the ordinary
++GNU General Public License, which was designed for utility programs.  This
++license, the GNU Library General Public License, applies to certain
++designated libraries.  This license is quite different from the ordinary
++one; be sure to read it in full, and don't assume that anything in it is
++the same as in the ordinary license.
++
++  The reason we have a separate public license for some libraries is that
++they blur the distinction we usually make between modifying or adding to a
++program and simply using it.  Linking a program with a library, without
++changing the library, is in some sense simply using the library, and is
++analogous to running a utility program or application program.  However, in
++a textual and legal sense, the linked executable is a combined work, a
++derivative of the original library, and the ordinary General Public License
++treats it as such.
++
++  Because of this blurred distinction, using the ordinary General
++Public License for libraries did not effectively promote software
++sharing, because most developers did not use the libraries.  We
++concluded that weaker conditions might promote sharing better.
++
++  However, unrestricted linking of non-free programs would deprive the
++users of those programs of all benefit from the free status of the
++libraries themselves.  This Library General Public License is intended to
++permit developers of non-free programs to use free libraries, while
++preserving your freedom as a user of such programs to change the free
++libraries that are incorporated in them.  (We have not seen how to achieve
++this as regards changes in header files, but we have achieved it as regards
++changes in the actual functions of the Library.)  The hope is that this
++will lead to faster development of free libraries.
++
++  The precise terms and conditions for copying, distribution and
++modification follow.  Pay close attention to the difference between a
++"work based on the library" and a "work that uses the library".  The
++former contains code derived from the library, while the latter only
++works together with the library.
++
++  Note that it is possible for a library to be covered by the ordinary
++General Public License rather than by this special one.
++
++		  GNU LIBRARY GENERAL PUBLIC LICENSE
++   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
++
++  0. This License Agreement applies to any software library which
++contains a notice placed by the copyright holder or other authorized
++party saying it may be distributed under the terms of this Library
++General Public License (also called "this License").  Each licensee is
++addressed as "you".
++
++  A "library" means a collection of software functions and/or data
++prepared so as to be conveniently linked with application programs
++(which use some of those functions and data) to form executables.
++
++  The "Library", below, refers to any such software library or work
++which has been distributed under these terms.  A "work based on the
++Library" means either the Library or any derivative work under
++copyright law: that is to say, a work containing the Library or a
++portion of it, either verbatim or with modifications and/or translated
++straightforwardly into another language.  (Hereinafter, translation is
++included without limitation in the term "modification".)
++
++  "Source code" for a work means the preferred form of the work for
++making modifications to it.  For a library, complete source code means
++all the source code for all modules it contains, plus any associated
++interface definition files, plus the scripts used to control compilation
++and installation of the library.
++
++  Activities other than copying, distribution and modification are not
++covered by this License; they are outside its scope.  The act of
++running a program using the Library is not restricted, and output from
++such a program is covered only if its contents constitute a work based
++on the Library (independent of the use of the Library in a tool for
++writing it).  Whether that is true depends on what the Library does
++and what the program that uses the Library does.
++  
++  1. You may copy and distribute verbatim copies of the Library's
++complete source code as you receive it, in any medium, provided that
++you conspicuously and appropriately publish on each copy an
++appropriate copyright notice and disclaimer of warranty; keep intact
++all the notices that refer to this License and to the absence of any
++warranty; and distribute a copy of this License along with the
++Library.
++
++  You may charge a fee for the physical act of transferring a copy,
++and you may at your option offer warranty protection in exchange for a
++fee.
++
++  2. You may modify your copy or copies of the Library or any portion
++of it, thus forming a work based on the Library, and copy and
++distribute such modifications or work under the terms of Section 1
++above, provided that you also meet all of these conditions:
++
++    a) The modified work must itself be a software library.
++
++    b) You must cause the files modified to carry prominent notices
++    stating that you changed the files and the date of any change.
++
++    c) You must cause the whole of the work to be licensed at no
++    charge to all third parties under the terms of this License.
++
++    d) If a facility in the modified Library refers to a function or a
++    table of data to be supplied by an application program that uses
++    the facility, other than as an argument passed when the facility
++    is invoked, then you must make a good faith effort to ensure that,
++    in the event an application does not supply such function or
++    table, the facility still operates, and performs whatever part of
++    its purpose remains meaningful.
++
++    (For example, a function in a library to compute square roots has
++    a purpose that is entirely well-defined independent of the
++    application.  Therefore, Subsection 2d requires that any
++    application-supplied function or table used by this function must
++    be optional: if the application does not supply it, the square
++    root function must still compute square roots.)
++
++These requirements apply to the modified work as a whole.  If
++identifiable sections of that work are not derived from the Library,
++and can be reasonably considered independent and separate works in
++themselves, then this License, and its terms, do not apply to those
++sections when you distribute them as separate works.  But when you
++distribute the same sections as part of a whole which is a work based
++on the Library, the distribution of the whole must be on the terms of
++this License, whose permissions for other licensees extend to the
++entire whole, and thus to each and every part regardless of who wrote
++it.
++
++Thus, it is not the intent of this section to claim rights or contest
++your rights to work written entirely by you; rather, the intent is to
++exercise the right to control the distribution of derivative or
++collective works based on the Library.
++
++In addition, mere aggregation of another work not based on the Library
++with the Library (or with a work based on the Library) on a volume of
++a storage or distribution medium does not bring the other work under
++the scope of this License.
++
++  3. You may opt to apply the terms of the ordinary GNU General Public
++License instead of this License to a given copy of the Library.  To do
++this, you must alter all the notices that refer to this License, so
++that they refer to the ordinary GNU General Public License, version 2,
++instead of to this License.  (If a newer version than version 2 of the
++ordinary GNU General Public License has appeared, then you can specify
++that version instead if you wish.)  Do not make any other change in
++these notices.
++
++  Once this change is made in a given copy, it is irreversible for
++that copy, so the ordinary GNU General Public License applies to all
++subsequent copies and derivative works made from that copy.
++
++  This option is useful when you wish to copy part of the code of
++the Library into a program that is not a library.
++
++  4. You may copy and distribute the Library (or a portion or
++derivative of it, under Section 2) in object code or executable form
++under the terms of Sections 1 and 2 above provided that you accompany
++it with the complete corresponding machine-readable source code, which
++must be distributed under the terms of Sections 1 and 2 above on a
++medium customarily used for software interchange.
++
++  If distribution of object code is made by offering access to copy
++from a designated place, then offering equivalent access to copy the
++source code from the same place satisfies the requirement to
++distribute the source code, even though third parties are not
++compelled to copy the source along with the object code.
++
++  5. A program that contains no derivative of any portion of the
++Library, but is designed to work with the Library by being compiled or
++linked with it, is called a "work that uses the Library".  Such a
++work, in isolation, is not a derivative work of the Library, and
++therefore falls outside the scope of this License.
++
++  However, linking a "work that uses the Library" with the Library
++creates an executable that is a derivative of the Library (because it
++contains portions of the Library), rather than a "work that uses the
++library".  The executable is therefore covered by this License.
++Section 6 states terms for distribution of such executables.
++
++  When a "work that uses the Library" uses material from a header file
++that is part of the Library, the object code for the work may be a
++derivative work of the Library even though the source code is not.
++Whether this is true is especially significant if the work can be
++linked without the Library, or if the work is itself a library.  The
++threshold for this to be true is not precisely defined by law.
++
++  If such an object file uses only numerical parameters, data
++structure layouts and accessors, and small macros and small inline
++functions (ten lines or less in length), then the use of the object
++file is unrestricted, regardless of whether it is legally a derivative
++work.  (Executables containing this object code plus portions of the
++Library will still fall under Section 6.)
++
++  Otherwise, if the work is a derivative of the Library, you may
++distribute the object code for the work under the terms of Section 6.
++Any executables containing that work also fall under Section 6,
++whether or not they are linked directly with the Library itself.
++
++  6. As an exception to the Sections above, you may also compile or
++link a "work that uses the Library" with the Library to produce a
++work containing portions of the Library, and distribute that work
++under terms of your choice, provided that the terms permit
++modification of the work for the customer's own use and reverse
++engineering for debugging such modifications.
++
++  You must give prominent notice with each copy of the work that the
++Library is used in it and that the Library and its use are covered by
++this License.  You must supply a copy of this License.  If the work
++during execution displays copyright notices, you must include the
++copyright notice for the Library among them, as well as a reference
++directing the user to the copy of this License.  Also, you must do one
++of these things:
++
++    a) Accompany the work with the complete corresponding
++    machine-readable source code for the Library including whatever
++    changes were used in the work (which must be distributed under
++    Sections 1 and 2 above); and, if the work is an executable linked
++    with the Library, with the complete machine-readable "work that
++    uses the Library", as object code and/or source code, so that the
++    user can modify the Library and then relink to produce a modified
++    executable containing the modified Library.  (It is understood
++    that the user who changes the contents of definitions files in the
++    Library will not necessarily be able to recompile the application
++    to use the modified definitions.)
++
++    b) Accompany the work with a written offer, valid for at
++    least three years, to give the same user the materials
++    specified in Subsection 6a, above, for a charge no more
++    than the cost of performing this distribution.
++
++    c) If distribution of the work is made by offering access to copy
++    from a designated place, offer equivalent access to copy the above
++    specified materials from the same place.
++
++    d) Verify that the user has already received a copy of these
++    materials or that you have already sent this user a copy.
++
++  For an executable, the required form of the "work that uses the
++Library" must include any data and utility programs needed for
++reproducing the executable from it.  However, as a special exception,
++the source code distributed need not include anything that is normally
++distributed (in either source or binary form) with the major
++components (compiler, kernel, and so on) of the operating system on
++which the executable runs, unless that component itself accompanies
++the executable.
++
++  It may happen that this requirement contradicts the license
++restrictions of other proprietary libraries that do not normally
++accompany the operating system.  Such a contradiction means you cannot
++use both them and the Library together in an executable that you
++distribute.
++
++  7. You may place library facilities that are a work based on the
++Library side-by-side in a single library together with other library
++facilities not covered by this License, and distribute such a combined
++library, provided that the separate distribution of the work based on
++the Library and of the other library facilities is otherwise
++permitted, and provided that you do these two things:
++
++    a) Accompany the combined library with a copy of the same work
++    based on the Library, uncombined with any other library
++    facilities.  This must be distributed under the terms of the
++    Sections above.
++
++    b) Give prominent notice with the combined library of the fact
++    that part of it is a work based on the Library, and explaining
++    where to find the accompanying uncombined form of the same work.
++
++  8. You may not copy, modify, sublicense, link with, or distribute
++the Library except as expressly provided under this License.  Any
++attempt otherwise to copy, modify, sublicense, link with, or
++distribute the Library is void, and will automatically terminate your
++rights under this License.  However, parties who have received copies,
++or rights, from you under this License will not have their licenses
++terminated so long as such parties remain in full compliance.
++
++  9. You are not required to accept this License, since you have not
++signed it.  However, nothing else grants you permission to modify or
++distribute the Library or its derivative works.  These actions are
++prohibited by law if you do not accept this License.  Therefore, by
++modifying or distributing the Library (or any work based on the
++Library), you indicate your acceptance of this License to do so, and
++all its terms and conditions for copying, distributing or modifying
++the Library or works based on it.
++
++  10. Each time you redistribute the Library (or any work based on the
++Library), the recipient automatically receives a license from the
++original licensor to copy, distribute, link with or modify the Library
++subject to these terms and conditions.  You may not impose any further
++restrictions on the recipients' exercise of the rights granted herein.
++You are not responsible for enforcing compliance by third parties to
++this License.
++
++  11. If, as a consequence of a court judgment or allegation of patent
++infringement or for any other reason (not limited to patent issues),
++conditions are imposed on you (whether by court order, agreement or
++otherwise) that contradict the conditions of this License, they do not
++excuse you from the conditions of this License.  If you cannot
++distribute so as to satisfy simultaneously your obligations under this
++License and any other pertinent obligations, then as a consequence you
++may not distribute the Library at all.  For example, if a patent
++license would not permit royalty-free redistribution of the Library by
++all those who receive copies directly or indirectly through you, then
++the only way you could satisfy both it and this License would be to
++refrain entirely from distribution of the Library.
++
++If any portion of this section is held invalid or unenforceable under any
++particular circumstance, the balance of the section is intended to apply,
++and the section as a whole is intended to apply in other circumstances.
++
++It is not the purpose of this section to induce you to infringe any
++patents or other property right claims or to contest validity of any
++such claims; this section has the sole purpose of protecting the
++integrity of the free software distribution system which is
++implemented by public license practices.  Many people have made
++generous contributions to the wide range of software distributed
++through that system in reliance on consistent application of that
++system; it is up to the author/donor to decide if he or she is willing
++to distribute software through any other system and a licensee cannot
++impose that choice.
++
++This section is intended to make thoroughly clear what is believed to
++be a consequence of the rest of this License.
++
++  12. If the distribution and/or use of the Library is restricted in
++certain countries either by patents or by copyrighted interfaces, the
++original copyright holder who places the Library under this License may add
++an explicit geographical distribution limitation excluding those countries,
++so that distribution is permitted only in or among countries not thus
++excluded.  In such case, this License incorporates the limitation as if
++written in the body of this License.
++
++  13. The Free Software Foundation may publish revised and/or new
++versions of the Library General Public License from time to time.
++Such new versions will be similar in spirit to the present version,
++but may differ in detail to address new problems or concerns.
++
++Each version is given a distinguishing version number.  If the Library
++specifies a version number of this License which applies to it and
++"any later version", you have the option of following the terms and
++conditions either of that version or of any later version published by
++the Free Software Foundation.  If the Library does not specify a
++license version number, you may choose any version ever published by
++the Free Software Foundation.
++
++  14. If you wish to incorporate parts of the Library into other free
++programs whose distribution conditions are incompatible with these,
++write to the author to ask for permission.  For software which is
++copyrighted by the Free Software Foundation, write to the Free
++Software Foundation; we sometimes make exceptions for this.  Our
++decision will be guided by the two goals of preserving the free status
++of all derivatives of our free software and of promoting the sharing
++and reuse of software generally.
++
++			    NO WARRANTY
++
++  15. BECAUSE THE LIBRARY IS LICENSED FREE OF CHARGE, THERE IS NO
++WARRANTY FOR THE LIBRARY, TO THE EXTENT PERMITTED BY APPLICABLE LAW.
++EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR
++OTHER PARTIES PROVIDE THE LIBRARY "AS IS" WITHOUT WARRANTY OF ANY
++KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE
++IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
++PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE
++LIBRARY IS WITH YOU.  SHOULD THE LIBRARY PROVE DEFECTIVE, YOU ASSUME
++THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
++
++  16. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN
++WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY
++AND/OR REDISTRIBUTE THE LIBRARY AS PERMITTED ABOVE, BE LIABLE TO YOU
++FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR
++CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE
++LIBRARY (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
++RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
++FAILURE OF THE LIBRARY TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
++SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
++DAMAGES.
++
++		     END OF TERMS AND CONDITIONS
++
++     Appendix: How to Apply These Terms to Your New Libraries
++
++  If you develop a new library, and you want it to be of the greatest
++possible use to the public, we recommend making it free software that
++everyone can redistribute and change.  You can do so by permitting
++redistribution under these terms (or, alternatively, under the terms of the
++ordinary General Public License).
++
++  To apply these terms, attach the following notices to the library.  It is
++safest to attach them to the start of each source file to most effectively
++convey the exclusion of warranty; and each file should have at least the
++"copyright" line and a pointer to where the full notice is found.
++
++    <one line to give the library's name and a brief idea of what it does.>
++    Copyright (C) <year>  <name of author>
++
++    This library is free software; you can redistribute it and/or
++    modify it under the terms of the GNU Library General Public
++    License as published by the Free Software Foundation; either
++    version 2 of the License, or (at your option) any later version.
++
++    This library is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++    Library General Public License for more details.
++
++    You should have received a copy of the GNU Library General Public
++    License along with this library; if not, write to the Free
++    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++
++Also add information on how to contact you by electronic and paper mail.
++
++You should also get your employer (if you work as a programmer) or your
++school, if any, to sign a "copyright disclaimer" for the library, if
++necessary.  Here is a sample; alter the names:
++
++  Yoyodyne, Inc., hereby disclaims all copyright interest in the
++  library `Frob' (a library for tweaking knobs) written by James Random Hacker.
++
++  <signature of Ty Coon>, 1 April 1990
++  Ty Coon, President of Vice
++
++That's all there is to it!
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/README
+@@ -0,0 +1,28 @@
++
++This is the former internal RPM OpenPGP parser, split out of the rpm
++tree after twenty years of service.
++
++This is not a standalone project, it can only be built as a part of RPM.
++To build, check this repository into the rpmio/ directory of RPM's
++sources and re-run cmake with `-DWITH_SEQUOIA=OFF -DWITH_LEGACY_OPENPGP=ON`
++
++Use entirely at your own risk, the RPM project does not provide support
++for this parser.
++
++Supported crypto backends:
++  * libgcrypt
++  * openssl
++
++Supported public key algorithms:
++  * RSA
++  * DSA
++  * ECDSA (NIST P-256, NIST P-384, NIST P-521)
++  * EDDSA (Ed25519)
++
++Supported PGP features:
++  * subkeys
++  * key expiry
++  * key revokation
++  * signature expiry
++
++// vim: syntax=markdown
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/digest_libgcrypt.c
+@@ -0,0 +1,445 @@
++#include "system.h"
++
++#include <gcrypt.h>
++
++#include <rpm/rpmcrypto.h>
++#include "rpmpgp_internal.h"
++#include "debug.h"
++
++static int hashalgo2gcryalgo(int hashalgo)
++{
++    switch (hashalgo) {
++    case RPM_HASH_MD5:
++	return GCRY_MD_MD5;
++    case RPM_HASH_SHA1:
++	return GCRY_MD_SHA1;
++    case RPM_HASH_SHA224:
++	return GCRY_MD_SHA224;
++    case RPM_HASH_SHA256:
++	return GCRY_MD_SHA256;
++    case RPM_HASH_SHA384:
++	return GCRY_MD_SHA384;
++    case RPM_HASH_SHA512:
++	return GCRY_MD_SHA512;
++    default:
++	return 0;
++    }
++}
++
++/****************************** RSA **************************************/
++
++struct pgpDigSigRSA_s {
++    gcry_mpi_t s;
++};
++
++struct pgpDigKeyRSA_s {
++    gcry_mpi_t n;
++    gcry_mpi_t e;
++};
++
++static int pgpSetSigMpiRSA(pgpDigAlg pgpsig, int num, const uint8_t *p)
++{
++    struct pgpDigSigRSA_s *sig = pgpsig->data;
++    int mlen = pgpMpiLen(p);
++    int rc = 1;
++
++    if (!sig)
++	sig = pgpsig->data = xcalloc(1, sizeof(*sig));
++
++    switch (num) {
++    case 0:
++	if (!gcry_mpi_scan(&sig->s, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = 0;
++	break;
++    }
++    return rc;
++}
++
++static int pgpSetKeyMpiRSA(pgpDigAlg pgpkey, int num, const uint8_t *p)
++{
++    struct pgpDigKeyRSA_s *key = pgpkey->data;
++    int mlen = pgpMpiLen(p);
++    int rc = 1;
++
++    if (!key)
++	key = pgpkey->data = xcalloc(1, sizeof(*key));
++
++    switch (num) {
++    case 0:
++	if (!gcry_mpi_scan(&key->n, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = 0;
++	break;
++    case 1:
++	if (!gcry_mpi_scan(&key->e, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = 0;
++	break;
++    }
++    return rc;
++}
++
++static int pgpVerifySigRSA(pgpDigAlg pgpkey, pgpDigAlg pgpsig, uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    struct pgpDigKeyRSA_s *key = pgpkey->data;
++    struct pgpDigSigRSA_s *sig = pgpsig->data;
++    gcry_sexp_t sexp_sig = NULL, sexp_data = NULL, sexp_pkey = NULL;
++    const char *hash_algo_name;
++    int rc = 1;
++
++    if (!sig || !key)
++	return rc;
++
++    hash_algo_name = gcry_md_algo_name(hashalgo2gcryalgo(hash_algo));
++    gcry_sexp_build(&sexp_sig, NULL, "(sig-val (rsa (s %M)))", sig->s);
++    gcry_sexp_build(&sexp_data, NULL, "(data (flags pkcs1) (hash %s %b))", hash_algo_name, (int)hashlen, (const char *)hash);
++    gcry_sexp_build(&sexp_pkey, NULL, "(public-key (rsa (n %M) (e %M)))", key->n, key->e);
++    if (sexp_sig && sexp_data && sexp_pkey)
++	rc = gcry_pk_verify(sexp_sig, sexp_data, sexp_pkey) == 0 ? 0 : 1;
++    gcry_sexp_release(sexp_sig);
++    gcry_sexp_release(sexp_data);
++    gcry_sexp_release(sexp_pkey);
++    return rc;
++}
++
++static void pgpFreeSigRSA(pgpDigAlg pgpsig)
++{
++    struct pgpDigSigRSA_s *sig = pgpsig->data;
++    if (sig) {
++        gcry_mpi_release(sig->s);
++	pgpsig->data = _free(sig);
++    }
++}
++
++static void pgpFreeKeyRSA(pgpDigAlg pgpkey)
++{
++    struct pgpDigKeyRSA_s *key = pgpkey->data;
++    if (key) {
++        gcry_mpi_release(key->n);
++        gcry_mpi_release(key->e);
++	pgpkey->data = _free(key);
++    }
++}
++
++
++/****************************** DSA **************************************/
++
++struct pgpDigSigDSA_s {
++    gcry_mpi_t r;
++    gcry_mpi_t s;
++};
++
++struct pgpDigKeyDSA_s {
++    gcry_mpi_t p;
++    gcry_mpi_t q;
++    gcry_mpi_t g;
++    gcry_mpi_t y;
++};
++
++static int pgpSetSigMpiDSA(pgpDigAlg pgpsig, int num, const uint8_t *p)
++{
++    struct pgpDigSigDSA_s *sig = pgpsig->data;
++    int mlen = pgpMpiLen(p);
++    int rc = 1;
++
++    if (!sig)
++	sig = pgpsig->data = xcalloc(1, sizeof(*sig));
++
++    switch (num) {
++    case 0:
++	if (!gcry_mpi_scan(&sig->r, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = 0;
++	break;
++    case 1:
++	if (!gcry_mpi_scan(&sig->s, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = 0;
++	break;
++    }
++    return rc;
++}
++
++static int pgpSetKeyMpiDSA(pgpDigAlg pgpkey, int num, const uint8_t *p)
++{
++    struct pgpDigKeyDSA_s *key = pgpkey->data;
++    int mlen = pgpMpiLen(p);
++    int rc = 1;
++
++    if (!key)
++	key = pgpkey->data = xcalloc(1, sizeof(*key));
++
++    switch (num) {
++    case 0:
++	if (!gcry_mpi_scan(&key->p, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = 0;
++	break;
++    case 1:
++	if (!gcry_mpi_scan(&key->q, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = 0;
++	break;
++    case 2:
++	if (!gcry_mpi_scan(&key->g, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = 0;
++	break;
++    case 3:
++	if (!gcry_mpi_scan(&key->y, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = 0;
++	break;
++    }
++    return rc;
++}
++
++static int pgpVerifySigDSA(pgpDigAlg pgpkey, pgpDigAlg pgpsig, uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    struct pgpDigKeyDSA_s *key = pgpkey->data;
++    struct pgpDigSigDSA_s *sig = pgpsig->data;
++    gcry_sexp_t sexp_sig = NULL, sexp_data = NULL, sexp_pkey = NULL;
++    int rc = 1;
++    size_t qlen;
++
++    if (!sig || !key)
++	return rc;
++
++    qlen = (mpi_get_nbits(key->q) + 7) / 8;
++    if (qlen < 20)
++	qlen = 20;		/* sanity */
++    if (hashlen > qlen)
++	hashlen = qlen;		/* dsa2: truncate hash to qlen */
++    gcry_sexp_build(&sexp_sig, NULL, "(sig-val (dsa (r %M) (s %M)))", sig->r, sig->s);
++    gcry_sexp_build(&sexp_data, NULL, "(data (flags raw) (value %b))", (int)hashlen, (const char *)hash);
++    gcry_sexp_build(&sexp_pkey, NULL, "(public-key (dsa (p %M) (q %M) (g %M) (y %M)))", key->p, key->q, key->g, key->y);
++    if (sexp_sig && sexp_data && sexp_pkey)
++	rc = gcry_pk_verify(sexp_sig, sexp_data, sexp_pkey) == 0 ? 0 : 1;
++    gcry_sexp_release(sexp_sig);
++    gcry_sexp_release(sexp_data);
++    gcry_sexp_release(sexp_pkey);
++    return rc;
++}
++
++static void pgpFreeSigDSA(pgpDigAlg pgpsig)
++{
++    struct pgpDigSigDSA_s *sig = pgpsig->data;
++    if (sig) {
++        gcry_mpi_release(sig->r);
++        gcry_mpi_release(sig->s);
++	pgpsig->data = _free(sig);
++    }
++}
++
++static void pgpFreeKeyDSA(pgpDigAlg pgpkey)
++{
++    struct pgpDigKeyDSA_s *key = pgpkey->data;
++    if (key) {
++        gcry_mpi_release(key->p);
++        gcry_mpi_release(key->q);
++        gcry_mpi_release(key->g);
++        gcry_mpi_release(key->y);
++	pgpkey->data = _free(key);
++    }
++}
++
++
++/****************************** EDDSA **************************************/
++
++struct pgpDigSigEDDSA_s {
++    gcry_mpi_t r;
++    gcry_mpi_t s;
++};
++
++struct pgpDigKeyEDDSA_s {
++    gcry_mpi_t q;
++};
++
++static int pgpSetSigMpiEDDSA(pgpDigAlg pgpsig, int num, const uint8_t *p)
++{
++    struct pgpDigSigEDDSA_s *sig = pgpsig->data;
++    int mlen = pgpMpiLen(p);
++    int rc = 1;
++
++    if (!sig)
++	sig = pgpsig->data = xcalloc(1, sizeof(*sig));
++
++    switch (num) {
++    case 0:
++	if (!gcry_mpi_scan(&sig->r, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = 0;
++	break;
++    case 1:
++	if (!gcry_mpi_scan(&sig->s, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = 0;
++	break;
++    }
++    return rc;
++}
++
++static int pgpSetKeyMpiEDDSA(pgpDigAlg pgpkey, int num, const uint8_t *p)
++{
++    struct pgpDigKeyEDDSA_s *key = pgpkey->data;
++    int mlen = pgpMpiLen(p);
++    int rc = 1;
++
++    if (!key)
++	key = pgpkey->data = xcalloc(1, sizeof(*key));
++
++    switch (num) {
++    case 0:
++	if (!gcry_mpi_scan(&key->q, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = 0;
++	break;
++    }
++    return rc;
++}
++
++static int
++ed25519_zero_extend(gcry_mpi_t x, unsigned char *buf, int bufl)
++{
++    int n = (gcry_mpi_get_nbits(x) + 7) / 8;
++    if (n == 0 || n > bufl)
++	return 1;
++    n = bufl - n;
++    if (n)
++	memset(buf, 0, n);
++    gcry_mpi_print(GCRYMPI_FMT_USG, buf + n, bufl - n, NULL, x);
++    return 0;
++}
++
++static int pgpVerifySigEDDSA(pgpDigAlg pgpkey, pgpDigAlg pgpsig, uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    struct pgpDigKeyEDDSA_s *key = pgpkey->data;
++    struct pgpDigSigEDDSA_s *sig = pgpsig->data;
++    gcry_sexp_t sexp_sig = NULL, sexp_data = NULL, sexp_pkey = NULL;
++    int rc = 1;
++    unsigned char buf_r[32], buf_s[32];
++
++    if (!sig || !key)
++	return rc;
++    if (pgpkey->curve != PGPCURVE_ED25519)
++	return rc;
++    if (ed25519_zero_extend(sig->r, buf_r, 32) || ed25519_zero_extend(sig->s, buf_s, 32))
++	return rc;
++    gcry_sexp_build(&sexp_sig, NULL, "(sig-val (eddsa (r %b) (s %b)))", 32, (const char *)buf_r, 32, (const char *)buf_s, 32);
++    gcry_sexp_build(&sexp_data, NULL, "(data (flags eddsa) (hash-algo sha512) (value %b))", (int)hashlen, (const char *)hash);
++    gcry_sexp_build(&sexp_pkey, NULL, "(public-key (ecc (curve \"Ed25519\") (flags eddsa) (q %M)))", key->q);
++    if (sexp_sig && sexp_data && sexp_pkey)
++	rc = gcry_pk_verify(sexp_sig, sexp_data, sexp_pkey) == 0 ? 0 : 1;
++    gcry_sexp_release(sexp_sig);
++    gcry_sexp_release(sexp_data);
++    gcry_sexp_release(sexp_pkey);
++    return rc;
++}
++
++static void pgpFreeSigEDDSA(pgpDigAlg pgpsig)
++{
++    struct pgpDigSigEDDSA_s *sig = pgpsig->data;
++    if (sig) {
++	gcry_mpi_release(sig->r);
++	gcry_mpi_release(sig->s);
++	pgpsig->data = _free(sig);
++    }
++}
++
++static void pgpFreeKeyEDDSA(pgpDigAlg pgpkey)
++{
++    struct pgpDigKeyEDDSA_s *key = pgpkey->data;
++    if (key) {
++	gcry_mpi_release(key->q);
++	pgpkey->data = _free(key);
++    }
++}
++
++
++/****************************** NULL **************************************/
++
++static int pgpSetMpiNULL(pgpDigAlg pgpkey, int num, const uint8_t *p)
++{
++    return 1;
++}
++
++static int pgpVerifyNULL(pgpDigAlg pgpkey, pgpDigAlg pgpsig,
++                         uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    return 1;
++}
++
++static int pgpSupportedCurve(int curve)
++{
++    if (curve == PGPCURVE_ED25519) {
++	static int supported_ed25519;
++	if (!supported_ed25519) {
++	    gcry_sexp_t sexp = NULL;
++	    unsigned int nbits;
++	    gcry_sexp_build(&sexp, NULL, "(public-key (ecc (curve \"Ed25519\")))");
++	    nbits = gcry_pk_get_nbits(sexp);
++	    gcry_sexp_release(sexp);
++	    supported_ed25519 = nbits > 0 ? 1 : -1;
++	}
++	return supported_ed25519 > 0;
++    }
++    return 0;
++}
++
++pgpDigAlg pgpPubkeyNew(int algo, int curve)
++{
++    pgpDigAlg ka = xcalloc(1, sizeof(*ka));;
++
++    switch (algo) {
++    case PGPPUBKEYALGO_RSA:
++        ka->setmpi = pgpSetKeyMpiRSA;
++        ka->free = pgpFreeKeyRSA;
++        ka->mpis = 2;
++        break;
++    case PGPPUBKEYALGO_DSA:
++        ka->setmpi = pgpSetKeyMpiDSA;
++        ka->free = pgpFreeKeyDSA;
++        ka->mpis = 4;
++        break;
++    case PGPPUBKEYALGO_EDDSA:
++	if (!pgpSupportedCurve(curve)) {
++	    ka->setmpi = pgpSetMpiNULL;
++	    ka->mpis = -1;
++	    break;
++	}
++        ka->setmpi = pgpSetKeyMpiEDDSA;
++        ka->free = pgpFreeKeyEDDSA;
++        ka->mpis = 1;
++        ka->curve = curve;
++        break;
++    default:
++        ka->setmpi = pgpSetMpiNULL;
++        ka->mpis = -1;
++        break;
++    }
++
++    ka->verify = pgpVerifyNULL; /* keys can't be verified */
++
++    return ka;
++}
++
++pgpDigAlg pgpSignatureNew(int algo)
++{
++    pgpDigAlg sa = xcalloc(1, sizeof(*sa));
++
++    switch (algo) {
++    case PGPPUBKEYALGO_RSA:
++        sa->setmpi = pgpSetSigMpiRSA;
++        sa->free = pgpFreeSigRSA;
++        sa->verify = pgpVerifySigRSA;
++        sa->mpis = 1;
++        break;
++    case PGPPUBKEYALGO_DSA:
++        sa->setmpi = pgpSetSigMpiDSA;
++        sa->free = pgpFreeSigDSA;
++        sa->verify = pgpVerifySigDSA;
++        sa->mpis = 2;
++        break;
++    case PGPPUBKEYALGO_EDDSA:
++        sa->setmpi = pgpSetSigMpiEDDSA;
++        sa->free = pgpFreeSigEDDSA;
++        sa->verify = pgpVerifySigEDDSA;
++        sa->mpis = 2;
++        break;
++    default:
++        sa->setmpi = pgpSetMpiNULL;
++        sa->verify = pgpVerifyNULL;
++        sa->mpis = -1;
++        break;
++    }
++    return sa;
++}
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/digest_openssl.c
+@@ -0,0 +1,691 @@
++#include "system.h"
++
++#include <openssl/evp.h>
++#include <openssl/rsa.h>
++#include <openssl/dsa.h>
++#include <openssl/core_names.h>
++#include <openssl/param_build.h>
++#include <rpm/rpmcrypto.h>
++
++#include "rpmpgp_internal.h"
++
++static const EVP_MD *getEVPMD(int hashalgo)
++{
++    switch (hashalgo) {
++
++    case RPM_HASH_MD5:
++        return EVP_md5();
++
++    case RPM_HASH_SHA1:
++        return EVP_sha1();
++
++    case RPM_HASH_SHA256:
++        return EVP_sha256();
++
++    case RPM_HASH_SHA384:
++        return EVP_sha384();
++
++    case RPM_HASH_SHA512:
++        return EVP_sha512();
++
++    case RPM_HASH_SHA224:
++        return EVP_sha224();
++
++    default:
++        return EVP_md_null();
++    }
++}
++/****************************** RSA **************************************/
++
++/* Key */
++
++struct pgpDigKeyRSA_s {
++    size_t nbytes; /* Size of modulus */
++
++    BIGNUM *n; /* Common Modulus */
++    BIGNUM *e; /* Public Exponent */
++    EVP_PKEY *evp_pkey; /* Fully constructed key */
++    unsigned char immutable; /* if set, this key cannot be mutated */
++};
++
++static int constructRSASigningKey(struct pgpDigKeyRSA_s *key)
++{
++    EVP_PKEY_CTX *ctx = NULL;
++    OSSL_PARAM_BLD *param_bld = NULL;
++    OSSL_PARAM *params =NULL;
++
++    if (key->evp_pkey) {
++        /* We've already constructed it, so just reuse it */
++        return 1;
++    } else if (key->immutable)
++	return 0;
++    key->immutable = 1;
++
++    ctx = EVP_PKEY_CTX_new_from_name(NULL, "RSA", NULL);
++    if (!ctx)
++	goto exit;
++    param_bld = OSSL_PARAM_BLD_new();
++    if (!param_bld)
++	goto exit;
++    if (!OSSL_PARAM_BLD_push_BN(param_bld, OSSL_PKEY_PARAM_RSA_N, key->n))
++	goto exit;
++    if (!OSSL_PARAM_BLD_push_BN(param_bld, OSSL_PKEY_PARAM_RSA_E, key->e))
++	goto exit;
++    params = OSSL_PARAM_BLD_to_param(param_bld);
++    if (!params)
++	goto exit;
++
++    if (!EVP_PKEY_fromdata_init(ctx))
++	goto exit;
++    if (!EVP_PKEY_fromdata(ctx, &key->evp_pkey, EVP_PKEY_PUBLIC_KEY, params))
++	goto exit;
++    EVP_PKEY_CTX_free(ctx);
++    key->n = key->e = NULL;
++
++    return 1;
++
++ exit:
++    EVP_PKEY_CTX_free(ctx);
++    OSSL_PARAM_BLD_free(param_bld);
++    OSSL_PARAM_free(params);
++
++    return 0;
++}
++
++static int pgpSetKeyMpiRSA(pgpDigAlg pgpkey, int num, const uint8_t *p)
++{
++    size_t mlen = pgpMpiLen(p) - 2;
++    struct pgpDigKeyRSA_s *key = pgpkey->data;
++
++    if (!key)
++        key = pgpkey->data = xcalloc(1, sizeof(*key));
++    else if (key->immutable)
++	return 1;
++
++    switch (num) {
++    case 0:
++        /* Modulus */
++        if (key->n) {
++            /* This should only ever happen once per key */
++            return 1;
++        }
++
++	key->nbytes = mlen;
++        /* Create a BIGNUM from the pointer.
++           Note: this assumes big-endian data as required by PGP */
++        key->n = BN_bin2bn(p+2, mlen, NULL);
++        if (!key->n) return 1;
++        break;
++
++    case 1:
++        /* Exponent */
++        if (key->e) {
++            /* This should only ever happen once per key */
++            return 1;
++        }
++
++        /* Create a BIGNUM from the pointer.
++           Note: this assumes big-endian data as required by PGP */
++        key->e = BN_bin2bn(p+2, mlen, NULL);
++        if (!key->e) return 1;
++        break;
++    }
++
++    return 0;
++}
++
++static void pgpFreeKeyRSA(pgpDigAlg pgpkey)
++{
++    struct pgpDigKeyRSA_s *key = pgpkey->data;
++    if (key) {
++        if (key->evp_pkey) {
++            EVP_PKEY_free(key->evp_pkey);
++        } else {
++            /* If key->evp_pkey was constructed,
++             * the memory management of these BNs
++             * are freed with it. */
++            BN_clear_free(key->n);
++            BN_clear_free(key->e);
++        }
++
++        free(key);
++    }
++}
++
++/* Signature */
++
++struct pgpDigSigRSA_s {
++    BIGNUM *bn;
++    size_t len;
++};
++
++static int pgpSetSigMpiRSA(pgpDigAlg pgpsig, int num, const uint8_t *p)
++{
++    BIGNUM *bn = NULL;
++
++    int mlen = pgpMpiLen(p) - 2;
++    int rc = 1;
++
++    struct pgpDigSigRSA_s *sig = pgpsig->data;
++    if (!sig) {
++        sig = xcalloc(1, sizeof(*sig));
++    }
++
++    switch (num) {
++    case 0:
++        if (sig->bn) {
++            /* This should only ever happen once per signature */
++            return 1;
++        }
++
++        bn = sig->bn = BN_new();
++        if (!bn) return 1;
++
++        /* Create a BIGNUM from the signature pointer.
++           Note: this assumes big-endian data as required
++           by the PGP multiprecision integer format
++           (RFC4880, Section 3.2)
++           This will be useful later, as we can
++           retrieve this value with appropriate
++           padding. */
++        bn = BN_bin2bn(p+2, mlen, bn);
++        if (!bn) return 1;
++
++        sig->bn = bn;
++        sig->len = mlen;
++
++        pgpsig->data = sig;
++        rc = 0;
++        break;
++    }
++    return rc;
++}
++
++static void pgpFreeSigRSA(pgpDigAlg pgpsig)
++{
++    struct pgpDigSigRSA_s *sig = pgpsig->data;
++    if (sig) {
++        BN_clear_free(sig->bn);
++        free(pgpsig->data);
++    }
++}
++
++static int pgpVerifySigRSA(pgpDigAlg pgpkey, pgpDigAlg pgpsig,
++                           uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    int rc = 1; /* assume failure */
++    EVP_PKEY_CTX *pkey_ctx = NULL;
++    struct pgpDigSigRSA_s *sig = pgpsig->data;
++
++    void *padded_sig = NULL;
++
++    struct pgpDigKeyRSA_s *key = pgpkey->data;
++
++    if (!constructRSASigningKey(key))
++        goto done;
++
++    pkey_ctx = EVP_PKEY_CTX_new(key->evp_pkey, NULL);
++    if (!pkey_ctx)
++        goto done;
++
++    if (EVP_PKEY_verify_init(pkey_ctx) != 1)
++        goto done;
++
++    if (EVP_PKEY_CTX_set_rsa_padding(pkey_ctx, RSA_PKCS1_PADDING) <= 0)
++        goto done;
++
++    if (EVP_PKEY_CTX_set_signature_md(pkey_ctx, getEVPMD(hash_algo)) <= 0)
++        goto done;
++
++    int pkey_len = EVP_PKEY_size(key->evp_pkey);
++    padded_sig = xcalloc(1, pkey_len);
++    if (BN_bn2binpad(sig->bn, padded_sig, pkey_len) <= 0)
++        goto done;
++
++    if (EVP_PKEY_verify(pkey_ctx, padded_sig, pkey_len, hash, hashlen) == 1)
++    {
++        /* Success */
++        rc = 0;
++    }
++
++done:
++    EVP_PKEY_CTX_free(pkey_ctx);
++    free(padded_sig);
++    return rc;
++}
++
++/****************************** DSA ***************************************/
++/* Key */
++
++struct pgpDigKeyDSA_s {
++    BIGNUM *p; /* Prime */
++    BIGNUM *q; /* Subprime */
++    BIGNUM *g; /* Base */
++    BIGNUM *y; /* Public Key */
++    EVP_PKEY *evp_pkey; /* Fully constructed key */
++};
++
++static int constructDSASigningKey(struct pgpDigKeyDSA_s *key)
++{
++    int rc;
++
++    if (key->evp_pkey) {
++        /* We've already constructed it, so just reuse it */
++        return 1;
++    }
++
++    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_from_name(NULL, "DSA", NULL);
++    OSSL_PARAM params[5] = {
++	OSSL_PARAM_BN("pbits", key->p, BN_num_bytes(key->p)*8),
++	OSSL_PARAM_BN("qbits", key->q, BN_num_bytes(key->q)*8),
++	OSSL_PARAM_BN("gindex", key->g, BN_num_bytes(key->g)*8),
++	OSSL_PARAM_utf8_string("digest", "SHA384", 0),
++	OSSL_PARAM_END,
++    };
++    EVP_PKEY_CTX_set_params(ctx, params);
++    EVP_PKEY_fromdata(ctx, &key->evp_pkey, EVP_PKEY_PUBLIC_KEY, params);
++    rc = 1;
++    return rc;
++}
++
++
++static int pgpSetKeyMpiDSA(pgpDigAlg pgpkey, int num, const uint8_t *p)
++{
++    BIGNUM *bn;
++    size_t mlen = pgpMpiLen(p) - 2;
++    struct pgpDigKeyDSA_s *key = pgpkey->data;
++
++    if (!key) {
++        key = pgpkey->data = xcalloc(1, sizeof(*key));
++    }
++
++    /* Create a BIGNUM from the key pointer.
++       Note: this assumes big-endian data as required
++       by the PGP multiprecision integer format
++       (RFC4880, Section 3.2) */
++    bn = BN_bin2bn(p+2, mlen, NULL);
++    if (!bn) return 1;
++
++    switch (num) {
++    case 0:
++        /* Prime */
++        if (key->p) {
++            /* This should only ever happen once per key */
++            return 1;
++        }
++        key->p = bn;
++        break;
++
++    case 1:
++        /* Subprime */
++        if (key->q) {
++            /* This should only ever happen once per key */
++            return 1;
++        }
++        key->q = bn;
++        break;
++    case 2:
++        /* Base */
++        if (key->g) {
++            /* This should only ever happen once per key */
++            return 1;
++        }
++        key->g = bn;
++        break;
++    case 3:
++        /* Public */
++        if (key->y) {
++            /* This should only ever happen once per key */
++            return 1;
++        }
++        key->y = bn;
++        break;
++    }
++
++    return 0;
++}
++
++static void pgpFreeKeyDSA(pgpDigAlg pgpkey)
++{
++    struct pgpDigKeyDSA_s *key = pgpkey->data;
++    if (key) {
++        if (key->evp_pkey) {
++            EVP_PKEY_free(key->evp_pkey);
++        } else {
++            /* If sig->dsa_key was constructed,
++             * the memory management of these BNs
++             * are freed with it. */
++            BN_clear_free(key->p);
++            BN_clear_free(key->q);
++            BN_clear_free(key->g);
++            BN_clear_free(key->y);
++        }
++        free(key);
++    }
++}
++
++/* Signature */
++
++struct pgpDigSigDSA_s {
++    BIGNUM *r;
++    BIGNUM *s;
++
++    DSA_SIG *dsa_sig;
++};
++
++static int constructDSASignature(struct pgpDigSigDSA_s *sig)
++{
++    int rc;
++
++    if (sig->dsa_sig) {
++        /* We've already constructed it, so just reuse it */
++        return 1;
++    }
++
++    /* Create the DSA signature */
++    DSA_SIG *dsa_sig = DSA_SIG_new();
++    if (!dsa_sig) return 0;
++
++    if (!DSA_SIG_set0(dsa_sig, sig->r, sig->s)) {
++        rc = 0;
++        goto done;
++    }
++
++    sig->dsa_sig = dsa_sig;
++
++    rc = 1;
++done:
++    if (rc == 0) {
++        DSA_SIG_free(sig->dsa_sig);
++    }
++    return rc;
++}
++
++static int pgpSetSigMpiDSA(pgpDigAlg pgpsig, int num, const uint8_t *p)
++{
++    BIGNUM *bn = NULL;
++
++    int mlen = pgpMpiLen(p) - 2;
++    int rc = 1;
++
++    struct pgpDigSigDSA_s *sig = pgpsig->data;
++    if (!sig) {
++        sig = xcalloc(1, sizeof(*sig));
++    }
++
++    /* Create a BIGNUM from the signature pointer.
++       Note: this assumes big-endian data as required
++       by the PGP multiprecision integer format
++       (RFC4880, Section 3.2) */
++    bn = BN_bin2bn(p+2, mlen, NULL);
++    if (!bn) return 1;
++
++    switch (num) {
++    case 0:
++        if (sig->r) {
++            /* This should only ever happen once per signature */
++            BN_free(bn);
++            return 1;
++        }
++        sig->r = bn;
++        rc = 0;
++        break;
++    case 1:
++        if (sig->s) {
++            /* This should only ever happen once per signature */
++            BN_free(bn);
++            return 1;
++        }
++        sig->s = bn;
++        rc = 0;
++        break;
++    }
++
++    pgpsig->data = sig;
++
++    return rc;
++}
++
++static void pgpFreeSigDSA(pgpDigAlg pgpsig)
++{
++    struct pgpDigSigDSA_s *sig = pgpsig->data;
++    if (sig) {
++        if (sig->dsa_sig) {
++            DSA_SIG_free(sig->dsa_sig);
++        } else {
++            /* If sig->dsa_sig was constructed,
++             * the memory management of these BNs
++             * are freed with it. */
++            BN_clear_free(sig->r);
++            BN_clear_free(sig->s);
++        }
++        free(pgpsig->data);
++    }
++}
++
++static int pgpVerifySigDSA(pgpDigAlg pgpkey, pgpDigAlg pgpsig,
++                           uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    int rc = 1; /* assume failure */
++    EVP_PKEY_CTX *pkey_ctx = NULL;
++
++    struct pgpDigSigDSA_s *sig = pgpsig->data;
++    struct pgpDigKeyDSA_s *key = pgpkey->data;
++
++    void *padded_sig = NULL;
++
++    if (!constructDSASigningKey(key))
++        goto done;
++
++    if (!constructDSASignature(sig))
++        goto done;
++
++    pkey_ctx = EVP_PKEY_CTX_new(key->evp_pkey, NULL);
++    if (!pkey_ctx)
++        goto done;
++
++    if (EVP_PKEY_verify_init(pkey_ctx) != 1)
++        goto done;
++
++    if (EVP_PKEY_CTX_set_signature_md(pkey_ctx, getEVPMD(hash_algo)) <= 0)
++        goto done;
++
++    int pkey_len = EVP_PKEY_size(key->evp_pkey);
++    padded_sig = xcalloc(1, pkey_len);
++    if (BN_bn2binpad(sig->r, padded_sig, pkey_len) <= 0)
++        goto done;
++
++    if (EVP_PKEY_verify(pkey_ctx, padded_sig, pkey_len, hash, hashlen) == 1)
++    {
++        /* Success */
++        rc = 0;
++    }
++
++done:
++    return rc;
++}
++
++
++/****************************** EDDSA ***************************************/
++
++#ifdef EVP_PKEY_ED25519
++
++struct pgpDigKeyEDDSA_s {
++    EVP_PKEY *evp_pkey; /* Fully constructed key */
++    unsigned char *q;	/* compressed point */
++    int qlen;
++};
++
++static int constructEDDSASigningKey(struct pgpDigKeyEDDSA_s *key, int curve)
++{
++    if (key->evp_pkey)
++	return 1;	/* We've already constructed it, so just reuse it */
++    if (curve == PGPCURVE_ED25519)
++	key->evp_pkey = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL, key->q, key->qlen);
++    return key->evp_pkey ? 1 : 0;
++}
++
++static int pgpSetKeyMpiEDDSA(pgpDigAlg pgpkey, int num, const uint8_t *p)
++{
++    size_t mlen = pgpMpiLen(p) - 2;
++    struct pgpDigKeyEDDSA_s *key = pgpkey->data;
++    int rc = 1;
++
++    if (!key)
++	key = pgpkey->data = xcalloc(1, sizeof(*key));
++    if (num == 0 && !key->q && mlen > 1 && p[2] == 0x40) {
++	key->qlen = mlen - 1;
++	key->q = xmalloc(key->qlen);
++	memcpy(key->q, p + 3, key->qlen),
++	rc = 0;
++    }
++    return rc;
++}
++
++static void pgpFreeKeyEDDSA(pgpDigAlg pgpkey)
++{
++    struct pgpDigKeyEDDSA_s *key = pgpkey->data;
++    if (key) {
++	if (key->q)
++	    free(key->q);
++	if (key->evp_pkey)
++	    EVP_PKEY_free(key->evp_pkey);
++	free(key);
++    }
++}
++
++struct pgpDigSigEDDSA_s {
++    unsigned char sig[32 + 32];
++};
++
++static int pgpSetSigMpiEDDSA(pgpDigAlg pgpsig, int num, const uint8_t *p)
++{
++    struct pgpDigSigEDDSA_s *sig = pgpsig->data;
++    int mlen = pgpMpiLen(p) - 2;
++
++    if (!sig)
++	sig = pgpsig->data = xcalloc(1, sizeof(*sig));
++    if (!mlen || mlen > 32 || (num != 0 && num != 1))
++	return 1;
++    memcpy(sig->sig + 32 * num + 32 - mlen, p + 2, mlen);
++    return 0;
++}
++
++static void pgpFreeSigEDDSA(pgpDigAlg pgpsig)
++{
++    struct pgpDigSigEDDSA_s *sig = pgpsig->data;
++    if (sig) {
++	free(pgpsig->data);
++    }
++}
++
++static int pgpVerifySigEDDSA(pgpDigAlg pgpkey, pgpDigAlg pgpsig,
++                           uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    int rc = 1;		/* assume failure */
++    struct pgpDigSigEDDSA_s *sig = pgpsig->data;
++    struct pgpDigKeyEDDSA_s *key = pgpkey->data;
++    EVP_MD_CTX *md_ctx = NULL;
++
++    if (!constructEDDSASigningKey(key, pgpkey->curve))
++	goto done;
++    md_ctx = EVP_MD_CTX_new();
++    if (EVP_DigestVerifyInit(md_ctx, NULL, EVP_md_null(), NULL, key->evp_pkey) != 1)
++	goto done;
++    if (EVP_DigestVerify(md_ctx, sig->sig, 64, hash, hashlen) == 1)
++	rc = 0;		/* Success */
++done:
++    if (md_ctx)
++	EVP_MD_CTX_free(md_ctx);
++    return rc;
++}
++
++#endif
++
++
++/****************************** NULL **************************************/
++
++static int pgpSetMpiNULL(pgpDigAlg pgpkey, int num, const uint8_t *p)
++{
++    return 1;
++}
++
++static int pgpVerifyNULL(pgpDigAlg pgpkey, pgpDigAlg pgpsig,
++                         uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    return 1;
++}
++
++/****************************** PGP **************************************/
++pgpDigAlg pgpPubkeyNew(int algo, int curve)
++{
++    pgpDigAlg ka = xcalloc(1, sizeof(*ka));;
++
++    switch (algo) {
++    case PGPPUBKEYALGO_RSA:
++        ka->setmpi = pgpSetKeyMpiRSA;
++        ka->free = pgpFreeKeyRSA;
++        ka->mpis = 2;
++        break;
++    case PGPPUBKEYALGO_DSA:
++        ka->setmpi = pgpSetKeyMpiDSA;
++        ka->free = pgpFreeKeyDSA;
++        ka->mpis = 4;
++        break;
++#ifdef EVP_PKEY_ED25519
++    case PGPPUBKEYALGO_EDDSA:
++	if (curve != PGPCURVE_ED25519) {
++	    ka->setmpi = pgpSetMpiNULL;	/* unsupported curve */
++	    ka->mpis = -1;
++	    break;
++	}
++        ka->setmpi = pgpSetKeyMpiEDDSA;
++        ka->free = pgpFreeKeyEDDSA;
++        ka->mpis = 1;
++        ka->curve = curve;
++        break;
++#endif
++    default:
++        ka->setmpi = pgpSetMpiNULL;
++        ka->mpis = -1;
++        break;
++    }
++
++    ka->verify = pgpVerifyNULL; /* keys can't be verified */
++
++    return ka;
++}
++
++pgpDigAlg pgpSignatureNew(int algo)
++{
++    pgpDigAlg sa = xcalloc(1, sizeof(*sa));
++
++    switch (algo) {
++    case PGPPUBKEYALGO_RSA:
++        sa->setmpi = pgpSetSigMpiRSA;
++        sa->free = pgpFreeSigRSA;
++        sa->verify = pgpVerifySigRSA;
++        sa->mpis = 1;
++        break;
++    case PGPPUBKEYALGO_DSA:
++        sa->setmpi = pgpSetSigMpiDSA;
++        sa->free = pgpFreeSigDSA;
++        sa->verify = pgpVerifySigDSA;
++        sa->mpis = 2;
++        break;
++#ifdef EVP_PKEY_ED25519
++    case PGPPUBKEYALGO_EDDSA:
++        sa->setmpi = pgpSetSigMpiEDDSA;
++        sa->free = pgpFreeSigEDDSA;
++        sa->verify = pgpVerifySigEDDSA;
++        sa->mpis = 2;
++        break;
++#endif
++    default:
++        sa->setmpi = pgpSetMpiNULL;
++        sa->verify = pgpVerifyNULL;
++        sa->mpis = -1;
++        break;
++    }
++    return sa;
++}
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/rpmpgp_internal.c
+@@ -0,0 +1,717 @@
++/** \ingroup rpmio signature
++ * \file rpmio/rpmpgp_internal.c
++ * Routines to handle RFC-2440 detached signatures.
++ */
++
++#include "system.h"
++
++#include <time.h>
++#include <rpm/rpmstring.h>
++#include <rpm/rpmlog.h>
++
++#include "rpmpgpval.h"
++#include "rpmpgp_internal.h"
++
++#include "debug.h"
++
++typedef uint8_t pgpTime_t[4];
++
++typedef struct pgpPktKeyV4_s {
++    uint8_t version;	/*!< version number (4). */
++    pgpTime_t time;	/*!< time that the key was created. */
++    uint8_t pubkey_algo;	/*!< public key algorithm. */
++} * pgpPktKeyV4;
++
++typedef struct pgpPktSigV3_s {
++    uint8_t version;	/*!< version number (3). */
++    uint8_t hashlen;	/*!< length of following hashed material. MUST be 5. */
++    uint8_t sigtype;	/*!< signature type. */
++    pgpTime_t time;	/*!< 4 byte creation time. */
++    pgpKeyID_t signid;	/*!< key ID of signer. */
++    uint8_t pubkey_algo;	/*!< public key algorithm. */
++    uint8_t hash_algo;	/*!< hash algorithm. */
++    uint8_t signhash16[2];	/*!< left 16 bits of signed hash value. */
++} * pgpPktSigV3;
++
++typedef struct pgpPktSigV4_s {
++    uint8_t version;	/*!< version number (4). */
++    uint8_t sigtype;	/*!< signature type. */
++    uint8_t pubkey_algo;	/*!< public key algorithm. */
++    uint8_t hash_algo;	/*!< hash algorithm. */
++    uint8_t hashlen[2];	/*!< length of following hashed material. */
++} * pgpPktSigV4;
++
++
++static inline unsigned int pgpGrab2(const uint8_t *s)
++{
++    return s[0] << 8 | s[1];
++}
++
++static inline unsigned int pgpGrab4(const uint8_t *s)
++{
++    return s[0] << 24 | s[1] << 16 | s[2] << 8 | s[3];
++}
++
++uint32_t pgpCurrentTime(void) {
++    time_t t = time(NULL);
++    return (uint32_t)t;
++}
++
++
++/*
++ * PGP packet decoding
++ *
++ * Note that we reject indefinite length/partial bodies and lengths >= 16 MByte
++ * right away so that we do not have to worry about integer overflows.
++ */
++
++/** \ingroup rpmpgp
++ * Decode length in old format packet headers.
++ * @param s		pointer to packet (including tag)
++ * @param slen		buffer size
++ * @param[out] *lenp	decoded length
++ * @return		packet header length, 0 on error
++ */
++static inline size_t pgpOldLen(const uint8_t *s, size_t slen, size_t * lenp)
++{
++    size_t dlen, lenlen;
++
++    if (slen < 2)
++	return 0;
++    lenlen = 1 << (s[0] & 0x3);
++    /* Reject indefinite length packets and check bounds */
++    if (lenlen == 8 || slen < lenlen + 1)
++	return 0;
++    if (lenlen == 1)
++	dlen = s[1];
++    else if (lenlen == 2)
++	dlen = s[1] << 8 | s[2];
++    else if (lenlen == 4 && s[1] == 0)
++	dlen = s[2] << 16 | s[3] << 8 | s[4];
++    else
++	return 0;
++    if (slen - (1 + lenlen) < dlen)
++	return 0;
++    *lenp = dlen;
++    return lenlen + 1;
++}
++
++/** \ingroup rpmpgp
++ * Decode length from 1, 2, or 5 octet body length encoding, used in
++ * new format packet headers.
++ * Partial body lengths are (intentionally) not supported.
++ * @param s		pointer to packet (including tag)
++ * @param slen		buffer size
++ * @param[out] *lenp	decoded length
++ * @return		packet header length, 0 on error
++ */
++static inline size_t pgpNewLen(const uint8_t *s, size_t slen, size_t *lenp)
++{
++    size_t dlen, hlen;
++
++    if (slen > 1 && s[1] < 192) {
++	hlen = 2;
++	dlen = s[1];
++    } else if (slen > 3 && s[1] < 224) {
++	hlen = 3;
++	dlen = (((s[1]) - 192) << 8) + s[2] + 192;
++    } else if (slen > 6 && s[1] == 255 && s[2] == 0) {
++	hlen = 6;
++	dlen = s[3] << 16 | s[4] << 8 | s[5];
++    } else {
++	return 0;
++    }
++    if (slen - hlen < dlen)
++	return 0;
++    *lenp = dlen;
++    return hlen;
++}
++
++/** \ingroup rpmpgp
++ * Decode length from 1, 2, or 5 octet body length encoding, used in
++ * V4 signature subpackets. Note that this is slightly different from
++ * the pgpNewLen function.
++ * @param s		pointer to subpacket (including tag)
++ * @param slen		buffer size
++ * @param[out] *lenp	decoded length
++ * @return		subpacket header length (excluding type), 0 on error
++ */
++static inline size_t pgpSubPktLen(const uint8_t *s, size_t slen, size_t *lenp)
++{
++    size_t dlen, lenlen;
++
++    if (slen > 0 && *s < 192) {
++	lenlen = 1;
++	dlen = *s;
++    } else if (slen > 2 && *s < 255) {
++	lenlen = 2;
++	dlen = (((s[0]) - 192) << 8) + s[1] + 192;
++    } else if (slen > 5 && *s == 255 && s[1] == 0) {
++	lenlen = 5;
++	dlen = s[2] << 16 | s[3] << 8 | s[4];
++    } else {
++	return 0;
++    }
++    if (slen - lenlen < dlen)
++	return 0;
++    *lenp = dlen;
++    return lenlen;
++}
++
++rpmpgpRC pgpDecodePkt(const uint8_t *p, size_t plen, pgpPkt *pkt)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET; /* assume failure */
++
++    /* Valid PGP packet header must always have two or more bytes in it */
++    if (p && plen >= 2 && p[0] & 0x80) {
++	size_t hlen;
++
++	if (p[0] & 0x40) {
++	    /* New format packet, body length encoding in second byte */
++	    hlen = pgpNewLen(p, plen, &pkt->blen);
++	    pkt->tag = (p[0] & 0x3f);
++	} else {
++	    /* Old format packet */
++	    hlen = pgpOldLen(p, plen, &pkt->blen);
++	    pkt->tag = (p[0] >> 2) & 0xf;
++	}
++
++	/* Does the packet header and its body fit in our boundaries? */
++	if (hlen && (hlen + pkt->blen <= plen)) {
++	    pkt->head = p;
++	    pkt->body = pkt->head + hlen;
++	    rc = RPMPGP_OK;
++	}
++    }
++    return rc;
++}
++
++
++/*
++ * Key/Signature algorithm parameter handling and signature verification
++ */
++
++static pgpDigAlg pgpDigAlgNew(void)
++{
++    pgpDigAlg alg;
++    alg = xcalloc(1, sizeof(*alg));
++    alg->mpis = -1;
++    return alg;
++}
++
++pgpDigAlg pgpDigAlgFree(pgpDigAlg alg)
++{
++    if (alg) {
++        if (alg->free)
++            alg->free(alg);
++        free(alg);
++    }
++    return NULL;
++}
++
++static inline int pgpMpiLen(const uint8_t *p)
++{
++    int mpi_bits = (p[0] << 8) | p[1];
++    return 2 + ((mpi_bits + 7) >> 3);
++}
++
++static rpmpgpRC pgpDigAlgProcessMpis(pgpDigAlg alg, const int mpis,
++		       const uint8_t *p, const uint8_t *const pend)
++{
++    int i = 0;
++    for (; i < mpis && pend - p >= 2; i++) {
++	int mpil = pgpMpiLen(p);
++	if (mpil < 2 || pend - p < mpil)
++	    return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++	if (alg) {
++	    rpmpgpRC rc = alg->setmpi ? alg->setmpi(alg, i, p, mpil) : RPMPGP_ERROR_UNSUPPORTED_ALGORITHM;
++	    if (rc != RPMPGP_OK)
++		return rc;
++	}
++	p += mpil;
++    }
++
++    /* Does the size and number of MPI's match our expectations? */
++    return p == pend && i == mpis ? RPMPGP_OK : RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++}
++
++static rpmpgpRC pgpDigAlgVerify(pgpDigAlg keyalg, pgpDigAlg sigalg,
++			uint8_t *hash, size_t hashlen, int hashalgo)
++{
++    if (keyalg && sigalg && sigalg->verify)
++	return sigalg->verify(keyalg, sigalg, hash, hashlen, hashalgo);
++    return RPMPGP_ERROR_SIGNATURE_VERIFICATION;
++}
++
++rpmpgpRC pgpVerifySignatureRaw(pgpDigParams key, pgpDigParams sig, DIGEST_CTX hashctx)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_SIGNATURE_VERIFICATION; /* assume failure */
++    DIGEST_CTX ctx;
++    uint8_t *hash = NULL;
++    size_t hashlen = 0;
++
++    /* make sure the parameters are correct and the pubkey algo matches */
++    if (sig == NULL || hashctx == NULL)
++	return RPMPGP_ERROR_INTERNAL;
++    if (sig->tag != PGPTAG_SIGNATURE)
++	return RPMPGP_ERROR_INTERNAL;
++    if (key && key->tag != PGPTAG_PUBLIC_KEY && key->tag != PGPTAG_PUBLIC_SUBKEY)
++	return RPMPGP_ERROR_INTERNAL;
++    if (key && sig->pubkey_algo != key->pubkey_algo)
++	return RPMPGP_ERROR_SIGNATURE_VERIFICATION;
++
++    ctx = rpmDigestDup(hashctx);
++    if (sig->hash != NULL)
++	rpmDigestUpdate(ctx, sig->hash, sig->hashlen);
++
++    if (sig->version == 4) {
++	/* V4 trailer is six octets long (rfc4880) */
++	uint8_t trailer[6] = {
++	    sig->version,
++	    0xff,
++	    (sig->hashlen >> 24),
++	    (sig->hashlen >> 16),
++	    (sig->hashlen >>  8),
++	    (sig->hashlen      )
++	};
++	rpmDigestUpdate(ctx, trailer, sizeof(trailer));
++    }
++
++    rpmDigestFinal(ctx, (void **)&hash, &hashlen, 0);
++
++    /* Compare leading 16 bits of digest for a quick check. */
++    if (hash == NULL || memcmp(hash, sig->signhash16, 2) != 0)
++	rc = RPMPGP_ERROR_SIGNATURE_VERIFICATION;
++    else if (key)		/* verify the signature for real */
++	rc = pgpDigAlgVerify(key->alg, sig->alg, hash, hashlen, sig->hash_algo);
++    else			/* we've done all we can */
++	rc = RPMPGP_OK;
++    free(hash);
++    return rc;
++}
++
++
++/*
++ * Key/Signature parameter parsing
++ */
++
++static uint8_t curve_oids[] = {
++    PGPCURVE_NIST_P_256,	0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07,
++    PGPCURVE_NIST_P_384,	0x05, 0x2b, 0x81, 0x04, 0x00, 0x22,
++    PGPCURVE_NIST_P_521,	0x05, 0x2b, 0x81, 0x04, 0x00, 0x23,
++    PGPCURVE_BRAINPOOL_P256R1,	0x09, 0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x07,
++    PGPCURVE_BRAINPOOL_P512R1,	0x09, 0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x0d,
++    PGPCURVE_ED25519,		0x09, 0x2b, 0x06, 0x01, 0x04, 0x01, 0xda, 0x47, 0x0f, 0x01,
++    PGPCURVE_CURVE25519,	0x0a, 0x2b, 0x06, 0x01, 0x04, 0x01, 0x97, 0x55, 0x01, 0x05, 0x01,
++    0,
++};
++
++static int pgpCurveByOid(const uint8_t *p, int l)
++{
++    uint8_t *curve;
++    for (curve = curve_oids; *curve; curve += 2 + curve[1])
++        if (l == (int)curve[1] && !memcmp(p, curve + 2, l))
++            return (int)curve[0];
++    return 0;
++}
++
++static rpmpgpRC pgpPrtKeyParams(pgpTag tag, const uint8_t *h, size_t hlen,
++		pgpDigParams keyp)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET;		/* assume failure */
++    const uint8_t *p;
++    int curve = 0;
++    /* We can't handle more than one key at a time */
++    if (keyp->alg || !keyp->mpi_offset || keyp->mpi_offset > hlen)
++	return  RPMPGP_ERROR_INTERNAL;
++    p = h + keyp->mpi_offset;
++    if (keyp->pubkey_algo == PGPPUBKEYALGO_EDDSA || keyp->pubkey_algo == PGPPUBKEYALGO_ECDSA) {
++	size_t plen = hlen - keyp->mpi_offset;
++	int len = plen > 0 ? p[0] : 0;
++	if (len == 0 || len == 0xff || len + 1 > plen)
++	    return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++	curve = pgpCurveByOid(p + 1, len);
++	if (!curve)
++	    return RPMPGP_ERROR_UNSUPPORTED_CURVE;
++	p += len + 1;
++    }
++    pgpDigAlg alg = pgpDigAlgNew();
++    pgpDigAlgInitPubkey(alg, keyp->pubkey_algo, curve);
++    if (alg->mpis < 0)
++	rc = RPMPGP_ERROR_UNSUPPORTED_ALGORITHM;
++    else
++	rc = pgpDigAlgProcessMpis(alg, alg->mpis, p, h + hlen);
++    if (rc == RPMPGP_OK)
++	keyp->alg = alg;
++    else
++	pgpDigAlgFree(alg);
++    return rc;
++}
++
++/* validate that the mpi data matches our expectations */
++static rpmpgpRC pgpValidateKeyParamsSize(int pubkey_algo, const uint8_t *p, size_t plen) {
++    int nmpis = -1;
++
++    switch (pubkey_algo) {
++	case PGPPUBKEYALGO_ECDSA:
++	case PGPPUBKEYALGO_EDDSA:
++	    if (!plen || p[0] == 0x00 || p[0] == 0xff || plen < 1 + p[0])
++		return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++	    plen -= 1 + p[0];
++	    p += 1 + p[0];
++	    nmpis = 1;
++	    break;
++	case PGPPUBKEYALGO_RSA:
++	    nmpis = 2;
++	    break;
++	case PGPPUBKEYALGO_DSA:
++	    nmpis = 4;
++	    break;
++	default:
++	    break;
++    }
++    if (nmpis < 0)
++	return RPMPGP_ERROR_UNSUPPORTED_ALGORITHM;
++    return pgpDigAlgProcessMpis(NULL, nmpis, p, p + plen);
++}
++
++rpmpgpRC pgpPrtSigParams(pgpTag tag, const uint8_t *h, size_t hlen,
++		pgpDigParams sigp)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET;		/* assume failure */
++    /* We can't handle more than one sig at a time */
++    if (sigp->alg || !sigp->mpi_offset || sigp->mpi_offset > hlen || sigp->tag != PGPTAG_SIGNATURE)
++	return RPMPGP_ERROR_INTERNAL;
++    pgpDigAlg alg = pgpDigAlgNew();
++    pgpDigAlgInitSignature(alg, sigp->pubkey_algo);
++    if (alg->mpis < 0)
++	rc = RPMPGP_ERROR_UNSUPPORTED_ALGORITHM;
++    else
++	rc = pgpDigAlgProcessMpis(alg, alg->mpis, h + sigp->mpi_offset, h + hlen);
++    if (rc == RPMPGP_OK)
++	sigp->alg = alg;
++    else
++	pgpDigAlgFree(alg);
++    return rc;
++}
++
++
++/*
++ *  Key fingerprint calculation
++ */
++
++rpmpgpRC pgpGetKeyFingerprint(const uint8_t *h, size_t hlen,
++			  uint8_t **fp, size_t *fplen)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET;		/* assume failure */
++
++    if (hlen == 0)
++	return rc;
++
++    /* We only permit V4 keys, V3 keys are long long since deprecated */
++    switch (h[0]) {
++    case 4:
++      {	pgpPktKeyV4 v = (pgpPktKeyV4)h;
++	if (hlen < sizeof(*v))
++	    return rc;
++	/* Does the size and number of MPI's match our expectations? */
++	if (pgpValidateKeyParamsSize(v->pubkey_algo, (uint8_t *)(v + 1), hlen - sizeof(*v)) == RPMPGP_OK) {
++	    DIGEST_CTX ctx = rpmDigestInit(RPM_HASH_SHA1, RPMDIGEST_NONE);
++	    uint8_t *d = NULL;
++	    size_t dlen = 0;
++	    uint8_t in[3] = { 0x99, (hlen >> 8), hlen };
++
++	    (void) rpmDigestUpdate(ctx, in, 3);
++	    (void) rpmDigestUpdate(ctx, h, hlen);
++	    (void) rpmDigestFinal(ctx, (void **)&d, &dlen, 0);
++
++	    if (dlen == 20) {
++		rc = RPMPGP_OK;
++		*fp = d;
++		*fplen = dlen;
++	    } else {
++		free(d);
++	    }
++	}
++      }	break;
++    default:
++	rc = RPMPGP_ERROR_UNSUPPORTED_VERSION;
++	break;
++    }
++    return rc;
++}
++
++rpmpgpRC pgpGetKeyID(const uint8_t *h, size_t hlen, pgpKeyID_t keyid)
++{
++    uint8_t *fp = NULL;
++    size_t fplen = 0;
++    rpmpgpRC rc = pgpGetKeyFingerprint(h, hlen, &fp, &fplen);
++    if (rc == RPMPGP_OK && fp && fplen > 8)
++	memcpy(keyid, (fp + (fplen - 8)), 8);
++    else if (rc == RPMPGP_OK)
++	rc = RPMPGP_ERROR_INTERNAL;
++    free(fp);
++    return rc;
++}
++
++
++/*
++ *  PGP packet data extraction
++ */
++
++static rpmpgpRC pgpPrtSubType(const uint8_t *h, size_t hlen, pgpDigParams _digp, int hashed)
++{
++    const uint8_t *p = h;
++
++    while (hlen > 0) {
++	size_t plen = 0, lenlen;
++	int impl = 0;
++	lenlen = pgpSubPktLen(p, hlen, &plen);
++	if (lenlen == 0 || plen < 1 || lenlen + plen > hlen)
++	    break;
++	p += lenlen;
++	hlen -= lenlen;
++
++	switch (*p & ~PGPSUBTYPE_CRITICAL) {
++	case PGPSUBTYPE_SIG_CREATE_TIME:
++	    if (!hashed)
++		break; /* RFC 4880 §5.2.3.4 creation time MUST be hashed */
++	    if (plen - 1 != 4)
++		break; /* other lengths not understood */
++	    if (_digp->saved & PGPDIG_SAVED_TIME)
++		return RPMPGP_ERROR_DUPLICATE_DATA;
++	    impl = 1;
++	    _digp->time = pgpGrab4(p + 1);
++	    _digp->saved |= PGPDIG_SAVED_TIME;
++	    break;
++
++	case PGPSUBTYPE_ISSUER_KEYID:
++	    if (plen - 1 != sizeof(_digp->signid))
++		break; /* other lengths not understood */
++	    impl = 1;
++	    if (!(_digp->saved & PGPDIG_SAVED_ID)) {
++		memcpy(_digp->signid, p + 1, sizeof(_digp->signid));
++		_digp->saved |= PGPDIG_SAVED_ID;
++	    }
++	    break;
++
++	case PGPSUBTYPE_KEY_FLAGS:
++	    if (!hashed)
++		break;	/* Subpackets in the unhashed section cannot be trusted */
++	    if (_digp->saved & PGPDIG_SAVED_KEY_FLAGS)
++		return RPMPGP_ERROR_DUPLICATE_DATA;
++	    impl = 1;
++	    _digp->key_flags = plen >= 2 ? p[1] : 0;
++	    _digp->saved |= PGPDIG_SAVED_KEY_FLAGS;
++	    break;
++
++	case PGPSUBTYPE_KEY_EXPIRE_TIME:
++	    if (!hashed)
++		break;	/* Subpackets in the unhashed section cannot be trusted */
++	    if (plen - 1 != 4)
++		break; /* other lengths not understood */
++	    if (_digp->saved & PGPDIG_SAVED_KEY_EXPIRE)
++		return RPMPGP_ERROR_DUPLICATE_DATA;
++	    impl = 1;
++	    _digp->key_expire = pgpGrab4(p + 1);
++	    _digp->saved |= PGPDIG_SAVED_KEY_EXPIRE;
++	    break;
++
++	case PGPSUBTYPE_SIG_EXPIRE_TIME:
++	    if (!hashed)
++		break; /* RFC 4880 §5.2.3.4 creation time MUST be hashed */
++	    if (plen - 1 != 4)
++		break; /* other lengths not understood */
++	    if (_digp->saved & PGPDIG_SAVED_SIG_EXPIRE)
++		return RPMPGP_ERROR_DUPLICATE_DATA;
++	    impl = 1;
++	    _digp->sig_expire = pgpGrab4(p + 1);
++	    _digp->saved |= PGPDIG_SAVED_SIG_EXPIRE;
++	    break;
++
++	case PGPSUBTYPE_EMBEDDED_SIG:
++	    if (!hashed)
++		break;	/* Subpackets in the unhashed section cannot be trusted */
++	    if (_digp->sigtype != PGPSIGTYPE_SUBKEY_BINDING)
++		break;	/* do not bother for other types */
++	    if (plen - 1 < 6)
++		break;	/* obviously not a signature */
++	    if (_digp->embedded_sig)
++		break;	/* just store the first one. we may need to changed this to select the most recent. */
++	    impl = 1;
++	    _digp->embedded_sig_len = plen - 1;
++	    _digp->embedded_sig = memcpy(xmalloc(plen - 1), p + 1, plen - 1);
++	    break;
++
++	case PGPSUBTYPE_PRIMARY_USERID:
++	    if (!hashed)
++		break;	/* Subpackets in the unhashed section cannot be trusted */
++	    if (plen - 1 != 1)
++		break; /* other lengths not understood */
++	    impl = 1;
++	    if (p[1])
++		_digp->saved |= PGPDIG_SAVED_PRIMARY;
++	    break;
++
++	default:
++	    break;
++	}
++
++	if (!impl && (p[0] & PGPSUBTYPE_CRITICAL))
++	    return RPMPGP_ERROR_UNKNOWN_CRITICAL_PKT;
++
++	p += plen;
++	hlen -= plen;
++    }
++
++    if (hlen != 0)
++	return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++    return RPMPGP_OK;
++}
++
++rpmpgpRC pgpPrtSigNoParams(pgpTag tag, const uint8_t *h, size_t hlen,
++		     pgpDigParams _digp)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET;		/* assume failure */
++    const uint8_t * p;
++    size_t plen;
++
++    if (_digp->version || _digp->saved || _digp->tag != PGPTAG_SIGNATURE || tag != _digp->tag)
++	return RPMPGP_ERROR_INTERNAL;
++
++    if (hlen == 0)
++	return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++    _digp->version = h[0];
++
++    switch (_digp->version) {
++    case 3:
++    {   pgpPktSigV3 v = (pgpPktSigV3)h;
++
++	if (hlen <= sizeof(*v) || v->hashlen != 5)
++	    return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++	_digp->hashlen = v->hashlen;
++	_digp->sigtype = v->sigtype;
++	_digp->hash = memcpy(xmalloc(v->hashlen), &v->sigtype, v->hashlen);
++	_digp->time = pgpGrab4(v->time);
++	memcpy(_digp->signid, v->signid, sizeof(_digp->signid));
++	_digp->saved = PGPDIG_SAVED_TIME | PGPDIG_SAVED_ID;
++	_digp->pubkey_algo = v->pubkey_algo;
++	_digp->hash_algo = v->hash_algo;
++	memcpy(_digp->signhash16, v->signhash16, sizeof(_digp->signhash16));
++	_digp->mpi_offset = sizeof(*v);
++	rc = RPMPGP_OK;
++    }	break;
++    case 4:
++    {   pgpPktSigV4 v = (pgpPktSigV4)h;
++	const uint8_t *const hend = h + hlen;
++	int hashed;
++
++	if (hlen <= sizeof(*v))
++	    return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++	_digp->sigtype = v->sigtype;
++	_digp->pubkey_algo = v->pubkey_algo;
++	_digp->hash_algo = v->hash_algo;
++
++	/* parse both the hashed and unhashed subpackets */
++	p = &v->hashlen[0];
++	for (hashed = 1; hashed >= 0; hashed--) {
++	    if (p > hend || hend - p < 2)
++		return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++	    plen = pgpGrab2(p);
++	    p += 2;
++	    if (hend - p < plen)
++		return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++	    if (hashed) {
++		_digp->hashlen = sizeof(*v) + plen;
++		_digp->hash = memcpy(xmalloc(_digp->hashlen), v, _digp->hashlen);
++	    }
++	    rc = pgpPrtSubType(p, plen, _digp, hashed);
++	    if (rc != RPMPGP_OK)
++		return rc;
++	    p += plen;
++	}
++
++	if (!(_digp->saved & PGPDIG_SAVED_TIME))
++	    return RPMPGP_ERROR_NO_CREATION_TIME;	/* RFC 4880 §5.2.3.4 creation time MUST be present */
++
++	if (p > hend || hend - p < 2)
++	    return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++	memcpy(_digp->signhash16, p, sizeof(_digp->signhash16));
++	p += 2;
++
++	if (p > hend)
++	    return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++	_digp->mpi_offset = p - h;
++	rc = RPMPGP_OK;
++    }	break;
++    default:
++	rc = RPMPGP_ERROR_UNSUPPORTED_VERSION;
++	break;
++    }
++    return rc;
++}
++
++rpmpgpRC pgpPrtSig(pgpTag tag, const uint8_t *h, size_t hlen,
++		     pgpDigParams _digp)
++{
++    rpmpgpRC rc = pgpPrtSigNoParams(tag, h, hlen, _digp);
++    if (rc == RPMPGP_OK)
++	rc = pgpPrtSigParams(tag, h, hlen, _digp);
++    return rc;
++}
++
++rpmpgpRC pgpPrtKey(pgpTag tag, const uint8_t *h, size_t hlen,
++		     pgpDigParams _digp)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET;		/* assume failure */
++
++    if (_digp->version || _digp->saved)
++	return RPMPGP_ERROR_INTERNAL;
++    if  ((_digp->tag != PGPTAG_PUBLIC_KEY && _digp->tag != PGPTAG_PUBLIC_SUBKEY) || tag != _digp->tag)
++	return RPMPGP_ERROR_INTERNAL;
++
++    if (hlen == 0)
++	return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++    _digp->version = h[0];
++
++    /* We only permit V4 keys, V3 keys are long long since deprecated */
++    switch (_digp->version) {
++    case 4:
++    {   pgpPktKeyV4 v = (pgpPktKeyV4)h;
++
++	if (hlen <= sizeof(*v))
++	    return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++	_digp->time = pgpGrab4(v->time);
++	_digp->saved |= PGPDIG_SAVED_TIME;
++	_digp->pubkey_algo = v->pubkey_algo;
++	_digp->mpi_offset = sizeof(*v);
++	rc = RPMPGP_OK;
++    }	break;
++    default:
++	rc = RPMPGP_ERROR_UNSUPPORTED_VERSION;
++	break;
++    }
++
++    /* read mpi data if there was no error */
++    if (rc == RPMPGP_OK)
++	rc = pgpPrtKeyParams(tag, h, hlen, _digp);
++
++    /* calculate the key id if we could parse the key */
++    if (rc == RPMPGP_OK) {
++	if ((rc = pgpGetKeyID(h, hlen, _digp->signid)) == RPMPGP_OK)
++	    _digp->saved |= PGPDIG_SAVED_ID;
++    }
++    return rc;
++}
++
++rpmpgpRC pgpPrtUserID(pgpTag tag, const uint8_t *h, size_t hlen,
++			pgpDigParams _digp)
++{
++    if (_digp->tag != PGPTAG_PUBLIC_KEY || tag != PGPTAG_USER_ID)
++	return RPMPGP_ERROR_INTERNAL;
++    free(_digp->userid);
++    _digp->userid = memcpy(xmalloc(hlen+1), h, hlen);
++    _digp->userid[hlen] = '\0';
++    return RPMPGP_OK;
++}
++
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/rpmpgp_internal.h
+@@ -0,0 +1,169 @@
++#ifndef _RPMPGP_INTERNAL_H
++#define _RPMPGP_INTERNAL_H
++
++#include <rpm/rpmpgp.h>
++
++/* max number of bytes in a key */
++#define RPM_MAX_OPENPGP_BYTES (65535)
++
++typedef enum rpmpgpRC_e {
++    RPMPGP_OK				= 0,
++    RPMPGP_ERROR_INTERNAL		= 10,
++    RPMPGP_ERROR_CORRUPT_PGP_PACKET	= 11,
++    RPMPGP_ERROR_UNEXPECTED_PGP_PACKET	= 12,
++    RPMPGP_ERROR_UNSUPPORTED_VERSION	= 13,
++    RPMPGP_ERROR_UNSUPPORTED_ALGORITHM	= 14,
++    RPMPGP_ERROR_UNSUPPORTED_CURVE	= 15,
++    RPMPGP_ERROR_NO_CREATION_TIME	= 16,
++    RPMPGP_ERROR_DUPLICATE_DATA		= 17,
++    RPMPGP_ERROR_UNKNOWN_CRITICAL_PKT	= 18,
++    RPMPGP_ERROR_BAD_PUBKEY_STRUCTURE	= 19,
++    RPMPGP_ERROR_MISSING_SELFSIG	= 20,
++    RPMPGP_ERROR_SELFSIG_VERIFICATION	= 21,
++    RPMPGP_ERROR_SIGNATURE_VERIFICATION	= 22,
++    RPMPGP_ERROR_BAD_PUBKEY		= 23,
++    RPMPGP_ERROR_BAD_SIGNATURE		= 24,
++    RPMPGP_ERROR_SIGNATURE_FROM_FUTURE  = 25,
++    RPMPGP_ERROR_SIGNATURE_EXPIRED	= 26,
++    RPMPGP_ERROR_KEY_EXPIRED		= 27,
++    RPMPGP_ERROR_KEY_REVOKED		= 28,
++    RPMPGP_ERROR_PRIMARY_REVOKED	= 29,
++    RPMPGP_ERROR_KEY_NOT_VALID		= 30,
++    RPMPGP_ERROR_KEY_NO_SIGNING		= 31,
++    RPMPGP_ERROR_KEY_CREATED_AFTER_SIG	= 32
++} rpmpgpRC;
++
++typedef struct pgpDigAlg_s * pgpDigAlg;
++
++typedef rpmpgpRC (*setmpifunc)(pgpDigAlg digp, int num, const uint8_t *p, int mlen);
++typedef rpmpgpRC (*verifyfunc)(pgpDigAlg pgpkey, pgpDigAlg pgpsig,
++                          uint8_t *hash, size_t hashlen, int hash_algo);
++typedef void (*freefunc)(pgpDigAlg digp);
++
++struct pgpDigAlg_s {
++    setmpifunc setmpi;
++    verifyfunc verify;
++    freefunc free;
++    int curve;
++    int mpis;
++    void *data;			/*!< algorithm specific private data */
++};
++
++/*
++ * Values parsed from OpenPGP signature/pubkey packet(s).
++ */
++struct pgpDigParams_s {
++    uint8_t tag;
++    char * userid;		/*!< key user id */
++    uint8_t key_flags;		/*!< key usage flags */
++
++    uint8_t version;		/*!< key/signature version number. */
++    uint32_t time;		/*!< key/signature creation time. */
++    uint8_t pubkey_algo;	/*!< key/signature public key algorithm. */
++
++    uint8_t hash_algo;		/*!< signature hash algorithm */
++    uint8_t sigtype;
++    uint8_t * hash;
++    uint32_t hashlen;
++    uint8_t signhash16[2];
++    pgpKeyID_t signid;		/*!< key id of pubkey or signature */
++    uint32_t key_expire;	/*!< key expire time. */
++    uint32_t sig_expire;	/*!< signature expire time. */
++    int revoked;		/*!< is the key revoked? */
++    uint8_t saved;		/*!< Various flags. */
++#define	PGPDIG_SAVED_TIME	(1 << 0)
++#define	PGPDIG_SAVED_ID		(1 << 1)
++#define	PGPDIG_SAVED_KEY_FLAGS	(1 << 2)
++#define	PGPDIG_SAVED_KEY_EXPIRE	(1 << 3)
++#define	PGPDIG_SAVED_PRIMARY	(1 << 4)
++#define	PGPDIG_SAVED_VALID	(1 << 5)
++#define	PGPDIG_SAVED_SIG_EXPIRE	(1 << 6)
++    uint8_t * embedded_sig;	/* embedded signature */
++    size_t embedded_sig_len;	/* length of the embedded signature */
++    pgpKeyID_t mainid;		/* key id of main key if this is a subkey */
++    uint32_t key_mtime;		/* last modification time */
++
++    size_t mpi_offset;		/* start of mpi data */
++    pgpDigAlg alg;		/*!< algorithm specific data like MPIs */
++};
++
++/*
++ * decoded PGP packet
++ */
++typedef struct pgpPkt_s {
++    uint8_t tag;		/* decoded PGP tag */
++    const uint8_t *head;	/* pointer to start of packet (header) */
++    const uint8_t *body;	/* pointer to packet body */
++    size_t blen;		/* length of body in bytes */
++} pgpPkt;
++
++
++/* pgp packet decoding */
++RPM_GNUC_INTERNAL
++rpmpgpRC pgpDecodePkt(const uint8_t *p, size_t plen, pgpPkt *pkt);
++
++
++/* allocation */
++RPM_GNUC_INTERNAL
++pgpDigParams pgpDigParamsNew(uint8_t tag);
++
++RPM_GNUC_INTERNAL
++pgpDigAlg pgpDigAlgFree(pgpDigAlg alg);
++
++RPM_GNUC_INTERNAL
++void pgpDigAlgInitPubkey(pgpDigAlg alg, int algo, int curve);
++
++RPM_GNUC_INTERNAL
++void pgpDigAlgInitSignature(pgpDigAlg alg, int algo);
++
++/* pgp packet data extraction */
++RPM_GNUC_INTERNAL
++rpmpgpRC pgpPrtKey(pgpTag tag, const uint8_t *h, size_t hlen, pgpDigParams _digp);
++
++RPM_GNUC_INTERNAL
++rpmpgpRC pgpPrtSig(pgpTag tag, const uint8_t *h, size_t hlen, pgpDigParams _digp);
++
++RPM_GNUC_INTERNAL
++rpmpgpRC pgpPrtSigNoParams(pgpTag tag, const uint8_t *h, size_t hlen, pgpDigParams _digp);
++
++RPM_GNUC_INTERNAL
++rpmpgpRC pgpPrtSigParams(pgpTag tag, const uint8_t *h, size_t hlen, pgpDigParams sigp);
++
++RPM_GNUC_INTERNAL
++rpmpgpRC pgpPrtUserID(pgpTag tag, const uint8_t *h, size_t hlen, pgpDigParams _digp);
++
++RPM_GNUC_INTERNAL
++rpmpgpRC pgpGetKeyFingerprint(const uint8_t *h, size_t hlen, uint8_t **fp, size_t *fplen);
++
++RPM_GNUC_INTERNAL
++rpmpgpRC pgpGetKeyID(const uint8_t *h, size_t hlen, pgpKeyID_t keyid);
++
++
++/* diagnostics */
++RPM_GNUC_INTERNAL
++void pgpAddLint(pgpDigParams digp, char **lints, rpmpgpRC error);
++
++/* transferable pubkey parsing */
++RPM_GNUC_INTERNAL
++rpmpgpRC pgpPrtTransferablePubkey(const uint8_t * pkts, size_t pktlen, pgpDigParams digp);
++
++RPM_GNUC_INTERNAL
++rpmpgpRC pgpPrtTransferablePubkeySubkeys(const uint8_t * pkts, size_t pktlen, pgpDigParams mainkey,
++				   pgpDigParams **subkeys, int *subkeysCount);
++
++/* signature verification */
++RPM_GNUC_INTERNAL
++rpmpgpRC pgpVerifySignatureRaw(pgpDigParams key, pgpDigParams sig, DIGEST_CTX hashctx);
++
++/* pubkey merging */
++RPM_GNUC_INTERNAL
++rpmpgpRC pgpMergeKeys(const uint8_t *pkts1, size_t pktlen1, const uint8_t *pkts2, size_t pktlen2, uint8_t **pktsm, size_t *pktlenm);
++
++/* misc */
++RPM_GNUC_INTERNAL
++uint32_t pgpCurrentTime(void);
++
++RPM_GNUC_INTERNAL
++uint32_t pgpDigParamsModificationTime(pgpDigParams digp);
++
++#endif /* _RPMPGP_INTERNAL_H */
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/rpmpgp_internal_api.c
+@@ -0,0 +1,280 @@
++/** \ingroup rpmio signature
++ * \file rpmio/rpmpgp_internal_api.c
++ * Public API for the PGP functions
++ */
++
++#include "system.h"
++
++#include "rpmpgp_internal.h"
++
++pgpDigParams pgpDigParamsNew(uint8_t tag)
++{
++    pgpDigParams digp = xcalloc(1, sizeof(*digp));
++    digp->tag = tag;
++    return digp;
++}
++
++pgpDigParams pgpDigParamsFree(pgpDigParams digp)
++{
++    if (digp) {
++	pgpDigAlgFree(digp->alg);
++	free(digp->userid);
++	free(digp->hash);
++	free(digp->embedded_sig);
++	memset(digp, 0, sizeof(*digp));
++	free(digp);
++    }
++    return NULL;
++}
++
++/* compare data of two signatures or keys */
++int pgpDigParamsCmp(pgpDigParams p1, pgpDigParams p2)
++{
++    int rc = 1; /* assume different, eg if either is NULL */
++    if (p1 && p2) {
++	/* XXX Should we compare something else too? */
++	if (p1->tag != p2->tag)
++	    goto exit;
++	if (p1->hash_algo != p2->hash_algo)
++	    goto exit;
++	if (p1->pubkey_algo != p2->pubkey_algo)
++	    goto exit;
++	if (p1->version != p2->version)
++	    goto exit;
++	if (p1->sigtype != p2->sigtype)
++	    goto exit;
++	if (memcmp(p1->signid, p2->signid, sizeof(p1->signid)) != 0)
++	    goto exit;
++	if (p1->userid && p2->userid && strcmp(p1->userid, p2->userid) != 0)
++	    goto exit;
++
++	/* Parameters match ... at least for our purposes */
++	rc = 0;
++    }
++exit:
++    return rc;
++}
++
++int pgpSignatureType(pgpDigParams _digp)
++{
++    int rc = -1;
++
++    if (_digp && _digp->tag == PGPTAG_SIGNATURE)
++	rc = _digp->sigtype;
++    return rc;
++}
++
++unsigned int pgpDigParamsAlgo(pgpDigParams digp, unsigned int algotype)
++{
++    unsigned int algo = 0; /* assume failure */
++    if (digp) {
++	switch (algotype) {
++	case PGPVAL_PUBKEYALGO:
++	    algo = digp->pubkey_algo;
++	    break;
++	case PGPVAL_HASHALGO:
++	    algo = digp->hash_algo;
++	    break;
++	}
++    }
++    return algo;
++}
++
++const uint8_t *pgpDigParamsSignID(pgpDigParams digp)
++{
++    return digp->signid;
++}
++
++const char *pgpDigParamsUserID(pgpDigParams digp)
++{
++    return digp->userid;
++}
++
++int pgpDigParamsVersion(pgpDigParams digp)
++{
++    return digp->version;
++}
++
++uint32_t pgpDigParamsCreationTime(pgpDigParams digp)
++{
++    return digp->time;
++}
++
++uint32_t pgpDigParamsModificationTime(pgpDigParams digp)
++{
++    return digp->tag == PGPTAG_PUBLIC_KEY ? digp->key_mtime : 0;
++}
++
++rpmRC pgpVerifySignature2(pgpDigParams key, pgpDigParams sig, DIGEST_CTX hashctx, char **lints)
++{
++    rpmRC res = RPMRC_FAIL;
++    if (lints)
++        *lints = NULL;
++
++    if (!sig || sig->tag != PGPTAG_SIGNATURE || (sig->sigtype != PGPSIGTYPE_BINARY && sig->sigtype != PGPSIGTYPE_TEXT && sig->sigtype != PGPSIGTYPE_STANDALONE))
++	goto exit;
++    res = pgpVerifySignatureRaw(key, sig, hashctx) == RPMPGP_OK ? RPMRC_OK : RPMRC_FAIL;
++    if (res != RPMRC_OK)
++	goto exit;
++
++    /* now check the meta information of the signature */
++    if ((sig->saved & PGPDIG_SAVED_SIG_EXPIRE) != 0 && sig->sig_expire) {
++	uint32_t now = pgpCurrentTime();
++	if (now < sig->time) {
++	    if (lints)
++		pgpAddLint(sig, lints, RPMPGP_ERROR_SIGNATURE_FROM_FUTURE);
++	    res = RPMRC_NOTTRUSTED;
++	} else if (sig->sig_expire < now - sig->time) {
++	    if (lints)
++		pgpAddLint(sig, lints, RPMPGP_ERROR_SIGNATURE_EXPIRED);
++	    res = RPMRC_NOTTRUSTED;
++	}
++	if (res != RPMRC_OK)
++	    goto exit;
++    }
++    if (!key) {
++	/* that's all we can do */
++	res = RPMRC_NOKEY;
++	goto exit;
++    }
++    /* now check the meta information of the key */
++    if (key->revoked) {
++	if (lints)
++	    pgpAddLint(key, lints, key->revoked == 2 ? RPMPGP_ERROR_PRIMARY_REVOKED : RPMPGP_ERROR_KEY_REVOKED);
++	res = RPMRC_NOTTRUSTED;
++    } else if ((key->saved & PGPDIG_SAVED_VALID) == 0) {
++	if (lints)
++	    pgpAddLint(key, lints, RPMPGP_ERROR_KEY_NOT_VALID);
++	res = RPMRC_NOTTRUSTED;
++    } else if (key->tag == PGPTAG_PUBLIC_SUBKEY && ((key->saved & PGPDIG_SAVED_KEY_FLAGS) == 0 || (key->key_flags & 0x02) == 0)) {
++	if (lints)
++	    pgpAddLint(key, lints, RPMPGP_ERROR_KEY_NO_SIGNING);
++	res = RPMRC_NOTTRUSTED;	/* subkey not suitable for signing */
++    } else if (key->time > sig->time) {
++	if (lints)
++	    pgpAddLint(key, lints, RPMPGP_ERROR_KEY_CREATED_AFTER_SIG);
++	res = RPMRC_NOTTRUSTED;
++    } else if ((key->saved & PGPDIG_SAVED_KEY_EXPIRE) != 0 && key->key_expire && key->key_expire < sig->time - key->time) {
++	if (lints)
++	    pgpAddLint(key, lints, RPMPGP_ERROR_KEY_EXPIRED);
++	res = RPMRC_NOTTRUSTED;
++    }
++exit:
++    return res;
++}
++
++rpmRC pgpVerifySignature(pgpDigParams key, pgpDigParams sig, DIGEST_CTX hashctx)
++{
++    return pgpVerifySignature2(key, sig, hashctx, NULL);
++}
++
++
++int pgpPrtParams2(const uint8_t * pkts, size_t pktlen, unsigned int pkttype,
++		 pgpDigParams * ret, char **lints)
++{
++    pgpDigParams digp = NULL;
++    rpmpgpRC rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET;	/* assume failure */
++    pgpPkt pkt;
++
++    if (lints)
++        *lints = NULL;
++    if (pktlen > RPM_MAX_OPENPGP_BYTES)
++	goto exit;
++    if (pgpDecodePkt(pkts, pktlen, &pkt))
++	goto exit;
++
++    rc = RPMPGP_ERROR_UNEXPECTED_PGP_PACKET;
++    if (pkttype && pkt.tag != pkttype)
++	goto exit;
++
++    if (pkt.tag == PGPTAG_PUBLIC_KEY) {
++	/* use specialized transferable pubkey implementation */
++	digp = pgpDigParamsNew(pkt.tag);
++	rc = pgpPrtTransferablePubkey(pkts, pktlen, digp);
++    } else if (pkt.tag == PGPTAG_SIGNATURE) {
++	digp = pgpDigParamsNew(pkt.tag);
++	rc = pgpPrtSig(pkt.tag, pkt.body, pkt.blen, digp);
++	/* treat trailing data as error */
++	if (rc == RPMPGP_OK && (pkt.body - pkt.head) + pkt.blen != pktlen)
++	    rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++    }
++
++exit:
++    if (ret && rc == RPMPGP_OK)
++	*ret = digp;
++    else {
++	if (lints)
++	    pgpAddLint(digp, lints, rc);
++	pgpDigParamsFree(digp);
++    }
++    return rc == RPMPGP_OK ? 0 : -1;
++}
++
++int pgpPrtParams(const uint8_t * pkts, size_t pktlen, unsigned int pkttype,
++                  pgpDigParams * ret)
++{
++    return pgpPrtParams2(pkts, pktlen, pkttype, ret, NULL);
++}
++
++int pgpPrtParamsSubkeys(const uint8_t *pkts, size_t pktlen,
++			pgpDigParams mainkey, pgpDigParams **subkeys,
++			int *subkeysCount)
++{
++    rpmpgpRC rc = pgpPrtTransferablePubkeySubkeys(pkts, pktlen, mainkey, subkeys, subkeysCount);
++    return rc == RPMPGP_OK ? 0 : -1;
++}
++
++rpmRC pgpPubKeyLint(const uint8_t *pkts, size_t pktslen, char **explanation)
++{
++    pgpDigParams digp = pgpDigParamsNew(PGPTAG_PUBLIC_KEY);
++    rpmpgpRC rc = pgpPrtTransferablePubkey(pkts, pktslen, digp);
++    if (rc != RPMPGP_OK && explanation)
++	pgpAddLint(digp, explanation, rc);
++    pgpDigParamsFree(digp);
++    return rc == RPMPGP_OK ? RPMRC_OK : RPMRC_FAIL;
++}
++
++int pgpPubKeyCertLen(const uint8_t *pkts, size_t pktslen, size_t *certlen)
++{
++    const uint8_t *p = pkts;
++    const uint8_t *pend = pkts + pktslen;
++    pgpPkt pkt;
++
++    while (p < pend) {
++	if (pgpDecodePkt(p, (pend - p), &pkt))
++	    return -1;
++	if (pkt.tag == PGPTAG_PUBLIC_KEY && pkts != p) {
++	    *certlen = p - pkts;
++	    return 0;
++	}
++	p += (pkt.body - pkt.head) + pkt.blen;
++    }
++    *certlen = pktslen;
++    return 0;
++}
++
++int pgpPubkeyKeyID(const uint8_t * pkts, size_t pktslen, pgpKeyID_t keyid)
++{
++    pgpPkt pkt;
++
++    if (pgpDecodePkt(pkts, pktslen, &pkt))
++	return -1;
++    return pgpGetKeyID(pkt.body, pkt.blen, keyid) == RPMPGP_OK ? 0 : -1;
++}
++
++int pgpPubkeyFingerprint(const uint8_t * pkts, size_t pktslen,
++                         uint8_t **fp, size_t *fplen)
++{
++    pgpPkt pkt;
++
++    if (pgpDecodePkt(pkts, pktslen, &pkt))
++	return -1;
++    return pgpGetKeyFingerprint(pkt.body, pkt.blen, fp, fplen) == RPMPGP_OK ? 0 : -1;
++}
++
++rpmRC pgpPubkeyMerge(const uint8_t *pkts1, size_t pkts1len, const uint8_t *pkts2, size_t pkts2len, uint8_t **pktsm, size_t *pktsmlen, int flags)
++{
++    rpmpgpRC rc = pgpMergeKeys(pkts1, pkts1len, pkts2, pkts2len, pktsm, pktsmlen);
++    return rc == RPMPGP_OK ? RPMRC_OK : RPMRC_FAIL;
++}
++
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/rpmpgp_internal_armor.c
+@@ -0,0 +1,223 @@
++/** \ingroup rpmio signature
++ * \file rpmio/rpmpgp_internal_armor.c
++ * Routines to handle RFC-2440 ascii armor.
++ */
++
++#include "system.h"
++
++#include <rpm/rpmstring.h>
++#include <rpm/rpmlog.h>
++#include <rpm/rpmbase64.h>
++
++#include "rpmpgpval.h"
++#include "rpmpgp_internal.h"
++
++/** \ingroup rpmpgp
++ * Return value of an OpenPGP string.
++ * @param vs		table of (string,value) pairs
++ * @param s		string token to lookup
++ * @param se		end-of-string address
++ * @return		byte value
++ */
++static inline
++int pgpValTok(pgpValTbl vs, const char * s, const char * se)
++{
++    do {
++	size_t vlen = strlen(vs->str);
++	if (vlen <= (se-s) && rstreqn(s, vs->str, vlen))
++	    break;
++    } while ((++vs)->val != -1);
++    return vs->val;
++}
++
++#define CRC24_INIT	0xb704ce
++#define CRC24_POLY	0x1864cfb
++
++/** \ingroup rpmpgp
++ * Return CRC of a buffer.
++ * @param octets	bytes
++ * @param len		no. of bytes
++ * @return		crc of buffer
++ */
++static inline
++unsigned int pgpCRC(const uint8_t *octets, size_t len)
++{
++    unsigned int crc = CRC24_INIT;
++    size_t i;
++
++    while (len--) {
++	crc ^= (*octets++) << 16;
++	for (i = 0; i < 8; i++) {
++	    crc <<= 1;
++	    if (crc & 0x1000000)
++		crc ^= CRC24_POLY;
++	}
++    }
++    return crc & 0xffffff;
++}
++
++static pgpArmor decodePkts(uint8_t *b, uint8_t **pkt, size_t *pktlen)
++{
++    const char * enc = NULL;
++    const char * crcenc = NULL;
++    uint8_t * dec;
++    uint8_t * crcdec;
++    size_t declen;
++    size_t crclen;
++    uint32_t crcpkt, crc;
++    const char * armortype = NULL;
++    char * t, * te;
++    int pstate = 0;
++    pgpArmor ec = PGPARMOR_ERR_NO_BEGIN_PGP;	/* XXX assume failure */
++
++#define	TOKEQ(_s, _tok)	(rstreqn((_s), (_tok), sizeof(_tok)-1))
++
++    for (t = (char *)b; t && *t; t = te) {
++	int rc;
++	if ((te = strchr(t, '\n')) == NULL)
++	    te = t + strlen(t);
++	else
++	    te++;
++
++	switch (pstate) {
++	case 0:
++	    armortype = NULL;
++	    if (!TOKEQ(t, "-----BEGIN PGP "))
++		continue;
++	    t += sizeof("-----BEGIN PGP ")-1;
++
++	    rc = pgpValTok(pgpArmorTbl, t, te);
++	    if (rc < 0) {
++		ec = PGPARMOR_ERR_UNKNOWN_ARMOR_TYPE;
++		goto exit;
++	    }
++	    if (rc != PGPARMOR_PUBKEY)	/* XXX ASCII Pubkeys only, please. */
++		continue;
++
++	    armortype = pgpValString(PGPVAL_ARMORBLOCK, rc);
++	    t += strlen(armortype);
++	    if (!TOKEQ(t, "-----"))
++		continue;
++	    t += sizeof("-----")-1;
++	    if (*t != '\n' && *t != '\r')
++		continue;
++	    *t = '\0';
++	    pstate++;
++	    break;
++	case 1:
++	    enc = NULL;
++	    rc = pgpValTok(pgpArmorKeyTbl, t, te);
++	    if (rc >= 0)
++		continue;
++	    if (*t != '\n' && *t != '\r') {
++		pstate = 0;
++		continue;
++	    }
++	    enc = te;		/* Start of encoded packets */
++	    pstate++;
++	    break;
++	case 2:
++	    crcenc = NULL;
++	    if (*t != '=')
++		continue;
++	    *t++ = '\0';	/* Terminate encoded packets */
++	    crcenc = t;		/* Start of encoded crc */
++	    pstate++;
++	    break;
++	case 3:
++	    pstate = 0;
++	    if (!TOKEQ(t, "-----END PGP ")) {
++		ec = PGPARMOR_ERR_NO_END_PGP;
++		goto exit;
++	    }
++	    *t = '\0';		/* Terminate encoded crc */
++	    t += sizeof("-----END PGP ")-1;
++	    if (t >= te) continue;
++
++	    if (armortype == NULL) /* XXX can't happen */
++		continue;
++	    if (!rstreqn(t, armortype, strlen(armortype)))
++		continue;
++
++	    t += strlen(armortype);
++	    if (t >= te) continue;
++
++	    if (!TOKEQ(t, "-----")) {
++		ec = PGPARMOR_ERR_NO_END_PGP;
++		goto exit;
++	    }
++	    t += (sizeof("-----")-1);
++	    /* Handle EOF without EOL here, *t == '\0' at EOF */
++	    if (*t && (t >= te)) continue;
++	    /* XXX permitting \r here is not RFC-2440 compliant <shrug> */
++	    if (!(*t == '\n' || *t == '\r' || *t == '\0')) continue;
++
++	    crcdec = NULL;
++	    crclen = 0;
++	    if (rpmBase64Decode(crcenc, (void **)&crcdec, &crclen) != 0 || crclen != 3) {
++		crcdec = _free(crcdec);
++		ec = PGPARMOR_ERR_CRC_DECODE;
++		goto exit;
++	    }
++	    crcpkt = crcdec[0] << 16 | crcdec[1] << 8 | crcdec[2];
++	    crcdec = _free(crcdec);
++	    dec = NULL;
++	    declen = 0;
++	    if (rpmBase64Decode(enc, (void **)&dec, &declen) != 0) {
++		ec = PGPARMOR_ERR_BODY_DECODE;
++		goto exit;
++	    }
++	    crc = pgpCRC(dec, declen);
++	    if (crcpkt != crc) {
++		ec = PGPARMOR_ERR_CRC_CHECK;
++		_free(dec);
++		goto exit;
++	    }
++	    if (pkt)
++		*pkt = dec;
++	    else
++		_free(dec);
++	    if (pktlen) *pktlen = declen;
++	    ec = PGPARMOR_PUBKEY;	/* XXX ASCII Pubkeys only, please. */
++	    goto exit;
++	    break;
++	}
++    }
++    ec = PGPARMOR_NONE;
++
++exit:
++    return ec;
++}
++
++
++pgpArmor pgpParsePkts(const char *armor, uint8_t ** pkt, size_t * pktlen)
++{
++    pgpArmor ec = PGPARMOR_ERR_NO_BEGIN_PGP;	/* XXX assume failure */
++    if (armor && strlen(armor) > 0) {
++	uint8_t *b = (uint8_t*) xstrdup(armor);
++	ec = decodePkts(b, pkt, pktlen);
++	free(b);
++    }
++    return ec;
++}
++
++char * pgpArmorWrap(int atype, const unsigned char * s, size_t ns)
++{
++    char *buf = NULL, *val = NULL;
++    char *enc = rpmBase64Encode(s, ns, -1);
++    char *crc = rpmBase64CRC(s, ns);
++    const char *valstr = pgpValString(PGPVAL_ARMORBLOCK, atype);
++
++    if (crc != NULL && enc != NULL) {
++	rasprintf(&buf, "%s=%s", enc, crc);
++    }
++    free(crc);
++    free(enc);
++
++    rasprintf(&val, "-----BEGIN PGP %s-----\nVersion: rpm-" VERSION"\n\n"
++		    "%s\n-----END PGP %s-----\n",
++		    valstr, buf != NULL ? buf : "", valstr);
++
++    free(buf);
++    return val;
++}
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/rpmpgp_internal_libgcrypt.c
+@@ -0,0 +1,437 @@
++#include "system.h"
++
++#include <gcrypt.h>
++
++#include <rpm/rpmcrypto.h>
++#include "rpmpgp_internal.h"
++#include "debug.h"
++
++static int hashalgo2gcryalgo(int hashalgo)
++{
++    switch (hashalgo) {
++    case RPM_HASH_MD5:
++	return GCRY_MD_MD5;
++    case RPM_HASH_SHA1:
++	return GCRY_MD_SHA1;
++    case RPM_HASH_SHA224:
++	return GCRY_MD_SHA224;
++    case RPM_HASH_SHA256:
++	return GCRY_MD_SHA256;
++    case RPM_HASH_SHA384:
++	return GCRY_MD_SHA384;
++    case RPM_HASH_SHA512:
++	return GCRY_MD_SHA512;
++    default:
++	return 0;
++    }
++}
++
++/****************************** RSA **************************************/
++
++struct pgpDigSigRSA_s {
++    gcry_mpi_t s;
++};
++
++struct pgpDigKeyRSA_s {
++    gcry_mpi_t n;
++    gcry_mpi_t e;
++};
++
++static rpmpgpRC pgpSetSigMpiRSA(pgpDigAlg pgpsig, int num, const uint8_t *p, int mlen)
++{
++    struct pgpDigSigRSA_s *sig = pgpsig->data;
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_SIGNATURE;
++
++    if (!sig)
++	sig = pgpsig->data = xcalloc(1, sizeof(*sig));
++
++    switch (num) {
++    case 0:
++	if (!gcry_mpi_scan(&sig->s, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = RPMPGP_OK;
++	break;
++    }
++    return rc;
++}
++
++static rpmpgpRC pgpSetKeyMpiRSA(pgpDigAlg pgpkey, int num, const uint8_t *p, int mlen)
++{
++    struct pgpDigKeyRSA_s *key = pgpkey->data;
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_PUBKEY;
++
++    if (!key)
++	key = pgpkey->data = xcalloc(1, sizeof(*key));
++
++    switch (num) {
++    case 0:
++	if (!gcry_mpi_scan(&key->n, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = RPMPGP_OK;
++	break;
++    case 1:
++	if (!gcry_mpi_scan(&key->e, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = RPMPGP_OK;
++	break;
++    }
++    return rc;
++}
++
++static rpmpgpRC pgpVerifySigRSA(pgpDigAlg pgpkey, pgpDigAlg pgpsig, uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    struct pgpDigKeyRSA_s *key = pgpkey->data;
++    struct pgpDigSigRSA_s *sig = pgpsig->data;
++    gcry_sexp_t sexp_sig = NULL, sexp_data = NULL, sexp_pkey = NULL;
++    int gcry_hash_algo = hashalgo2gcryalgo(hash_algo);
++    rpmpgpRC rc = RPMPGP_ERROR_SIGNATURE_VERIFICATION;
++
++    if (!sig || !key || !gcry_hash_algo)
++	return rc;
++
++    gcry_sexp_build(&sexp_sig, NULL, "(sig-val (rsa (s %M)))", sig->s);
++    gcry_sexp_build(&sexp_data, NULL, "(data (flags pkcs1) (hash %s %b))", gcry_md_algo_name(gcry_hash_algo), (int)hashlen, (const char *)hash);
++    gcry_sexp_build(&sexp_pkey, NULL, "(public-key (rsa (n %M) (e %M)))", key->n, key->e);
++    if (sexp_sig && sexp_data && sexp_pkey)
++	if (gcry_pk_verify(sexp_sig, sexp_data, sexp_pkey) == 0)
++	    rc = RPMPGP_OK;
++    gcry_sexp_release(sexp_sig);
++    gcry_sexp_release(sexp_data);
++    gcry_sexp_release(sexp_pkey);
++    return rc;
++}
++
++static void pgpFreeSigRSA(pgpDigAlg pgpsig)
++{
++    struct pgpDigSigRSA_s *sig = pgpsig->data;
++    if (sig) {
++        gcry_mpi_release(sig->s);
++	pgpsig->data = _free(sig);
++    }
++}
++
++static void pgpFreeKeyRSA(pgpDigAlg pgpkey)
++{
++    struct pgpDigKeyRSA_s *key = pgpkey->data;
++    if (key) {
++        gcry_mpi_release(key->n);
++        gcry_mpi_release(key->e);
++	pgpkey->data = _free(key);
++    }
++}
++
++
++/****************************** DSA **************************************/
++
++struct pgpDigSigDSA_s {
++    gcry_mpi_t r;
++    gcry_mpi_t s;
++};
++
++struct pgpDigKeyDSA_s {
++    gcry_mpi_t p;
++    gcry_mpi_t q;
++    gcry_mpi_t g;
++    gcry_mpi_t y;
++};
++
++static rpmpgpRC pgpSetSigMpiDSA(pgpDigAlg pgpsig, int num, const uint8_t *p, int mlen)
++{
++    struct pgpDigSigDSA_s *sig = pgpsig->data;
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_SIGNATURE;
++
++    if (!sig)
++	sig = pgpsig->data = xcalloc(1, sizeof(*sig));
++
++    switch (num) {
++    case 0:
++	if (!gcry_mpi_scan(&sig->r, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = RPMPGP_OK;
++	break;
++    case 1:
++	if (!gcry_mpi_scan(&sig->s, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = RPMPGP_OK;
++	break;
++    }
++    return rc;
++}
++
++static rpmpgpRC pgpSetKeyMpiDSA(pgpDigAlg pgpkey, int num, const uint8_t *p, int mlen)
++{
++    struct pgpDigKeyDSA_s *key = pgpkey->data;
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_PUBKEY;
++
++    if (!key)
++	key = pgpkey->data = xcalloc(1, sizeof(*key));
++
++    switch (num) {
++    case 0:
++	if (!gcry_mpi_scan(&key->p, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = RPMPGP_OK;
++	break;
++    case 1:
++	if (!gcry_mpi_scan(&key->q, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = RPMPGP_OK;
++	break;
++    case 2:
++	if (!gcry_mpi_scan(&key->g, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = RPMPGP_OK;
++	break;
++    case 3:
++	if (!gcry_mpi_scan(&key->y, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = RPMPGP_OK;
++	break;
++    }
++    return rc;
++}
++
++static rpmpgpRC pgpVerifySigDSA(pgpDigAlg pgpkey, pgpDigAlg pgpsig, uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    struct pgpDigKeyDSA_s *key = pgpkey->data;
++    struct pgpDigSigDSA_s *sig = pgpsig->data;
++    gcry_sexp_t sexp_sig = NULL, sexp_data = NULL, sexp_pkey = NULL;
++    rpmpgpRC rc = RPMPGP_ERROR_SIGNATURE_VERIFICATION;
++    size_t qlen;
++
++    if (!sig || !key)
++	return rc;
++
++    qlen = (mpi_get_nbits(key->q) + 7) / 8;
++    if (qlen < 20)
++	qlen = 20;		/* sanity */
++    if (hashlen > qlen)
++	hashlen = qlen;		/* dsa2: truncate hash to qlen */
++    gcry_sexp_build(&sexp_sig, NULL, "(sig-val (dsa (r %M) (s %M)))", sig->r, sig->s);
++    gcry_sexp_build(&sexp_data, NULL, "(data (flags raw) (value %b))", (int)hashlen, (const char *)hash);
++    gcry_sexp_build(&sexp_pkey, NULL, "(public-key (dsa (p %M) (q %M) (g %M) (y %M)))", key->p, key->q, key->g, key->y);
++    if (sexp_sig && sexp_data && sexp_pkey)
++	if (gcry_pk_verify(sexp_sig, sexp_data, sexp_pkey) == 0)
++	    rc = RPMPGP_OK;
++    gcry_sexp_release(sexp_sig);
++    gcry_sexp_release(sexp_data);
++    gcry_sexp_release(sexp_pkey);
++    return rc;
++}
++
++static void pgpFreeSigDSA(pgpDigAlg pgpsig)
++{
++    struct pgpDigSigDSA_s *sig = pgpsig->data;
++    if (sig) {
++        gcry_mpi_release(sig->r);
++        gcry_mpi_release(sig->s);
++	pgpsig->data = _free(sig);
++    }
++}
++
++static void pgpFreeKeyDSA(pgpDigAlg pgpkey)
++{
++    struct pgpDigKeyDSA_s *key = pgpkey->data;
++    if (key) {
++        gcry_mpi_release(key->p);
++        gcry_mpi_release(key->q);
++        gcry_mpi_release(key->g);
++        gcry_mpi_release(key->y);
++	pgpkey->data = _free(key);
++    }
++}
++
++
++/****************************** ECC **************************************/
++
++struct pgpDigSigECC_s {
++    gcry_mpi_t r;
++    gcry_mpi_t s;
++};
++
++struct pgpDigKeyECC_s {
++    gcry_mpi_t q;
++};
++
++static rpmpgpRC pgpSetSigMpiECC(pgpDigAlg pgpsig, int num, const uint8_t *p, int mlen)
++{
++    struct pgpDigSigECC_s *sig = pgpsig->data;
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_SIGNATURE;
++
++    if (!sig)
++	sig = pgpsig->data = xcalloc(1, sizeof(*sig));
++
++    switch (num) {
++    case 0:
++	if (!gcry_mpi_scan(&sig->r, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = RPMPGP_OK;
++	break;
++    case 1:
++	if (!gcry_mpi_scan(&sig->s, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = RPMPGP_OK;
++	break;
++    }
++    return rc;
++}
++
++static rpmpgpRC pgpSetKeyMpiECC(pgpDigAlg pgpkey, int num, const uint8_t *p, int mlen)
++{
++    struct pgpDigKeyECC_s *key = pgpkey->data;
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_PUBKEY;
++
++    if (!key)
++	key = pgpkey->data = xcalloc(1, sizeof(*key));
++
++    switch (num) {
++    case 0:
++	if (!gcry_mpi_scan(&key->q, GCRYMPI_FMT_PGP, p, mlen, NULL))
++	    rc = RPMPGP_OK;
++	break;
++    }
++    return rc;
++}
++
++static int
++ed25519_zero_extend(gcry_mpi_t x, unsigned char *buf, int bufl)
++{
++    int n = (gcry_mpi_get_nbits(x) + 7) / 8;
++    if (n == 0 || n > bufl)
++	return 1;
++    n = bufl - n;
++    if (n)
++	memset(buf, 0, n);
++    gcry_mpi_print(GCRYMPI_FMT_USG, buf + n, bufl - n, NULL, x);
++    return 0;
++}
++
++static rpmpgpRC pgpVerifySigECC(pgpDigAlg pgpkey, pgpDigAlg pgpsig, uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    struct pgpDigKeyECC_s *key = pgpkey->data;
++    struct pgpDigSigECC_s *sig = pgpsig->data;
++    gcry_sexp_t sexp_sig = NULL, sexp_data = NULL, sexp_pkey = NULL;
++    rpmpgpRC rc = RPMPGP_ERROR_SIGNATURE_VERIFICATION;
++    unsigned char buf_r[32], buf_s[32];
++
++    if (!sig || !key)
++	return rc;
++    if (pgpkey->curve == PGPCURVE_ED25519) {
++	if (ed25519_zero_extend(sig->r, buf_r, 32) || ed25519_zero_extend(sig->s, buf_s, 32))
++	    return rc;
++	gcry_sexp_build(&sexp_sig, NULL, "(sig-val (eddsa (r %b) (s %b)))", 32, (const char *)buf_r, 32, (const char *)buf_s, 32);
++	gcry_sexp_build(&sexp_data, NULL, "(data (flags eddsa) (hash-algo sha512) (value %b))", (int)hashlen, (const char *)hash);
++	gcry_sexp_build(&sexp_pkey, NULL, "(public-key (ecc (curve \"Ed25519\") (flags eddsa) (q %M)))", key->q);
++	if (sexp_sig && sexp_data && sexp_pkey)
++	    if (gcry_pk_verify(sexp_sig, sexp_data, sexp_pkey) == 0)
++		rc = RPMPGP_OK;
++	gcry_sexp_release(sexp_sig);
++	gcry_sexp_release(sexp_data);
++	gcry_sexp_release(sexp_pkey);
++	return rc;
++    }
++    if (pgpkey->curve == PGPCURVE_NIST_P_256 || pgpkey->curve == PGPCURVE_NIST_P_384 || pgpkey->curve == PGPCURVE_NIST_P_521) {
++	gcry_sexp_build(&sexp_sig, NULL, "(sig-val (ecdsa (r %M) (s %M)))", sig->r, sig->s);
++	gcry_sexp_build(&sexp_data, NULL, "(data (value %b))", (int)hashlen, (const char *)hash);
++	if (pgpkey->curve == PGPCURVE_NIST_P_256)
++	    gcry_sexp_build(&sexp_pkey, NULL, "(public-key (ecc (curve \"NIST P-256\") (q %M)))", key->q);
++	else if (pgpkey->curve == PGPCURVE_NIST_P_384)
++	    gcry_sexp_build(&sexp_pkey, NULL, "(public-key (ecc (curve \"NIST P-384\") (q %M)))", key->q);
++	else if (pgpkey->curve == PGPCURVE_NIST_P_521)
++	    gcry_sexp_build(&sexp_pkey, NULL, "(public-key (ecc (curve \"NIST P-521\") (q %M)))", key->q);
++	if (sexp_sig && sexp_data && sexp_pkey)
++	    if (gcry_pk_verify(sexp_sig, sexp_data, sexp_pkey) == 0)
++		rc = RPMPGP_OK;
++	gcry_sexp_release(sexp_sig);
++	gcry_sexp_release(sexp_data);
++	gcry_sexp_release(sexp_pkey);
++	return rc;
++    }
++    return rc;
++}
++
++static void pgpFreeSigECC(pgpDigAlg pgpsig)
++{
++    struct pgpDigSigECC_s *sig = pgpsig->data;
++    if (sig) {
++	gcry_mpi_release(sig->r);
++	gcry_mpi_release(sig->s);
++	pgpsig->data = _free(sig);
++    }
++}
++
++static void pgpFreeKeyECC(pgpDigAlg pgpkey)
++{
++    struct pgpDigKeyECC_s *key = pgpkey->data;
++    if (key) {
++	gcry_mpi_release(key->q);
++	pgpkey->data = _free(key);
++    }
++}
++
++
++static int pgpSupportedCurve(int algo, int curve)
++{
++    if (algo == PGPPUBKEYALGO_EDDSA && curve == PGPCURVE_ED25519) {
++	static int supported_ed25519;
++	if (!supported_ed25519) {
++	    gcry_sexp_t sexp = NULL;
++	    unsigned int nbits;
++	    gcry_sexp_build(&sexp, NULL, "(public-key (ecc (curve \"Ed25519\")))");
++	    nbits = gcry_pk_get_nbits(sexp);
++	    gcry_sexp_release(sexp);
++	    supported_ed25519 = nbits > 0 ? 1 : -1;
++	}
++	return supported_ed25519 > 0;
++    }
++    if (algo == PGPPUBKEYALGO_ECDSA && curve == PGPCURVE_NIST_P_256)
++	return 1;
++    if (algo == PGPPUBKEYALGO_ECDSA && curve == PGPCURVE_NIST_P_384)
++	return 1;
++    if (algo == PGPPUBKEYALGO_ECDSA && curve == PGPCURVE_NIST_P_521)
++	return 1;
++    return 0;
++}
++
++void pgpDigAlgInitPubkey(pgpDigAlg ka, int algo, int curve)
++{
++    switch (algo) {
++    case PGPPUBKEYALGO_RSA:
++        ka->setmpi = pgpSetKeyMpiRSA;
++        ka->free = pgpFreeKeyRSA;
++        ka->mpis = 2;
++        break;
++    case PGPPUBKEYALGO_DSA:
++        ka->setmpi = pgpSetKeyMpiDSA;
++        ka->free = pgpFreeKeyDSA;
++        ka->mpis = 4;
++        break;
++    case PGPPUBKEYALGO_ECDSA:
++    case PGPPUBKEYALGO_EDDSA:
++	if (!pgpSupportedCurve(algo, curve))
++	    break;
++        ka->setmpi = pgpSetKeyMpiECC;
++        ka->free = pgpFreeKeyECC;
++        ka->mpis = 1;
++        ka->curve = curve;
++        break;
++    default:
++        break;
++    }
++}
++
++void pgpDigAlgInitSignature(pgpDigAlg sa, int algo)
++{
++    switch (algo) {
++    case PGPPUBKEYALGO_RSA:
++        sa->setmpi = pgpSetSigMpiRSA;
++        sa->free = pgpFreeSigRSA;
++        sa->verify = pgpVerifySigRSA;
++        sa->mpis = 1;
++        break;
++    case PGPPUBKEYALGO_DSA:
++        sa->setmpi = pgpSetSigMpiDSA;
++        sa->free = pgpFreeSigDSA;
++        sa->verify = pgpVerifySigDSA;
++        sa->mpis = 2;
++        break;
++    case PGPPUBKEYALGO_ECDSA:
++    case PGPPUBKEYALGO_EDDSA:
++        sa->setmpi = pgpSetSigMpiECC;
++        sa->free = pgpFreeSigECC;
++        sa->verify = pgpVerifySigECC;
++        sa->mpis = 2;
++        break;
++    default:
++        break;
++    }
++}
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/rpmpgp_internal_lint.c
+@@ -0,0 +1,212 @@
++/** \ingroup rpmio signature
++ * \file rpmio/rpmpgp_internal_line.c
++ *
++ * Error reporting functions
++ */
++
++#include "system.h"
++
++#include <time.h>
++
++#include "rpmpgp_internal.h"
++
++static char *format_keyid(pgpKeyID_t keyid, char *userid)
++{
++    char *keyidstr = rpmhex(keyid, sizeof(pgpKeyID_t));
++    if (!userid) {
++	return keyidstr;
++    } else {
++	char *ret = NULL;
++	rasprintf(&ret, "%s (%s)", keyidstr, userid);
++	free(keyidstr);
++	return ret;
++    }
++}
++
++static char *format_time(time_t *t)
++{
++    char dbuf[BUFSIZ];
++    struct tm _tm, *tms;
++    char *ret = NULL;
++
++    tms = localtime_r(t, &_tm);
++    if (!(tms && strftime(dbuf, sizeof(dbuf), "%Y-%m-%d %H:%M:%S", tms) > 0)) {
++	rasprintf(&ret, "Invalid date (%lld)", (long long int)t);
++    } else {
++	ret = xstrdup(dbuf);
++    }
++    return ret;
++}
++
++static void pgpAddKeyLint(pgpDigParams key, char **lints, const char *msg)
++{
++    char *keyid = format_keyid(key->signid, key->tag == PGPTAG_PUBLIC_SUBKEY ? NULL : key->userid);
++    char *main_keyid = key->tag == PGPTAG_PUBLIC_SUBKEY ? format_keyid(key->mainid, key->userid) : NULL;
++    if (key->tag == PGPTAG_PUBLIC_SUBKEY) {
++	/* special case the message about subkeys with a revoked primary key */
++	if (key->revoked == 2)
++	    rasprintf(lints, "Key %s is a subkey of key %s, which has been revoked", keyid, main_keyid);
++	else
++	    rasprintf(lints, "Subkey %s of key %s %s", keyid, main_keyid, msg);
++    } else {
++	rasprintf(lints, "Key %s %s", keyid, msg);
++    }
++    free(keyid);
++    free(main_keyid);
++}
++
++static void pgpAddSigLint(pgpDigParams sig, char **lints, const char *msg)
++{
++    rasprintf(lints, "Signature %s", msg);
++}
++
++static char *format_expired(uint32_t created, uint32_t expire)
++{
++    time_t exptime = (time_t)created + expire;
++    char *expdate = format_time(&exptime);
++    char *msg = NULL;
++    rasprintf(&msg, "expired on %s", expdate);
++    free(expdate);
++    return msg;
++}
++
++void pgpAddLint(pgpDigParams digp, char **lints, rpmpgpRC error)
++{
++    const char *msg = NULL;
++    char *exp_msg;
++    if (error == RPMPGP_OK || !lints)
++	return;
++    *lints = NULL;
++
++    /* if we have suitable DigParams we can make a better error message */
++    if (digp && (digp->tag == PGPTAG_PUBLIC_KEY || digp->tag == PGPTAG_PUBLIC_SUBKEY)) {
++	switch (error) {
++	case RPMPGP_ERROR_UNSUPPORTED_VERSION:
++	    rasprintf(lints, "Unsupported pubkey version (V%d)", digp->version);
++	    return;
++	case RPMPGP_ERROR_KEY_EXPIRED:
++	    exp_msg = format_expired(digp->time, digp->key_expire);
++	    pgpAddKeyLint(digp, lints, exp_msg);
++	    free(exp_msg);
++	    return;
++	case RPMPGP_ERROR_KEY_REVOKED:
++	case RPMPGP_ERROR_PRIMARY_REVOKED:
++	    pgpAddKeyLint(digp, lints, "has been revoked");
++	    return;
++	case RPMPGP_ERROR_KEY_NOT_VALID:
++	    pgpAddKeyLint(digp, lints, "has no valid binding signature");
++	    return;
++	case RPMPGP_ERROR_KEY_NO_SIGNING:
++	    pgpAddKeyLint(digp, lints, "is not suitable for signing");
++	    return;
++	case RPMPGP_ERROR_KEY_CREATED_AFTER_SIG:
++	    pgpAddKeyLint(digp, lints, "has been created after the signature");
++	    return;
++	default:
++	    break;
++	}
++    }
++    if (digp && digp->tag == PGPTAG_SIGNATURE) {
++	switch (error) {
++	case RPMPGP_ERROR_UNSUPPORTED_VERSION:
++	    rasprintf(lints, "Unsupported signature version (V%d)", digp->version);
++	    return;
++	case RPMPGP_ERROR_SIGNATURE_EXPIRED:
++	    exp_msg = format_expired(digp->time, digp->sig_expire);
++	    pgpAddSigLint(digp, lints, exp_msg);
++	    free(exp_msg);
++	    return;
++	default:
++	    break;
++	}
++    }
++    if (digp) {
++	switch (error) {
++	case RPMPGP_ERROR_UNSUPPORTED_VERSION:
++	    rasprintf(lints, "Unsupported packet version (V%d)", digp->version);
++	    return;
++	case RPMPGP_ERROR_UNSUPPORTED_ALGORITHM:
++	    rasprintf(lints, "Unsupported pubkey algorithm (%d)", digp->pubkey_algo);
++	    return;
++	default:
++	    break;
++	}
++    }
++
++    switch (error) {
++    case RPMPGP_ERROR_INTERNAL:
++	msg = "Internal PGP parser error";
++	break;
++    case RPMPGP_ERROR_CORRUPT_PGP_PACKET:
++	msg = "Corrupt PGP packet";
++	break;
++    case RPMPGP_ERROR_UNEXPECTED_PGP_PACKET:
++	msg = "Unexpected PGP packet";
++	break;
++    case RPMPGP_ERROR_NO_CREATION_TIME:
++	msg = "Signature without creation time";
++	break;
++    case RPMPGP_ERROR_DUPLICATE_DATA:
++	msg = "Duplicate data in signature";
++	break;
++    case RPMPGP_ERROR_UNKNOWN_CRITICAL_PKT:
++	msg = "Unknown critical packet in signature";
++	break;
++    case RPMPGP_ERROR_BAD_PUBKEY_STRUCTURE:
++	msg = "Bad pubkey structure";
++	break;
++    case RPMPGP_ERROR_SELFSIG_VERIFICATION:
++	msg = "Pubkey self-signature verification failure";
++	break;
++    case RPMPGP_ERROR_MISSING_SELFSIG:
++	msg = "Pubkey misses a self-signature";
++	break;
++    case RPMPGP_ERROR_UNSUPPORTED_VERSION:
++	msg = "Unsupported packet version";
++	break;
++    case RPMPGP_ERROR_UNSUPPORTED_ALGORITHM:
++	msg = "Unsupported pubkey algorithm";
++	break;
++    case RPMPGP_ERROR_UNSUPPORTED_CURVE:
++	msg = "Unsupported pubkey curve";
++	break;
++    case RPMPGP_ERROR_BAD_PUBKEY:
++	msg = "Pubkey was not accepted by crypto backend";
++	break;
++    case RPMPGP_ERROR_BAD_SIGNATURE:
++	msg = "Signature was not accepted by crypto backend";
++	break;
++    case RPMPGP_ERROR_SIGNATURE_VERIFICATION:
++	msg = "Signature verification failure";
++	break;
++    case RPMPGP_ERROR_SIGNATURE_FROM_FUTURE:
++	msg = "Signature was created in the future";
++	break;
++    case RPMPGP_ERROR_SIGNATURE_EXPIRED:
++	msg = "Signature has expired";
++	break;
++    case RPMPGP_ERROR_KEY_EXPIRED:
++	msg = "Key has expired";
++	break;
++    case RPMPGP_ERROR_KEY_REVOKED:
++	msg = "Key has been revoked";
++	break;
++    case RPMPGP_ERROR_PRIMARY_REVOKED:
++	msg = "Primary key has been revoked";
++	break;
++    case RPMPGP_ERROR_KEY_NOT_VALID:
++	msg = "Key has no valid binding signature";
++	break;
++    case RPMPGP_ERROR_KEY_NO_SIGNING:
++	msg = "Key is not suitable for signing";
++	break;
++    case RPMPGP_ERROR_KEY_CREATED_AFTER_SIG:
++	msg = "Key has been created after the signature";
++	break;
++    default:
++	rasprintf(lints, "Unknown error (%d)", error);
++	return;
++    }
++    *lints = xstrdup(msg);
++}
++
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/rpmpgp_internal_merge.c
+@@ -0,0 +1,327 @@
++/** \ingroup rpmio signature
++ * \file rpmio/rpmpgp_internal_merge.c
++ *
++ * Public Key merging
++ */
++
++#include "system.h"
++
++#include "rpmpgp_internal.h"
++
++
++typedef struct pgpMergePkt_s {
++    pgpPkt pkt;
++    int source;
++
++    /* signature data */
++    pgpKeyID_t signid;
++    uint32_t time;
++    int selfsig;
++
++    size_t hashlen;
++    uint32_t hash;
++    struct pgpMergePkt_s *next_hash;
++
++    uint32_t section;
++    uint32_t subsection;
++    struct pgpMergePkt_s *next;
++    struct pgpMergePkt_s *sub;
++} pgpMergePkt;
++
++
++#define PGP_NUMSECTIONS 3
++
++typedef struct pgpMergeKey_s {
++    pgpMergePkt *hash[512];
++    pgpMergePkt *sections[PGP_NUMSECTIONS];
++} pgpMergeKey;
++
++
++/*
++ *  PGP Packet plus merge information
++ */
++
++static inline uint32_t simplehash(uint32_t h, const uint8_t *data, size_t len)
++{
++    while (len--)
++	h = (h << 3) + *data++;
++    return h;
++}
++
++static uint32_t pgpMergePktCalcHash(pgpMergePkt *mp)
++{
++    uint32_t hash = simplehash(mp->pkt.tag, mp->pkt.body, mp->hashlen);
++    if (mp->pkt.tag == PGPTAG_SIGNATURE)
++	hash = simplehash(hash, mp->signid, sizeof(pgpKeyID_t));
++    return hash;
++}
++
++static int pgpMergePktIdentical(pgpMergePkt *mp1, pgpMergePkt *mp2)
++{
++    if (mp1->pkt.tag != mp2->pkt.tag)
++	return 0;
++    if (mp1->hashlen != mp2->hashlen)
++	return 0;
++    if (memcmp(mp1->pkt.body, mp2->pkt.body, mp1->hashlen) != 0)
++	return 0;
++    if (mp1->pkt.tag == PGPTAG_SIGNATURE && memcmp(mp1->signid, mp2->signid, sizeof(pgpKeyID_t)) != 0)
++	return 0;
++    return 1;
++}
++
++static rpmpgpRC pgpMergePktNew(pgpPkt *pkt, int source, pgpKeyID_t primaryid, pgpMergePkt **mpptr) {
++    rpmpgpRC rc = RPMPGP_OK;
++    pgpMergePkt *mp = xcalloc(1, sizeof(pgpMergePkt));
++
++    mp->pkt = *pkt;
++    mp->source = source;
++    mp->hashlen = pkt->blen;
++    if (pkt->tag == PGPTAG_SIGNATURE) {
++        pgpDigParams sigdigp = pgpDigParamsNew(pkt->tag);
++	rc = pgpPrtSigNoParams(pkt->tag, pkt->body, pkt->blen, sigdigp);
++	if (rc == RPMPGP_OK) {
++	    mp->time = sigdigp->time;
++	    memcpy(mp->signid, sigdigp->signid, sizeof(pgpKeyID_t));
++	    if (primaryid && memcmp(primaryid, mp->signid, sizeof(pgpKeyID_t)) == 0)
++		mp->selfsig = 1;
++	    if (sigdigp->version > 3)
++		mp->hashlen = sigdigp->hashlen;
++	}
++	pgpDigParamsFree(sigdigp);
++    }
++    mp->hash = pgpMergePktCalcHash(mp);
++    if (rc != RPMPGP_OK)
++	free(mp);
++    else
++	*mpptr = mp;
++    return rc;
++}
++
++static pgpMergePkt *pgpMergePktFree(pgpMergePkt *mp)
++{
++    free(mp);
++    return NULL;
++}
++
++
++/*
++ *  Pubkey data handling
++ */
++
++static pgpMergeKey *pgpMergeKeyNew(void) {
++    pgpMergeKey *mk = xcalloc(1, sizeof(pgpMergeKey));
++    return mk;
++}
++
++static pgpMergeKey *pgpMergeKeyFree(pgpMergeKey *mk) {
++    if (mk) {
++	pgpMergePkt *mp, *smp;
++	int i;
++	for (i = 0; i < PGP_NUMSECTIONS; i++) {
++	    for (mp = mk->sections[i]; mp; mp = mp->next) {
++		for (smp = mp->sub; smp; smp = smp->next)
++		    pgpMergePktFree(smp);
++		pgpMergePktFree(mp);
++	    }
++	}
++    }
++    return NULL;
++}
++
++static int pgpMergeKeyMaxSource(pgpMergeKey *mk) {
++    pgpMergePkt *mp, *smp;
++    int i, max = 0;
++    for (i = 0; i < PGP_NUMSECTIONS; i++) {
++	for (mp = mk->sections[i]; mp; mp = mp->next) {
++	    if (mp->source > max)
++		max = mp->source;
++	    for (smp = mp->sub; smp; smp = smp->next)
++		if (smp->source > max)
++		    max = smp->source;
++	}
++    }
++    return max;
++}
++
++
++static pgpMergePkt *pgpMergeKeyHashFind(pgpMergeKey *mk, pgpMergePkt *mp, int checksubsection) {
++    int hh = mp->hash % (sizeof(mk->hash) / sizeof(*mk->hash));
++    pgpMergePkt *h = mk->hash[hh];
++    for (; h; h = h->next_hash)
++	if (pgpMergePktIdentical(h, mp) && h->section == mp->section && (!checksubsection || h->subsection == mp->subsection))
++	    break;
++    return h;
++}
++
++static void pgpMergeKeyHashAdd(pgpMergeKey *mk, pgpMergePkt *mp) {
++    int hh = mp->hash % (sizeof(mk->hash) / sizeof(*mk->hash));
++    mp->next_hash = mk->hash[hh];
++    mk->hash[hh] = mp;
++}
++
++static void pgpMergeKeySectionAdd(pgpMergeKey *mk, pgpMergePkt *mp) {
++    pgpMergePkt **mpp = mk->sections + mp->section;
++    mp->subsection = 0;
++    while (*mpp) {
++	mpp = &(*mpp)->next;
++	mp->subsection++;
++    }
++    *mpp = mp;
++}
++
++static void pgpMergeKeySubAddSig(pgpMergePkt *mp_section, pgpMergePkt *mp) {
++    pgpMergePkt *lastsig = NULL, **mpp, *mp2;
++    for (mpp = &mp_section->sub; (mp2 = *mpp) != NULL; mpp = &mp2->next) {
++	if (mp2->pkt.tag == PGPTAG_SIGNATURE && mp2->selfsig == mp->selfsig) {
++	    if (mp->time >= mp2->time)
++		break;
++	    lastsig = mp2;
++	}
++    }
++    if (!*mpp) {
++	if (lastsig) {
++	    /* all the matched signatures are newer than us. put us right behind the last one */
++	    mpp = &lastsig->next;
++	} else if (mp->selfsig) {
++	    /* first selfsig. add to front */
++	    mpp = &mp_section->sub;
++	}
++    }
++    mp->next = *mpp;
++    *mpp = mp;
++}
++
++static void pgpMergeKeySubAdd(pgpMergePkt *mp_section, pgpMergePkt *mp) {
++    /* signatures are ordered by creation time, everything else goes to the end */
++    /* (we only change the order of new packets, i.e. where source is not zero) */
++    if (mp->pkt.tag == PGPTAG_SIGNATURE && mp->source != 0) {
++	pgpMergeKeySubAddSig(mp_section, mp);
++    } else {
++	pgpMergePkt **mpp;
++	for (mpp = &mp_section->sub; *mpp; mpp = &(*mpp)->next)
++	    ;
++	*mpp = mp;
++    }
++}
++
++static rpmpgpRC pgpMergeKeyAddPubkey(pgpMergeKey *mk, int source, const uint8_t * pkts, size_t pktlen) {
++    rpmpgpRC rc;
++    const uint8_t *p = pkts;
++    const uint8_t *pend = pkts + pktlen;
++    pgpPkt pkt;
++    pgpKeyID_t mainkeyid;
++    pgpMergePkt *mp_section = NULL;
++    pgpMergePkt *mp, *omp;
++
++    if (pgpDecodePkt(p, (pend - p), &pkt) != RPMPGP_OK)
++	return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++    if (pkt.tag != PGPTAG_PUBLIC_KEY)
++	return RPMPGP_ERROR_UNEXPECTED_PGP_PACKET;
++    if ((rc = pgpGetKeyID(pkt.body, pkt.blen, mainkeyid)) != RPMPGP_OK)
++	return rc;
++    if ((rc = pgpMergePktNew(&pkt, source, mainkeyid, &mp)) != RPMPGP_OK)
++	return rc;
++    if (mk->sections[0]) {
++	if (!pgpMergePktIdentical(mk->sections[0], mp)) {
++	    pgpMergePktFree(mp);
++	    return RPMPGP_ERROR_INTERNAL;
++	}
++	pgpMergePktFree(mp);
++    } else {
++	mk->sections[0] = mp;
++	pgpMergeKeyHashAdd(mk, mp);
++    }
++    p += (pkt.body - pkt.head) + pkt.blen;
++
++    mp_section = mk->sections[0];
++    while (p < pend) {
++	if (pgpDecodePkt(p, (pend - p), &pkt) != RPMPGP_OK) {
++	    rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++	    break;
++	}
++	if (pkt.tag == PGPTAG_PUBLIC_KEY || pkt.tag == PGPTAG_SECRET_KEY) {
++	    rc = RPMPGP_ERROR_UNEXPECTED_PGP_PACKET;
++	    break;
++	}
++	if ((rc = pgpMergePktNew(&pkt, source, mainkeyid, &mp)) != RPMPGP_OK)
++	    break;
++	if (pkt.tag == PGPTAG_USER_ID || pkt.tag == PGPTAG_PHOTOID || pkt.tag == PGPTAG_PUBLIC_SUBKEY) {
++	    mp->section = pkt.tag == PGPTAG_PUBLIC_SUBKEY ? 2 : 1;
++	    mp->subsection = -1;
++	    omp = pgpMergeKeyHashFind(mk, mp, 0);
++	    if (omp) {
++		pgpMergePktFree(mp);
++		mp_section = omp;
++	    } else {
++		pgpMergeKeySectionAdd(mk, mp);
++		pgpMergeKeyHashAdd(mk, mp);
++		mp_section = mp;
++	    }
++	} else {
++	    mp->section = mp_section->section;
++	    mp->subsection = mp_section->subsection;
++	    omp = pgpMergeKeyHashFind(mk, mp, 1);
++	    if (omp) {
++		pgpMergePktFree(mp);
++	    } else {
++		pgpMergeKeySubAdd(mp_section, mp);
++		pgpMergeKeyHashAdd(mk, mp);
++	    }
++	}
++	p += (pkt.body - pkt.head) + pkt.blen;
++    }
++    if (rc == RPMPGP_OK && p != pend)
++	rc = RPMPGP_ERROR_INTERNAL;
++    return rc;
++}
++
++static rpmpgpRC pgpMergeKeyConcat(pgpMergeKey *mk, uint8_t **pktsm, size_t *pktlenm)
++{
++    pgpMergePkt *mp, *smp;
++    int i;
++    uint8_t *pkts, *p;
++    size_t len = 0;
++
++    for (i = 0; i < PGP_NUMSECTIONS; i++) {
++	for (mp = mk->sections[i]; mp; mp = mp->next) {
++	    len += (mp->pkt.body - mp->pkt.head) + mp->pkt.blen;
++	    for (smp = mp->sub; smp; smp = smp->next)
++		len += (smp->pkt.body - smp->pkt.head) + smp->pkt.blen;
++	}
++    }
++    p = pkts = xmalloc(len);
++    for (i = 0; i < PGP_NUMSECTIONS; i++) {
++	for (mp = mk->sections[i]; mp; mp = mp->next) {
++	    memcpy(p, mp->pkt.head, (mp->pkt.body - mp->pkt.head) + mp->pkt.blen);
++	    p += (mp->pkt.body - mp->pkt.head) + mp->pkt.blen;
++	    for (smp = mp->sub; smp; smp = smp->next) {
++		memcpy(p, smp->pkt.head, (smp->pkt.body - smp->pkt.head) + smp->pkt.blen);
++		p += (smp->pkt.body - smp->pkt.head) + smp->pkt.blen;
++	    }
++	}
++    }
++    *pktsm = pkts;
++    *pktlenm = len;
++    return RPMPGP_OK;
++}
++
++rpmpgpRC pgpMergeKeys(const uint8_t *pkts1, size_t pktlen1, const uint8_t *pkts2, size_t pktlen2, uint8_t **pktsm, size_t *pktlenm) {
++    rpmpgpRC rc;
++    pgpMergeKey *mk = pgpMergeKeyNew();
++
++    if (pkts1 != NULL && (rc = pgpMergeKeyAddPubkey(mk, 0, pkts1, pktlen1)) != RPMPGP_OK)
++	goto exit;
++    if ((rc = pgpMergeKeyAddPubkey(mk, 1, pkts2, pktlen2)) != RPMPGP_OK)
++	goto exit;
++    if (pgpMergeKeyMaxSource(mk) == 0) {
++	/* no new key material, return old key */
++	*pktsm = memcpy(xmalloc(pktlen1), pkts1, pktlen1);
++	*pktlenm = pktlen1;
++    } else {
++	rc = pgpMergeKeyConcat(mk, pktsm, pktlenm);
++    }
++exit:
++    pgpMergeKeyFree(mk);
++    return rc;
++}
++
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/rpmpgp_internal_openssl.c
+@@ -0,0 +1,885 @@
++#include "system.h"
++
++#include <openssl/evp.h>
++#if OPENSSL_VERSION_MAJOR >= 3
++# include <openssl/params.h>
++#endif
++#include <openssl/rsa.h>
++#include <openssl/dsa.h>
++#include <openssl/ec.h>
++
++#include <rpm/rpmcrypto.h>
++#include "rpmpgp_internal.h"
++
++static const EVP_MD *getEVPMD(int hashalgo)
++{
++    switch (hashalgo) {
++
++    case RPM_HASH_MD5:
++        return EVP_md5();
++
++    case RPM_HASH_SHA1:
++        return EVP_sha1();
++
++    case RPM_HASH_SHA256:
++        return EVP_sha256();
++
++    case RPM_HASH_SHA384:
++        return EVP_sha384();
++
++    case RPM_HASH_SHA512:
++        return EVP_sha512();
++
++    case RPM_HASH_SHA224:
++        return EVP_sha224();
++
++    default:
++        return EVP_md_null();
++    }
++}
++
++
++/*********************** pkey construction *******************************/
++
++#if OPENSSL_VERSION_MAJOR >= 3
++
++static EVP_PKEY *
++construct_pkey_from_param(int id, OSSL_PARAM *params)
++{
++    EVP_PKEY *pkey = NULL;
++    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(id, NULL);
++    if (!ctx || EVP_PKEY_fromdata_init(ctx) <= 0 || EVP_PKEY_fromdata(ctx, &pkey, EVP_PKEY_PUBLIC_KEY, params) <= 0)
++	pkey = NULL;
++    if (ctx)
++	EVP_PKEY_CTX_free(ctx);
++    return pkey;
++}
++
++static OSSL_PARAM 
++create_bn_param(char *key, BIGNUM *bn)
++{
++    int sz = bn ? BN_num_bytes(bn) : -1;
++    if (sz < 0 || BN_is_negative(bn)) {
++	OSSL_PARAM param = OSSL_PARAM_END;
++	return param;
++    }
++    if (sz == 0)
++	sz = 1;
++    unsigned char *buf = xmalloc(sz);
++    BN_bn2nativepad(bn, buf, sz);
++    OSSL_PARAM param = OSSL_PARAM_BN(key, buf, sz);
++    return param;
++}
++
++static void
++free_bn_param(OSSL_PARAM *param)
++{
++    free(param->data);
++}
++
++#endif
++
++/****************************** RSA **************************************/
++
++/* Key */
++
++struct pgpDigKeyRSA_s {
++    size_t nbytes; /* Size of modulus */
++
++    BIGNUM *n; /* Common Modulus */
++    BIGNUM *e; /* Public Exponent */
++    EVP_PKEY *evp_pkey; /* Fully constructed key */
++};
++
++static int constructRSASigningKey(struct pgpDigKeyRSA_s *key)
++{
++    if (key->evp_pkey)
++        return 1;	/* We've already constructed it, so just reuse it */
++
++#if OPENSSL_VERSION_MAJOR >= 3
++    OSSL_PARAM params[] = {
++	create_bn_param("n", key->n),
++	create_bn_param("e", key->e),
++	OSSL_PARAM_END
++    };
++    key->evp_pkey = construct_pkey_from_param(EVP_PKEY_RSA, params);
++    free_bn_param(params + 0);
++    free_bn_param(params + 1);
++    return key->evp_pkey ? 1 : 0;
++#else
++    /* Create the RSA key */
++    RSA *rsa = RSA_new();
++    if (!rsa) return 0;
++
++    if (RSA_set0_key(rsa, key->n, key->e, NULL) != 1)
++	goto exit;
++    key->n = key->e = NULL;
++
++    /* Create an EVP_PKEY container to abstract the key-type. */
++    if (!(key->evp_pkey = EVP_PKEY_new()))
++	goto exit;
++
++    /* Assign the RSA key to the EVP_PKEY structure.
++       This will take over memory management of the key */
++    if (EVP_PKEY_assign_RSA(key->evp_pkey, rsa) != 1) {
++        EVP_PKEY_free(key->evp_pkey);
++        key->evp_pkey = NULL;
++	goto exit;
++    }
++
++    return 1;
++exit:
++    RSA_free(rsa);
++    return 0;
++#endif
++}
++
++static rpmpgpRC pgpSetKeyMpiRSA(pgpDigAlg pgpkey, int num, const uint8_t *p, int mlen)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_PUBKEY;	/* assume failure */
++    struct pgpDigKeyRSA_s *key = pgpkey->data;
++
++    if (!key)
++        key = pgpkey->data = xcalloc(1, sizeof(*key));
++
++    if (key->evp_pkey)
++	return rc;
++
++    switch (num) {
++    case 0:
++        /* Modulus */
++        if (key->n)
++            return 1;	/* This should only ever happen once per key */
++	key->nbytes = mlen - 2;
++        /* Create a BIGNUM from the pointer.
++           Note: this assumes big-endian data as required by PGP */
++        key->n = BN_bin2bn(p + 2, mlen - 2, NULL);
++        if (key->n)
++	    rc = RPMPGP_OK;
++        break;
++
++    case 1:
++        /* Exponent */
++        if (key->e)
++            return 1;	/* This should only ever happen once per key */
++        /* Create a BIGNUM from the pointer.
++           Note: this assumes big-endian data as required by PGP */
++        key->e = BN_bin2bn(p + 2, mlen - 2, NULL);
++        if (key->e)
++	    rc = RPMPGP_OK;
++        break;
++    }
++
++    return rc;
++}
++
++static void pgpFreeKeyRSA(pgpDigAlg pgpkey)
++{
++    struct pgpDigKeyRSA_s *key = pgpkey->data;
++    if (key) {
++        if (key->evp_pkey) {
++            EVP_PKEY_free(key->evp_pkey);
++        } else {
++            /* If key->evp_pkey was constructed,
++             * the memory management of these BNs
++             * are freed with it. */
++            BN_clear_free(key->n);
++            BN_clear_free(key->e);
++        }
++
++        free(key);
++    }
++}
++
++/* Signature */
++
++struct pgpDigSigRSA_s {
++    BIGNUM *bn;
++};
++
++static rpmpgpRC pgpSetSigMpiRSA(pgpDigAlg pgpsig, int num, const uint8_t *p, int mlen)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_SIGNATURE;	/* assume failure */
++    struct pgpDigSigRSA_s *sig = pgpsig->data;
++
++    if (!sig)
++        sig = pgpsig->data = xcalloc(1, sizeof(*sig));
++
++    switch (num) {
++    case 0:
++        if (sig->bn)
++            return rc;	/* This should only ever happen once per signature */
++        /* Create a BIGNUM from the signature pointer.
++           Note: this assumes big-endian data as required
++           by the PGP multiprecision integer format
++           (RFC4880, Section 3.2)
++           This will be useful later, as we can
++           retrieve this value with appropriate
++           padding. */
++        sig->bn = BN_bin2bn(p + 2, mlen - 2, NULL);
++        if (sig->bn)
++	    rc = RPMPGP_OK;
++        break;
++    }
++    return rc;
++}
++
++static void pgpFreeSigRSA(pgpDigAlg pgpsig)
++{
++    struct pgpDigSigRSA_s *sig = pgpsig->data;
++    if (sig) {
++        BN_clear_free(sig->bn);
++        free(pgpsig->data);
++    }
++}
++
++static rpmpgpRC pgpVerifySigRSA(pgpDigAlg pgpkey, pgpDigAlg pgpsig,
++                           uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_SIGNATURE_VERIFICATION;	/* assume failure */
++    struct pgpDigSigRSA_s *sig = pgpsig->data;
++    struct pgpDigKeyRSA_s *key = pgpkey->data;
++    EVP_PKEY_CTX *pkey_ctx = NULL;
++    void *padded_sig = NULL;
++
++    if (!constructRSASigningKey(key)) {
++        rc = RPMPGP_ERROR_BAD_PUBKEY;
++        goto done;
++    }
++
++    pkey_ctx = EVP_PKEY_CTX_new(key->evp_pkey, NULL);
++    if (!pkey_ctx)
++        goto done;
++
++    if (EVP_PKEY_verify_init(pkey_ctx) != 1)
++        goto done;
++
++    if (EVP_PKEY_CTX_set_rsa_padding(pkey_ctx, RSA_PKCS1_PADDING) <= 0)
++        goto done;
++
++    if (EVP_PKEY_CTX_set_signature_md(pkey_ctx, getEVPMD(hash_algo)) <= 0)
++        goto done;
++
++    int pkey_len = EVP_PKEY_size(key->evp_pkey);
++    padded_sig = xcalloc(1, pkey_len);
++    if (BN_bn2binpad(sig->bn, padded_sig, pkey_len) <= 0)
++        goto done;
++
++    if (EVP_PKEY_verify(pkey_ctx, padded_sig, pkey_len, hash, hashlen) == 1)
++        rc = RPMPGP_OK;		/* Success */
++
++done:
++    if (pkey_ctx)
++	EVP_PKEY_CTX_free(pkey_ctx);
++    free(padded_sig);
++    return rc;
++}
++
++/****************************** DSA ***************************************/
++/* Key */
++
++struct pgpDigKeyDSA_s {
++    BIGNUM *p; /* Prime */
++    BIGNUM *q; /* Subprime */
++    BIGNUM *g; /* Base */
++    BIGNUM *y; /* Public Key */
++
++    EVP_PKEY *evp_pkey; /* Fully constructed key */
++};
++
++static int constructDSASigningKey(struct pgpDigKeyDSA_s *key)
++{
++    if (key->evp_pkey)
++        return 1;	/* We've already constructed it, so just reuse it */
++
++#if OPENSSL_VERSION_MAJOR >= 3
++    OSSL_PARAM params[] = {
++	create_bn_param("p", key->p),
++	create_bn_param("q", key->q),
++	create_bn_param("g", key->g),
++	create_bn_param("pub", key->y),
++	OSSL_PARAM_END
++    };
++    key->evp_pkey = construct_pkey_from_param(EVP_PKEY_DSA, params);
++    free_bn_param(params + 0);
++    free_bn_param(params + 1);
++    free_bn_param(params + 2);
++    free_bn_param(params + 3);
++    return key->evp_pkey ? 1 : 0;
++#else
++    /* Create the DSA key */
++    DSA *dsa = DSA_new();
++    if (!dsa) return 0;
++
++    if (DSA_set0_pqg(dsa, key->p, key->q, key->g) != 1)
++        goto exit;
++    key->p = key->q = key->g = NULL;
++    if (DSA_set0_key(dsa, key->y, NULL) != 1)
++        goto exit;
++    key->y = NULL;
++
++    /* Create an EVP_PKEY container to abstract the key-type. */
++    if (!(key->evp_pkey = EVP_PKEY_new()))
++	goto exit;
++
++    /* Assign the DSA key to the EVP_PKEY structure.
++       This will take over memory management of the key */
++    if (EVP_PKEY_assign_DSA(key->evp_pkey, dsa) != 1) {
++        EVP_PKEY_free(key->evp_pkey);
++        key->evp_pkey = NULL;
++	goto exit;
++    }
++    return 1;
++
++exit:
++    DSA_free(dsa);
++    return 0;
++#endif
++}
++
++
++static rpmpgpRC pgpSetKeyMpiDSA(pgpDigAlg pgpkey, int num, const uint8_t *p, int mlen)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_PUBKEY;	/* assume failure */
++    struct pgpDigKeyDSA_s *key = pgpkey->data;
++
++    if (!key)
++        key = pgpkey->data = xcalloc(1, sizeof(*key));
++
++    switch (num) {
++    case 0:
++        /* Prime */
++        if (key->p)
++            return rc;	/* This should only ever happen once per key */
++        key->p = BN_bin2bn(p + 2, mlen - 2, NULL);
++	if (key->p)
++	    rc = RPMPGP_OK;
++        break;
++    case 1:
++        /* Subprime */
++        if (key->q)
++            return rc;	/* This should only ever happen once per key */
++        key->q = BN_bin2bn(p + 2, mlen - 2, NULL);
++	if (key->q)
++	    rc = RPMPGP_OK;
++        break;
++    case 2:
++        /* Base */
++        if (key->g)
++            return rc;	/* This should only ever happen once per key */
++        key->g = BN_bin2bn(p + 2, mlen - 2, NULL);
++	if (key->g)
++	    rc = RPMPGP_OK;
++        break;
++    case 3:
++        /* Public */
++        if (key->y)
++            return rc;	/* This should only ever happen once per key */
++        key->y = BN_bin2bn(p + 2, mlen - 2, NULL);
++	if (key->y)
++	    rc = RPMPGP_OK;
++        break;
++    }
++    return rc;
++}
++
++static void pgpFreeKeyDSA(pgpDigAlg pgpkey)
++{
++    struct pgpDigKeyDSA_s *key = pgpkey->data;
++    if (key) {
++        if (key->evp_pkey) {
++            EVP_PKEY_free(key->evp_pkey);
++        } else {
++            /* If key->evp_pkey was constructed,
++             * the memory management of these BNs
++             * are freed with it. */
++            BN_clear_free(key->p);
++            BN_clear_free(key->q);
++            BN_clear_free(key->g);
++            BN_clear_free(key->y);
++        }
++        free(key);
++    }
++}
++
++/* Signature */
++
++struct pgpDigSigDSA_s {
++    unsigned char *r;
++    int rlen;
++    unsigned char *s;
++    int slen;
++};
++
++static void add_asn1_tag(unsigned char *p, int tag, int len)
++{
++    *p++ = tag;
++    if (len >= 256) {
++	*p++ = 130;
++	*p++ = len >> 8;
++    } else if (len > 128) {
++	*p++ = 129;
++    }
++    *p++ = len;
++}
++
++/* create the DER encoding of the SEQUENCE of two INTEGERs r and s */
++/* used by DSA and ECDSA */
++static unsigned char *constructDSASignature(unsigned char *r, int rlen, unsigned char *s, int slen, size_t *siglenp)
++{
++    int len1 = rlen + (!rlen || (*r & 0x80) != 0 ? 1 : 0), hlen1 = len1 < 128 ? 2 : len1 < 256 ? 3 : 4;
++    int len2 = slen + (!slen || (*s & 0x80) != 0 ? 1 : 0), hlen2 = len2 < 128 ? 2 : len2 < 256 ? 3 : 4;
++    int len3 = hlen1 + len1 + hlen2 + len2, hlen3 = len3 < 128 ? 2 : len3 < 256 ? 3 : 4;
++    unsigned char *buf;
++    if (rlen < 0 || rlen >= 65534 || slen < 0 || slen >= 65534 || len3 > 65535)
++	return 0;	/* should never happen as pgp's MPIs have a length < 8192 */
++    buf = xmalloc(hlen3 + len3);
++    add_asn1_tag(buf, 0x30, len3);
++    add_asn1_tag(buf + hlen3, 0x02, len1);
++    buf[hlen3 + hlen1] = 0;		/* zero first byte of the integer */
++    memcpy(buf + hlen3 + hlen1 + len1 - rlen, r, rlen);
++    add_asn1_tag(buf + hlen3 + hlen1 + len1, 0x02, len2);
++    buf[hlen3 + len3 - len2] = 0;	/* zero first byte of the integer */
++    memcpy(buf + hlen3 + len3 - slen, s, slen);
++    *siglenp = hlen3 + len3;
++    return buf;
++}
++
++static rpmpgpRC pgpSetSigMpiDSA(pgpDigAlg pgpsig, int num, const uint8_t *p, int mlen)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_SIGNATURE;	/* assume failure */
++    struct pgpDigSigDSA_s *sig = pgpsig->data;
++
++    if (!sig)
++        sig = pgpsig->data = xcalloc(1, sizeof(*sig));
++
++    switch (num) {
++    case 0:
++        if (sig->r)
++            return rc;	/* This should only ever happen once per signature */
++        sig->rlen = mlen - 2;
++        sig->r = memcpy(xmalloc(mlen - 2), p + 2, mlen - 2);
++        rc = RPMPGP_OK;
++        break;
++    case 1:
++        if (sig->s)
++            return rc;	/* This should only ever happen once per signature */
++        sig->slen = mlen - 2;
++        sig->s = memcpy(xmalloc(mlen - 2), p + 2, mlen - 2);
++        rc = RPMPGP_OK;
++        break;
++    }
++
++    return rc;
++}
++
++static void pgpFreeSigDSA(pgpDigAlg pgpsig)
++{
++    struct pgpDigSigDSA_s *sig = pgpsig->data;
++    if (sig) {
++	free(sig->r);
++	free(sig->s);
++    }
++    free(pgpsig->data);
++}
++
++static rpmpgpRC pgpVerifySigDSA(pgpDigAlg pgpkey, pgpDigAlg pgpsig,
++                           uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_SIGNATURE_VERIFICATION;	/* assume failure */
++    struct pgpDigSigDSA_s *sig = pgpsig->data;
++    struct pgpDigKeyDSA_s *key = pgpkey->data;
++    unsigned char *xsig = NULL;		/* signature encoded for X509 */
++    size_t xsig_len = 0;
++    EVP_PKEY_CTX *pkey_ctx = NULL;
++
++    if (!constructDSASigningKey(key)) {
++        rc = RPMPGP_ERROR_BAD_PUBKEY;
++        goto done;
++    }
++
++    xsig = constructDSASignature(sig->r, sig->rlen, sig->s, sig->slen, &xsig_len);
++    if (!xsig)
++        goto done;
++
++    pkey_ctx = EVP_PKEY_CTX_new(key->evp_pkey, NULL);
++    if (!pkey_ctx)
++        goto done;
++
++    if (EVP_PKEY_verify_init(pkey_ctx) != 1)
++        goto done;
++
++    if (EVP_PKEY_verify(pkey_ctx, xsig, xsig_len, hash, hashlen) == 1)
++        rc = RPMPGP_OK;		/* Success */
++
++done:
++    if (pkey_ctx)
++	EVP_PKEY_CTX_free(pkey_ctx);
++    free(xsig);
++    return rc;
++}
++
++/****************************** ECDSA ***************************************/
++
++struct pgpDigKeyECDSA_s {
++    EVP_PKEY *evp_pkey; /* Fully constructed key */
++    unsigned char *q;	/* compressed point */
++    int qlen;
++};
++
++static int constructECDSASigningKey(struct pgpDigKeyECDSA_s *key, int curve)
++{
++    if (key->evp_pkey)
++	return 1;	/* We've already constructed it, so just reuse it */
++
++#if OPENSSL_VERSION_MAJOR >= 3
++    if (curve == PGPCURVE_NIST_P_256) {
++	OSSL_PARAM params[] = {
++	    OSSL_PARAM_utf8_string("group", "P-256", 5),
++	    OSSL_PARAM_octet_string("pub", key->q, key->qlen),
++	    OSSL_PARAM_END
++	};
++	key->evp_pkey = construct_pkey_from_param(EVP_PKEY_EC, params);
++    } else if (curve == PGPCURVE_NIST_P_384) {
++	OSSL_PARAM params[] = {
++	    OSSL_PARAM_utf8_string("group", "P-384", 5),
++	    OSSL_PARAM_octet_string("pub", key->q, key->qlen),
++	    OSSL_PARAM_END
++	};
++	key->evp_pkey = construct_pkey_from_param(EVP_PKEY_EC, params);
++    } else if (curve == PGPCURVE_NIST_P_521) {
++	OSSL_PARAM params[] = {
++	    OSSL_PARAM_utf8_string("group", "P-521", 5),
++	    OSSL_PARAM_octet_string("pub", key->q, key->qlen),
++	    OSSL_PARAM_END
++	};
++	key->evp_pkey = construct_pkey_from_param(EVP_PKEY_EC, params);
++    }
++    return key->evp_pkey ? 1 : 0;
++#else
++    /* Create the EC key */
++    EC_KEY *ec = NULL;
++    if (curve == PGPCURVE_NIST_P_256)
++	ec = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
++    else if (curve == PGPCURVE_NIST_P_384)
++	ec = EC_KEY_new_by_curve_name(NID_secp384r1);
++    else if (curve == PGPCURVE_NIST_P_521)
++	ec = EC_KEY_new_by_curve_name(NID_secp521r1);
++    if (!ec)
++	return 0;
++
++    if (EC_KEY_oct2key(ec, key->q, key->qlen, NULL) != 1)
++        goto exit;
++
++    /* Create an EVP_PKEY container to abstract the key-type. */
++    if (!(key->evp_pkey = EVP_PKEY_new()))
++	goto exit;
++
++    /* Assign the EC key to the EVP_PKEY structure.
++       This will take over memory management of the key */
++    if (EVP_PKEY_assign_EC_KEY(key->evp_pkey, ec) != 1) {
++        EVP_PKEY_free(key->evp_pkey);
++        key->evp_pkey = NULL;
++	goto exit;
++    }
++    return 1;
++
++exit:
++    EC_KEY_free(ec);
++    return 0;
++#endif
++}
++
++static rpmpgpRC pgpSetKeyMpiECDSA(pgpDigAlg pgpkey, int num, const uint8_t *p, int mlen)
++{
++    struct pgpDigKeyECDSA_s *key = pgpkey->data;
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_PUBKEY;	/* assume failure */
++
++    if (!key)
++	key = pgpkey->data = xcalloc(1, sizeof(*key));
++    if (num == 0 && !key->q && mlen > 3 && p[2] == 0x04) {
++	key->qlen = mlen - 2;
++	key->q = memcpy(xmalloc(mlen - 2), p + 2, mlen - 2);
++	rc = RPMPGP_OK;
++    }
++    return rc;
++}
++
++static void pgpFreeKeyECDSA(pgpDigAlg pgpkey)
++{
++    struct pgpDigKeyECDSA_s *key = pgpkey->data;
++    if (key) {
++	if (key->q)
++	    free(key->q);
++	if (key->evp_pkey)
++	    EVP_PKEY_free(key->evp_pkey);
++	free(key);
++    }
++}
++
++struct pgpDigSigECDSA_s {
++    unsigned char *r;
++    int rlen;
++    unsigned char *s;
++    int slen;
++};
++
++static rpmpgpRC pgpSetSigMpiECDSA(pgpDigAlg pgpsig, int num, const uint8_t *p, int mlen)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_SIGNATURE;	/* assume failure */
++    struct pgpDigSigECDSA_s *sig = pgpsig->data;
++
++    if (!sig)
++        sig = pgpsig->data = xcalloc(1, sizeof(*sig));
++
++    switch (num) {
++    case 0:
++        if (sig->r)
++            return rc;	/* This should only ever happen once per signature */
++	sig->rlen = mlen - 2;
++        sig->r = memcpy(xmalloc(mlen), p + 2, mlen - 2);
++        rc = RPMPGP_OK;
++        break;
++    case 1:
++        if (sig->s)
++            return 1;	/* This should only ever happen once per signature */
++	sig->slen = mlen - 2;
++        sig->s = memcpy(xmalloc(mlen), p + 2, mlen - 2);
++        rc = RPMPGP_OK;
++        break;
++    }
++
++    return rc;
++}
++
++static void pgpFreeSigECDSA(pgpDigAlg pgpsig)
++{
++    struct pgpDigSigECDSA_s *sig = pgpsig->data;
++    if (sig) {
++	free(sig->r);
++	free(sig->s);
++    }
++    free(pgpsig->data);
++}
++
++static rpmpgpRC pgpVerifySigECDSA(pgpDigAlg pgpkey, pgpDigAlg pgpsig,
++                           uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_SIGNATURE_VERIFICATION;	/* assume failure */
++    struct pgpDigSigECDSA_s *sig = pgpsig->data;
++    struct pgpDigKeyECDSA_s *key = pgpkey->data;
++    unsigned char *xsig = NULL;		/* signature encoded for X509 */
++    size_t xsig_len = 0;
++    EVP_PKEY_CTX *pkey_ctx = NULL;
++
++    if (!constructECDSASigningKey(key, pgpkey->curve)) {
++	rc = RPMPGP_ERROR_BAD_PUBKEY;
++        goto done;
++    }
++
++    xsig = constructDSASignature(sig->r, sig->rlen, sig->s, sig->slen, &xsig_len);
++    if (!xsig)
++        goto done;
++
++    pkey_ctx = EVP_PKEY_CTX_new(key->evp_pkey, NULL);
++    if (!pkey_ctx)
++        goto done;
++
++    if (EVP_PKEY_verify_init(pkey_ctx) != 1)
++        goto done;
++
++    if (EVP_PKEY_verify(pkey_ctx, xsig, xsig_len, hash, hashlen) == 1)
++        rc = RPMPGP_OK;		/* Success */
++
++done:
++    if (pkey_ctx)
++	EVP_PKEY_CTX_free(pkey_ctx);
++    free(xsig);
++    return rc;
++}
++
++/****************************** EDDSA ***************************************/
++
++#ifdef EVP_PKEY_ED25519
++
++struct pgpDigKeyEDDSA_s {
++    EVP_PKEY *evp_pkey; /* Fully constructed key */
++    unsigned char *q;	/* compressed point */
++    int qlen;
++};
++
++static int constructEDDSASigningKey(struct pgpDigKeyEDDSA_s *key, int curve)
++{
++    if (key->evp_pkey)
++	return 1;	/* We've already constructed it, so just reuse it */
++    if (curve == PGPCURVE_ED25519)
++	key->evp_pkey = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL, key->q, key->qlen);
++    return key->evp_pkey ? 1 : 0;
++}
++
++static rpmpgpRC pgpSetKeyMpiEDDSA(pgpDigAlg pgpkey, int num, const uint8_t *p, int mlen)
++{
++    struct pgpDigKeyEDDSA_s *key = pgpkey->data;
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_PUBKEY;
++
++    if (!key)
++	key = pgpkey->data = xcalloc(1, sizeof(*key));
++    if (num == 0 && !key->q && mlen > 3 && p[2] == 0x40) {
++	key->qlen = mlen - 3;
++	key->q = memcpy(xmalloc(key->qlen), p + 3, key->qlen);		/* we do not copy the leading 0x40 */
++	rc = RPMPGP_OK;
++    }
++    return rc;
++}
++
++static void pgpFreeKeyEDDSA(pgpDigAlg pgpkey)
++{
++    struct pgpDigKeyEDDSA_s *key = pgpkey->data;
++    if (key) {
++	if (key->q)
++	    free(key->q);
++	if (key->evp_pkey)
++	    EVP_PKEY_free(key->evp_pkey);
++	free(key);
++    }
++}
++
++struct pgpDigSigEDDSA_s {
++    unsigned char sig[32 + 32];
++};
++
++static rpmpgpRC pgpSetSigMpiEDDSA(pgpDigAlg pgpsig, int num, const uint8_t *p, int mlen)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_BAD_SIGNATURE;	/* assume failure */
++    struct pgpDigSigEDDSA_s *sig = pgpsig->data;
++
++    if (!sig)
++	sig = pgpsig->data = xcalloc(1, sizeof(*sig));
++    mlen -= 2;	/* skip mpi len */
++    if (mlen <= 0 || mlen > 32 || (num != 0 && num != 1))
++	return rc;
++    memcpy(sig->sig + 32 * num + 32 - mlen, p + 2, mlen);
++    return RPMPGP_OK;
++}
++
++static void pgpFreeSigEDDSA(pgpDigAlg pgpsig)
++{
++    struct pgpDigSigEDDSA_s *sig = pgpsig->data;
++    if (sig) {
++	free(pgpsig->data);
++    }
++}
++
++static rpmpgpRC pgpVerifySigEDDSA(pgpDigAlg pgpkey, pgpDigAlg pgpsig,
++                           uint8_t *hash, size_t hashlen, int hash_algo)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_SIGNATURE_VERIFICATION;	/* assume failure */
++    struct pgpDigSigEDDSA_s *sig = pgpsig->data;
++    struct pgpDigKeyEDDSA_s *key = pgpkey->data;
++    EVP_MD_CTX *md_ctx = NULL;
++
++    if (!constructEDDSASigningKey(key, pgpkey->curve)) {
++	rc = RPMPGP_ERROR_BAD_PUBKEY;
++	goto done;
++    }
++    md_ctx = EVP_MD_CTX_new();
++    if (EVP_DigestVerifyInit(md_ctx, NULL, EVP_md_null(), NULL, key->evp_pkey) != 1)
++	goto done;
++    if (EVP_DigestVerify(md_ctx, sig->sig, 64, hash, hashlen) == 1)
++	rc = RPMPGP_OK;		/* Success */
++done:
++    if (md_ctx)
++	EVP_MD_CTX_free(md_ctx);
++    return rc;
++}
++
++#endif
++
++
++
++/****************************** PGP **************************************/
++
++static int pgpSupportedCurve(int algo, int curve)
++{
++#ifdef EVP_PKEY_ED25519
++    if (algo == PGPPUBKEYALGO_EDDSA && curve == PGPCURVE_ED25519)
++	return 1;
++#endif
++    if (algo == PGPPUBKEYALGO_ECDSA && curve == PGPCURVE_NIST_P_256)
++	return 1;
++    if (algo == PGPPUBKEYALGO_ECDSA && curve == PGPCURVE_NIST_P_384)
++	return 1;
++    if (algo == PGPPUBKEYALGO_ECDSA && curve == PGPCURVE_NIST_P_521)
++	return 1;
++    return 0;
++}
++
++void pgpDigAlgInitPubkey(pgpDigAlg ka, int algo, int curve)
++{
++    switch (algo) {
++    case PGPPUBKEYALGO_RSA:
++        ka->setmpi = pgpSetKeyMpiRSA;
++        ka->free = pgpFreeKeyRSA;
++        ka->mpis = 2;
++        break;
++    case PGPPUBKEYALGO_DSA:
++        ka->setmpi = pgpSetKeyMpiDSA;
++        ka->free = pgpFreeKeyDSA;
++        ka->mpis = 4;
++        break;
++    case PGPPUBKEYALGO_ECDSA:
++	if (!pgpSupportedCurve(algo, curve))
++	    break;
++        ka->setmpi = pgpSetKeyMpiECDSA;
++        ka->free = pgpFreeKeyECDSA;
++        ka->mpis = 1;
++        ka->curve = curve;
++	break;
++#ifdef EVP_PKEY_ED25519
++    case PGPPUBKEYALGO_EDDSA:
++	if (!pgpSupportedCurve(algo, curve))
++	    break;
++        ka->setmpi = pgpSetKeyMpiEDDSA;
++        ka->free = pgpFreeKeyEDDSA;
++        ka->mpis = 1;
++        ka->curve = curve;
++        break;
++#endif
++    default:
++        break;
++    }
++}
++
++void pgpDigAlgInitSignature(pgpDigAlg sa, int algo)
++{
++    switch (algo) {
++    case PGPPUBKEYALGO_RSA:
++        sa->setmpi = pgpSetSigMpiRSA;
++        sa->free = pgpFreeSigRSA;
++        sa->verify = pgpVerifySigRSA;
++        sa->mpis = 1;
++        break;
++    case PGPPUBKEYALGO_DSA:
++        sa->setmpi = pgpSetSigMpiDSA;
++        sa->free = pgpFreeSigDSA;
++        sa->verify = pgpVerifySigDSA;
++        sa->mpis = 2;
++        break;
++    case PGPPUBKEYALGO_ECDSA:
++        sa->setmpi = pgpSetSigMpiECDSA;
++        sa->free = pgpFreeSigECDSA;
++        sa->verify = pgpVerifySigECDSA;
++        sa->mpis = 2;
++        break;
++#ifdef EVP_PKEY_ED25519
++    case PGPPUBKEYALGO_EDDSA:
++        sa->setmpi = pgpSetSigMpiEDDSA;
++        sa->free = pgpFreeSigEDDSA;
++        sa->verify = pgpVerifySigEDDSA;
++        sa->mpis = 2;
++        break;
++#endif
++    default:
++        break;
++    }
++}
+--- /dev/null
++++ b/rpmio/rpmpgp_legacy/rpmpgp_internal_pubkey.c
+@@ -0,0 +1,441 @@
++/** \ingroup rpmio signature
++ * \file rpmio/rpmpgp_internal_pubkey.c
++ * Parse a transferable public key
++ */
++
++#include "system.h"
++
++#include "rpmpgp_internal.h"
++
++static rpmpgpRC hashKey(DIGEST_CTX hash, const pgpPkt *pkt, int exptag)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_INTERNAL;
++    if (pkt && pkt->tag == exptag) {
++	uint8_t head[] = {
++	    0x99,
++	    (pkt->blen >> 8),
++	    (pkt->blen     ),
++	};
++	rpmDigestUpdate(hash, head, 3);
++	rpmDigestUpdate(hash, pkt->body, pkt->blen);
++	rc = RPMPGP_OK;
++    }
++    return rc;
++}
++
++static rpmpgpRC hashUserID(DIGEST_CTX hash, const pgpPkt *pkt, int exptag)
++{
++    rpmpgpRC rc = RPMPGP_ERROR_INTERNAL;
++    if (pkt && pkt->tag == exptag) {
++	uint8_t head[] = {
++	    exptag == PGPTAG_USER_ID ? 0xb4 : 0xd1,
++	    (pkt->blen >> 24),
++	    (pkt->blen >> 16),
++	    (pkt->blen >>  8),
++	    (pkt->blen     ),
++	};
++	rpmDigestUpdate(hash, head, 5);
++	rpmDigestUpdate(hash, pkt->body, pkt->blen);
++	rc = RPMPGP_OK;
++    }
++    return rc;
++}
++
++static rpmpgpRC pgpVerifySelf(pgpDigParams key, pgpDigParams selfsig,
++			const pgpPkt *mainpkt, const pgpPkt *sectionpkt)
++{
++    int rc = RPMPGP_ERROR_SELFSIG_VERIFICATION;
++    DIGEST_CTX hash = rpmDigestInit(selfsig->hash_algo, 0);
++
++    if (!hash)
++	return rc;
++
++    switch (selfsig->sigtype) {
++    case PGPSIGTYPE_SUBKEY_BINDING:
++    case PGPSIGTYPE_SUBKEY_REVOKE:
++    case PGPSIGTYPE_PRIMARY_BINDING:
++	rc = hashKey(hash, mainpkt, PGPTAG_PUBLIC_KEY);
++	if (rc == RPMPGP_OK)
++	    rc = hashKey(hash, sectionpkt, PGPTAG_PUBLIC_SUBKEY);
++	break;
++    case PGPSIGTYPE_GENERIC_CERT:
++    case PGPSIGTYPE_PERSONA_CERT:
++    case PGPSIGTYPE_CASUAL_CERT:
++    case PGPSIGTYPE_POSITIVE_CERT:
++    case PGPSIGTYPE_CERT_REVOKE:
++	rc = hashKey(hash, mainpkt, PGPTAG_PUBLIC_KEY);
++	if (rc == RPMPGP_OK)
++	    rc = hashUserID(hash, sectionpkt, sectionpkt->tag == PGPTAG_PHOTOID ? PGPTAG_PHOTOID : PGPTAG_USER_ID);
++	break;
++    case PGPSIGTYPE_SIGNED_KEY:
++    case PGPSIGTYPE_KEY_REVOKE:
++	rc = hashKey(hash, mainpkt, PGPTAG_PUBLIC_KEY);
++	break;
++    default:
++	break;
++    }
++
++    if (rc == RPMPGP_OK) {
++	if (key)
++	    rc = pgpVerifySignatureRaw(key, selfsig, hash);
++	else
++	    rc = RPMPGP_ERROR_INTERNAL;
++	if (rc == RPMPGP_ERROR_SIGNATURE_VERIFICATION)
++	    rc = RPMPGP_ERROR_SELFSIG_VERIFICATION;
++    }
++    rpmDigestFinal(hash, NULL, NULL, 0);
++    return rc;
++}
++
++static rpmpgpRC verifyPrimaryBindingSig(pgpPkt *mainpkt, pgpPkt *subkeypkt, pgpDigParams subkeydig, pgpDigParams bindsigdig)
++{
++    pgpDigParams emb_digp = NULL;
++    int rc = RPMPGP_ERROR_SELFSIG_VERIFICATION;		/* assume failure */
++    if (!bindsigdig || !bindsigdig->embedded_sig)
++	return rc;
++    emb_digp = pgpDigParamsNew(PGPTAG_SIGNATURE);
++    if (pgpPrtSig(PGPTAG_SIGNATURE, bindsigdig->embedded_sig, bindsigdig->embedded_sig_len, emb_digp) == RPMPGP_OK)
++	if (emb_digp->sigtype == PGPSIGTYPE_PRIMARY_BINDING)
++	    rc = pgpVerifySelf(subkeydig, emb_digp, mainpkt, subkeypkt);
++    emb_digp = pgpDigParamsFree(emb_digp);
++    return rc;
++}
++
++static int is_same_keyid(pgpDigParams digp, pgpDigParams sigdigp)
++{
++    return (digp->saved & sigdigp->saved & PGPDIG_SAVED_ID) != 0 &&
++	memcmp(digp->signid, sigdigp->signid, sizeof(digp->signid)) == 0;
++}
++
++/* Parse a complete pubkey with all associated packets */
++/* This is similar to gnupg's merge_selfsigs_main() function */
++rpmpgpRC pgpPrtTransferablePubkey(const uint8_t * pkts, size_t pktlen, pgpDigParams digp)
++{
++    const uint8_t *p = pkts;
++    const uint8_t *pend = pkts + pktlen;
++    pgpDigParams sigdigp = NULL;
++    pgpDigParams newest_digp = NULL;
++    rpmpgpRC rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET;		/* assume failure */
++    uint32_t key_expire_sig_time = 0;
++    uint32_t key_flags_sig_time = 0;
++    pgpPkt mainpkt, sectionpkt;
++    int haveselfsig;
++    uint32_t now = 0;
++
++    /* parse the main pubkey */
++    if (pktlen > RPM_MAX_OPENPGP_BYTES)
++	return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++    if (pgpDecodePkt(p, (pend - p), &mainpkt) != RPMPGP_OK)
++	return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++    if (mainpkt.tag != PGPTAG_PUBLIC_KEY)
++	return RPMPGP_ERROR_UNEXPECTED_PGP_PACKET;
++    p += (mainpkt.body - mainpkt.head) + mainpkt.blen;
++
++    /* Parse the pubkey packet */
++    if ((rc = pgpPrtKey(mainpkt.tag, mainpkt.body, mainpkt.blen, digp)) != RPMPGP_OK)
++	return rc;
++    sectionpkt = mainpkt;
++    haveselfsig = 1;
++    digp->key_mtime = digp->time;
++
++    rc = RPMPGP_OK;
++    while (rc == RPMPGP_OK) {
++	pgpPkt pkt;
++
++	if (p < pend) {
++	    if (pgpDecodePkt(p, (pend - p), &pkt)) {
++		rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++		break;
++	    }
++	    if (pkt.tag == PGPTAG_PUBLIC_KEY || pkt.tag == PGPTAG_SECRET_KEY) {
++		rc = RPMPGP_ERROR_BAD_PUBKEY_STRUCTURE;
++		break;	/* start of another public key, error out */
++	    }
++	} else {
++	    pkt.tag = 0;
++	}
++
++	/* did we end a direct/userid/subkey section? */
++	if (p == pend || pkt.tag == PGPTAG_USER_ID || pkt.tag == PGPTAG_PHOTOID || pkt.tag == PGPTAG_PUBLIC_SUBKEY) {
++	    /* return an error if there was no self-sig at all */
++	    if (!haveselfsig) {
++		rc = RPMPGP_ERROR_MISSING_SELFSIG;
++		break;
++	    }
++	    /* take the data from the newest signature */
++	    if (newest_digp && (sectionpkt.tag == PGPTAG_USER_ID || sectionpkt.tag == PGPTAG_PUBLIC_KEY) && newest_digp->sigtype != PGPSIGTYPE_CERT_REVOKE) {
++		digp->saved |= PGPDIG_SAVED_VALID;	/* we have a valid binding sig */
++		if ((newest_digp->saved & PGPDIG_SAVED_KEY_EXPIRE) != 0) {
++		    if ((!key_expire_sig_time || newest_digp->time > key_expire_sig_time)) {
++			digp->key_expire = newest_digp->key_expire;
++			digp->saved |= PGPDIG_SAVED_KEY_EXPIRE;
++			key_expire_sig_time = newest_digp->time;
++			if (newest_digp->sigtype == PGPSIGTYPE_SIGNED_KEY)
++			    key_expire_sig_time = 0xffffffffU;	/* expires from the direct signatures are final */
++		    }
++		}
++		if ((newest_digp->saved & PGPDIG_SAVED_KEY_FLAGS) != 0) {
++		    if ((!key_flags_sig_time || newest_digp->time > key_flags_sig_time)) {
++			digp->key_flags = newest_digp->key_flags;
++			digp->saved |= PGPDIG_SAVED_KEY_FLAGS;
++			key_flags_sig_time = newest_digp->time;
++			if (newest_digp->sigtype == PGPSIGTYPE_SIGNED_KEY)
++			    key_flags_sig_time = 0xffffffffU;	/* key flags from the direct signatures are final */
++		    }
++		}
++		if (sectionpkt.tag == PGPTAG_USER_ID) {
++		    if (!digp->userid || ((newest_digp->saved & PGPDIG_SAVED_PRIMARY) != 0 && (digp->saved & PGPDIG_SAVED_PRIMARY) == 0)) {
++			if ((rc = pgpPrtUserID(sectionpkt.tag, sectionpkt.body, sectionpkt.blen, digp)) != RPMPGP_OK)
++			    break;
++			if ((newest_digp->saved & PGPDIG_SAVED_PRIMARY) != 0)
++			    digp->saved |= PGPDIG_SAVED_PRIMARY;
++		    }
++		}
++	    }
++	    newest_digp = pgpDigParamsFree(newest_digp);
++	}
++
++	if (p == pend)
++	    break;	/* all packets processed */
++
++	if (pkt.tag == PGPTAG_SIGNATURE) {
++	    int isselfsig, needsig = 0;
++	    sigdigp = pgpDigParamsNew(pkt.tag);
++	    /* use the NoParams variant because we want to ignore non self-sigs */
++	    if ((rc = pgpPrtSigNoParams(pkt.tag, pkt.body, pkt.blen, sigdigp)) != RPMPGP_OK)
++		break;
++	    isselfsig = is_same_keyid(digp, sigdigp);
++
++	    /* check if we understand this signature type and make sure it is in the right section */
++	    if (sigdigp->sigtype == PGPSIGTYPE_KEY_REVOKE) {
++		/* sections don't matter here */
++		needsig = 1;
++	    } else if (sigdigp->sigtype == PGPSIGTYPE_SUBKEY_BINDING || sigdigp->sigtype == PGPSIGTYPE_SUBKEY_REVOKE) {
++		if (sectionpkt.tag != PGPTAG_PUBLIC_SUBKEY) {
++		    rc = RPMPGP_ERROR_BAD_PUBKEY_STRUCTURE;
++		    break;		/* signature in wrong section */
++		}
++		needsig = 1;
++	    } else if (sigdigp->sigtype == PGPSIGTYPE_SIGNED_KEY) {
++		if (sectionpkt.tag != PGPTAG_PUBLIC_KEY) {
++		    rc = RPMPGP_ERROR_BAD_PUBKEY_STRUCTURE;
++		    break;		/* signature in wrong section */
++		}
++		needsig = isselfsig;
++	    } else if (sigdigp->sigtype == PGPSIGTYPE_GENERIC_CERT || sigdigp->sigtype == PGPSIGTYPE_PERSONA_CERT || sigdigp->sigtype == PGPSIGTYPE_CASUAL_CERT || sigdigp->sigtype == PGPSIGTYPE_POSITIVE_CERT || sigdigp->sigtype == PGPSIGTYPE_CERT_REVOKE) {
++		if (sectionpkt.tag != PGPTAG_USER_ID && sectionpkt.tag != PGPTAG_PHOTOID) {
++		    rc = RPMPGP_ERROR_BAD_PUBKEY_STRUCTURE;
++		    break;		/* signature in wrong section */
++		}
++		needsig = isselfsig;
++		/* note that cert revokations get overwritten by newer certifications (like in gnupg) */
++	    }
++
++	    /* verify self signature if we need it */
++	    if (needsig) {
++		if (!isselfsig) {
++		    rc = RPMPGP_ERROR_BAD_PUBKEY_STRUCTURE;
++		    break;
++		}
++		/* add MPIs so we can verify */
++	        if ((rc = pgpPrtSigParams(pkt.tag, pkt.body, pkt.blen, sigdigp)) != RPMPGP_OK)
++		    break;
++		if ((rc = pgpVerifySelf(digp, sigdigp, &mainpkt, &sectionpkt)) != RPMPGP_OK)
++		    break;		/* verification failed */
++		if (sigdigp->sigtype != PGPSIGTYPE_KEY_REVOKE)
++		    haveselfsig = 1;
++		if (sigdigp->time > digp->key_mtime)
++		    digp->key_mtime = sigdigp->time;
++	    }
++
++	    /* check if this signature is expired */
++	    if (needsig && (sigdigp->saved & PGPDIG_SAVED_SIG_EXPIRE) != 0 && sigdigp->sig_expire) {
++		if (!now)
++		    now = pgpCurrentTime();
++		if (now < sigdigp->time || sigdigp->sig_expire < now - sigdigp->time)
++		    needsig = 0;	/* signature is expired, ignore */
++	    }
++
++	    /* handle key revokations right away */
++	    if (needsig && sigdigp->sigtype == PGPSIGTYPE_KEY_REVOKE) {
++		digp->revoked = 1;				/* this is final */
++		digp->saved |= PGPDIG_SAVED_VALID;		/* we have at least one correct self-sig */
++		needsig = 0;
++	    }
++
++	    /* find the newest self-sig for all the other types */
++	    if (needsig && (!newest_digp || sigdigp->time >= newest_digp->time)) {
++		newest_digp = pgpDigParamsFree(newest_digp);
++		newest_digp = sigdigp;
++		sigdigp = NULL;
++	    }
++	    sigdigp = pgpDigParamsFree(sigdigp);
++	} else if (pkt.tag == PGPTAG_USER_ID || pkt.tag == PGPTAG_PHOTOID) {
++	    if (sectionpkt.tag == PGPTAG_PUBLIC_SUBKEY) {
++		rc = RPMPGP_ERROR_BAD_PUBKEY_STRUCTURE;
++		break;		/* no user id packets after subkeys allowed */
++	    }
++	    sectionpkt = pkt;
++	    haveselfsig = 0;
++	} else if (pkt.tag == PGPTAG_PUBLIC_SUBKEY) {
++	    sectionpkt = pkt;
++	    haveselfsig = 0;
++	} else if (pkt.tag == PGPTAG_RESERVED) {
++	    rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++	    break;		/* not allowed */
++	}
++	p += (pkt.body - pkt.head) + pkt.blen;
++    }
++    if (rc == RPMPGP_OK && p != pend)
++	rc = RPMPGP_ERROR_INTERNAL;
++    sigdigp = pgpDigParamsFree(sigdigp);
++    newest_digp = pgpDigParamsFree(newest_digp);
++    return rc;
++}
++	
++/* Return the subkeys for a pubkey. Note that the code in pgpPrtParamsPubkey() already
++ * made sure that the signatures are self-signatures and verified ok. */
++/* This is similar to gnupg's merge_selfsigs_subkey() function */
++rpmpgpRC pgpPrtTransferablePubkeySubkeys(const uint8_t *pkts, size_t pktlen,
++			pgpDigParams mainkey, pgpDigParams **subkeys,
++			int *subkeysCount)
++{
++    const uint8_t *p = pkts;
++    const uint8_t *pend = pkts + pktlen;
++    pgpDigParams *digps = NULL, subdigp = NULL;
++    pgpDigParams sigdigp = NULL;
++    pgpDigParams newest_digp = NULL;
++    rpmpgpRC rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET;		/* assume failure */
++    int count = 0;
++    int alloced = 10;
++    pgpPkt mainpkt, subkeypkt, pkt;
++    int i;
++    uint32_t now = 0;
++
++    if (mainkey->tag != PGPTAG_PUBLIC_KEY || !mainkey->version)
++	return RPMPGP_ERROR_INTERNAL;	/* main key must be a parsed pubkey */
++
++    if (pktlen > RPM_MAX_OPENPGP_BYTES)
++	return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++    if (pgpDecodePkt(p, (pend - p), &mainpkt) != RPMPGP_OK)
++	return RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++    if (mainpkt.tag != PGPTAG_PUBLIC_KEY)
++	return RPMPGP_ERROR_UNEXPECTED_PGP_PACKET;
++    p += (mainpkt.body - mainpkt.head) + mainpkt.blen;
++
++    memset(&subkeypkt, 0, sizeof(subkeypkt));
++
++    digps = xmalloc(alloced * sizeof(*digps));
++    rc = RPMPGP_OK;
++    while (rc == RPMPGP_OK) {
++	if (p < pend) {
++	    if (pgpDecodePkt(p, (pend - p), &pkt)) {
++		rc = RPMPGP_ERROR_CORRUPT_PGP_PACKET;
++		break;
++	    }
++	    if (pkt.tag == PGPTAG_PUBLIC_KEY || pkt.tag == PGPTAG_SECRET_KEY) {
++		rc = RPMPGP_ERROR_BAD_PUBKEY_STRUCTURE;
++		break;	/* start of another public key, error out */
++	    }
++	} else {
++	    pkt.tag = 0;
++	}
++
++	/* finish up this subkey if we are at the end or a new one comes next */
++	if (p == pend || pkt.tag == PGPTAG_PUBLIC_SUBKEY) {
++	    /* take the data from the newest signature */
++	    if (newest_digp && subdigp && newest_digp->sigtype == PGPSIGTYPE_SUBKEY_BINDING) {
++		subdigp->saved |= PGPDIG_SAVED_VALID;	/* at least one binding sig */
++		if ((newest_digp->saved & PGPDIG_SAVED_KEY_FLAGS) != 0) {
++		    subdigp->key_flags = newest_digp->key_flags;
++		    subdigp->saved |= PGPDIG_SAVED_KEY_FLAGS;
++		}
++		if ((newest_digp->saved & PGPDIG_SAVED_KEY_EXPIRE) != 0) {
++		    subdigp->key_expire = newest_digp->key_expire;
++		    subdigp->saved |= PGPDIG_SAVED_KEY_EXPIRE;
++		}
++	    }
++	    newest_digp = pgpDigParamsFree(newest_digp);
++	}
++
++	if (p == pend)
++	    break;
++	p += (pkt.body - pkt.head) + pkt.blen;
++
++	if (pkt.tag == PGPTAG_PUBLIC_SUBKEY) {
++	    subdigp = pgpDigParamsNew(PGPTAG_PUBLIC_SUBKEY);
++	    /* Copy keyid of main key for error messages */
++	    memcpy(subdigp->mainid, mainkey->signid, sizeof(mainkey->signid));
++	    /* Copy UID from main key to subkey */
++	    subdigp->userid = mainkey->userid ? xstrdup(mainkey->userid) : NULL;
++	    /* if the main key is revoked, all the subkeys are also revoked */
++	    subdigp->revoked = mainkey->revoked ? 2 : 0;
++	    if (pgpPrtKey(pkt.tag, pkt.body, pkt.blen, subdigp)) {
++		subdigp = pgpDigParamsFree(subdigp);
++	    } else {
++		if (count == alloced) {
++		    alloced <<= 1;
++		    digps = xrealloc(digps, alloced * sizeof(*digps));
++		}
++		digps[count++] = subdigp;
++		subkeypkt = pkt;
++	    }
++	} else if (pkt.tag == PGPTAG_SIGNATURE && subdigp != NULL) {
++	    int needsig = 0;
++	    sigdigp = pgpDigParamsNew(pkt.tag);
++	    /* we use the NoParams variant because we do not verify */
++	    if (pgpPrtSigNoParams(pkt.tag, pkt.body, pkt.blen, sigdigp) != RPMPGP_OK) {
++		sigdigp = pgpDigParamsFree(sigdigp);
++	    }
++
++	    /* check if we understand this signature */
++	    if (sigdigp && sigdigp->sigtype == PGPSIGTYPE_SUBKEY_REVOKE) {
++		needsig = 1;
++	    } else if (sigdigp && sigdigp->sigtype == PGPSIGTYPE_SUBKEY_BINDING) {
++		/* insist on a embedded primary key binding signature if this is used for signing */
++		int key_flags = (sigdigp->saved & PGPDIG_SAVED_KEY_FLAGS) ? sigdigp->key_flags : 0;
++		if (!(key_flags & 0x02) || verifyPrimaryBindingSig(&mainpkt, &subkeypkt, subdigp, sigdigp) == RPMPGP_OK)
++		    needsig = 1;
++	    }
++
++	    /* check if this signature is expired */
++	    if (needsig && (sigdigp->saved & PGPDIG_SAVED_SIG_EXPIRE) != 0 && sigdigp->sig_expire) {
++		if (!now)
++		    now = pgpCurrentTime();
++		if (now < sigdigp->time || sigdigp->sig_expire < now - sigdigp->time)
++		    needsig = 0;	/* signature is expired, ignore */
++	    }
++
++	    /* handle subkey revokations right away */
++	    if (needsig && sigdigp->sigtype == PGPSIGTYPE_SUBKEY_REVOKE) {
++		if (subdigp->revoked != 2)
++		    subdigp->revoked = 1;
++		subdigp->saved |= PGPDIG_SAVED_VALID;	/* at least one binding sig */
++		needsig = 0;
++	    }
++
++	    /* find the newest self-sig for all the other types */
++	    if (needsig && (!newest_digp || sigdigp->time >= newest_digp->time)) {
++		newest_digp = pgpDigParamsFree(newest_digp);
++		newest_digp = sigdigp;
++		sigdigp = NULL;
++	    }
++	    sigdigp = pgpDigParamsFree(sigdigp);
++	}
++    }
++    if (rc == RPMPGP_OK && p != pend)
++	rc = RPMPGP_ERROR_INTERNAL;
++    sigdigp = pgpDigParamsFree(sigdigp);
++    newest_digp = pgpDigParamsFree(newest_digp);
++
++    if (rc == RPMPGP_OK) {
++	*subkeys = xrealloc(digps, count * sizeof(*digps));
++	*subkeysCount = count;
++    } else {
++	for (i = 0; i < count; i++)
++	    pgpDigParamsFree(digps[i]);
++	free(digps);
++    }
++    return rc;
++}
++

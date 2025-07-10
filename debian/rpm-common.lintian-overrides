@@ -1,0 +1,2 @@
+# This is not necessary with a recent Lintian, but ftp-master runs Lintian from oldstable and autorejects
+rpm-common: non-etc-file-marked-as-conffile remove-on-upgrade /etc/dbus-1/system.d/org.rpm.conf

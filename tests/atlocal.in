@@ -1,0 +1,163 @@
+RPMLIBDIR="@CMAKE_INSTALL_FULL_LIBDIR@"
+export RPMLIBDIR
+
+HAVE_UNSHARE=@HAVE_UNSHARE@
+PYTHON=@PYTHON@
+PGP=@PGP@
+
+RPMTREE=${RPMTREE:-/}
+RPMTEST=/
+RPMDATA="/data/"
+
+# Default UNIX username for use in tests
+RPMUSER=klang
+
+RPM_CONFIGDIR_PATH="@RPM_CONFIGDIR@"
+
+DBFORMAT=$(awk '/^%_db_backend/{print $2}' \
+           "${RPM_CONFIGDIR_PATH}/macros" 2>/dev/null)
+export DBFORMAT
+
+# this works for gcc, dunno about clang
+ASANLIB=$(ldd "${RPM_CONFIGDIR_PATH}/rpmdeps"|awk '/libasan/{print $3'})
+export ASANLIB
+
+TZ=UTC
+export TZ
+
+unset SOURCE_DATE_EPOCH
+
+RPM_XFAIL=${RPM_XFAIL-1}
+if test -x "@FIND_DEBUGINFO@"; then
+    DEBUGINFO_DISABLED=false;
+else
+    DEBUGINFO_DISABLED=true;
+fi
+if test "${PYTHON}"; then
+    PYTHON_DISABLED=false;
+else
+    PYTHON_DISABLED=true;
+fi
+if [ "@WITH_CAP@" == "ON" ]; then
+    CAP_DISABLED=false;
+else
+    CAP_DISABLED=true;
+fi
+if [ "@WITH_IMAEVM@" == "ON" ]; then
+    IMA_DISABLED=false;
+else
+    IMA_DISABLED=true;
+fi
+if mknod foodev c 123 123 2>/dev/null; then
+   MKNOD_DISABLED=false
+   rm -f foodev
+else
+   MKNOD_DISABLED=true
+fi
+
+# Manage lightweight Bubblewrap containers on top of OverlayFS
+snapshot()
+{
+    local cmd=$1
+    shift
+    case $cmd in
+        mount)
+            # No argument means mount as read-only
+            local opts
+            if [ $# != 0 ]; then
+                mkdir -p $1/diff $1/work
+                opts="-o upperdir=$1/diff,workdir=$1/work"
+            fi
+            [ ${ROOTLESS:-1} == 1 ] && opts+=" -o userxattr"
+            mkdir -p ${RPMTEST}
+            mount -t overlay sandbox \
+                  -o lowerdir="${RPMTREE}" \
+                  ${opts} ${RPMTEST}
+        ;;
+        umount)
+            umount -ql $RPMTEST
+        ;;
+        prune)
+            local dir
+            for dir in "$@"; do
+                [ -d "$dir" ] && umount -ql $dir
+            done
+            return 0
+        ;;
+        exec)
+            bwrap --unshare-pid --dev-bind $RPMTEST / --clearenv \
+                  --setenv PATH $(env -i sh -c 'echo $PATH') \
+                  --setenv HOME /root --chdir / --dev /dev --proc /proc \
+                  --die-with-parent "$@"
+        ;;
+        shell)
+            local source=$(findmnt -no SOURCE --mountpoint $RPMTEST)
+            local passwd=$RPMTEST/etc/passwd
+            if [ $# == 0 ]; then
+                if [ -f "$passwd" ]; then
+                    set -- $(grep ^root: $passwd | cut -d: -f7)
+                else
+                    set -- sh
+                fi
+            fi
+            snapshot exec --unshare-uts --hostname $source "$@"
+        ;;
+    esac
+}
+
+setup_env()
+{
+    if [ -d tree ]; then
+        RPMTEST=${PWD}/tree
+        HOME=${RPMTEST}/root
+        export RPMTEST HOME
+    fi
+}
+
+run()
+{
+    setup_env
+    "$@" --define "_buildhost testhost" \
+         --define "_tmppath ${RPMTEST}/tmp" \
+         --define "_topdir ${RPMTEST}/build" \
+         --define "_db_backend ${DBFORMAT}" \
+         --dbpath="${RPMTEST}/var/lib/rpm/"
+}
+
+rundebug()
+{
+    setup_env
+    export RPM_CONFIGDIR=${RPMTEST}/@RPM_CONFIGDIR@
+    cp ${RPMDATA}/macros.debug ${RPM_CONFIGDIR}/macros.d/
+    run "$@"
+    rm -f ${RPM_CONFIGDIR}/macros.d/macros.debug
+    unset RPM_CONFIGDIR
+}
+
+runroot()
+{
+    setup_env
+    snapshot exec "$@" \
+             --define "_buildhost testhost" \
+             --define "_topdir /build"
+}
+
+runroot_other()
+{
+    setup_env
+    snapshot exec "$@"
+}
+
+runroot_user()
+{
+    case $1 in
+        -n|--name)
+            RPMUSER=$2
+            shift 2
+        ;;
+    esac
+    setup_env
+    runroot_other --new-session sudo -iu $RPMUSER "$@"
+}
+
+snapshot prune rpmtests.dir/*/tree

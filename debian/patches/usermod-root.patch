@@ -1,0 +1,14 @@
+Author: Daan De Meyer <daan.j.demeyer@gmail.com>
+Forwarded: https://github.com/rpm-software-management/rpm/pull/3823
+Description: scripts/sysusers: Make sure $ROOT is passed to usermod
+--- a/scripts/sysusers.sh
++++ b/scripts/sysusers.sh
+@@ -93,7 +93,7 @@
+ 	fi
+ 
+ 	if [[ $expire ]]; then
+-	    usermod -e 1 "${user}"
++	    usermod -R "$ROOT" -e 1 "${user}"
+ 	fi
+ }
+ 

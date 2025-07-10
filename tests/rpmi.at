@@ -1,0 +1,1792 @@
+#    rpmi.at: test various aspects of rpm install
+#
+#    Copyright (C) 2007  Ralf Corsépius <corsepiu@fedoraproject.org>
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+AT_BANNER([RPM install tests])
+
+AT_SETUP([rpm -U <manifest>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+echo /data/RPMS/hello-2.0-1.x86_64.rpm > ${RPMTEST}/tmp/test.mft
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/tmp/test.mft
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <manifest glob>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+echo "/data/RPMS/hello-2.0-1.{i686,x86_64}.rpm" > ${RPMTEST}/tmp/test.mft
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/tmp/test.mft
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <manifest glob fallback>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+cp "${RPMTEST}/data/RPMS/hello-1.0-1.i386.rpm" \
+   "${RPMTEST}/tmp/fallback-[[123]].0-1.i386.rpm"
+
+echo "/tmp/fallback-[[123]].0-1.i386.rpm" > ${RPMTEST}/tmp/test.mft
+
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/tmp/test.mft
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <manifest notfound 1>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+echo /data/RPMS/hello-2.0-1.x86_64.rpm > ${RPMTEST}/tmp/test.mft
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/tmp/test-not-there.mft
+],
+[1],
+[],
+[error: open of /tmp/test-not-there.mft failed: No such file or directory
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <manifest notfound 2>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+echo /data/RPMS/hello-not-there-2.0-1.x86_64.rpm > ${RPMTEST}/tmp/test.mft
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/tmp/test.mft
+],
+[1],
+[],
+[error: open of /data/RPMS/hello-not-there-2.0-1.x86_64.rpm failed: No such file or directory
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <manifest notfound 3>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+echo /data/RPMS/hello-not-there-1.0-1.x86_64.rpm > ${RPMTEST}/tmp/test.mft
+echo /data/RPMS/hello-not-there-2.0-1.x86_64.rpm >> ${RPMTEST}/tmp/test.mft
+echo /data/RPMS/hello-not-there-3.0-1.x86_64.rpm >> ${RPMTEST}/tmp/test.mft
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/tmp/test.mft
+],
+[3],
+[],
+[error: open of /data/RPMS/hello-not-there-1.0-1.x86_64.rpm failed: No such file or directory
+error: open of /data/RPMS/hello-not-there-2.0-1.x86_64.rpm failed: No such file or directory
+error: open of /data/RPMS/hello-not-there-3.0-1.x86_64.rpm failed: No such file or directory
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <manifest notfound 4>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+echo "/data/RPMS/hello-not-there-*.x86_64.rpm" > ${RPMTEST}/tmp/test.mft
+echo /data/RPMS/hello-not-there-1.0-1.x86_64.rpm >> ${RPMTEST}/tmp/test.mft
+echo /data/RPMS/hello-not-there-2.0-1.x86_64.rpm >> ${RPMTEST}/tmp/test.mft
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/tmp/test.mft
+],
+[3],
+[],
+[error: open of /data/RPMS/hello-not-there-*.x86_64.rpm failed: No such file or directory
+error: open of /data/RPMS/hello-not-there-1.0-1.x86_64.rpm failed: No such file or directory
+error: open of /data/RPMS/hello-not-there-2.0-1.x86_64.rpm failed: No such file or directory
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <notfound>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/data/RPMS/hello-not-there-2.0-1.x86_64.rpm
+],
+[1],
+[],
+[error: open of /data/RPMS/hello-not-there-2.0-1.x86_64.rpm failed: No such file or directory
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <notfound 2>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/data/RPMS/hello-not-there-1.0-1.x86_64.rpm \
+	/data/RPMS/hello-not-there-2.0-1.x86_64.rpm \
+	/data/RPMS/hello-not-there-3.0-1.x86_64.rpm
+],
+[3],
+[],
+[error: open of /data/RPMS/hello-not-there-1.0-1.x86_64.rpm failed: No such file or directory
+error: open of /data/RPMS/hello-not-there-2.0-1.x86_64.rpm failed: No such file or directory
+error: open of /data/RPMS/hello-not-there-3.0-1.x86_64.rpm failed: No such file or directory
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <unsigned 1>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/data/RPMS/hello-2.0-1.x86_64.rpm
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <unsigned 2>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	--define "_pkgverify_level signature" \
+	/data/RPMS/hello-2.0-1.x86_64.rpm
+],
+[1],
+[],
+[	package hello-2.0-1.x86_64 does not verify: no signature
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <corrupted unsigned 1>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+pkg="hello-2.0-1.x86_64.rpm"
+cp "${RPMTEST}"/data/RPMS/${pkg} "${RPMTEST}"/tmp/${pkg}
+dd if=/dev/zero of="${RPMTEST}"/tmp/${pkg} \
+   conv=notrunc bs=1 seek=5555 count=6 2> /dev/null
+
+echo "INSTALL 1"
+runroot rpm -U --ignorearch --ignoreos --nodeps --nodigest \
+	--define "_pkgverify_level none" \
+	/tmp/${pkg} 2>&1 | sed -e 's/;.*$//g'
+echo "INSTALL 2"
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	--define "_pkgverify_level digest" \
+	/tmp/${pkg} 2>&1
+echo "INSTALL 3"
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	--define "_pkgverify_flags 0x30300" \
+	--define "__vsflags 0x30300" \
+	--define "_pkgverify_level digest" \
+	/tmp/${pkg} 2>&1
+echo "INSTALL 4"
+runroot rpm -U --ignorearch --ignoreos --nodeps --nodigest --noverify \
+	--define "_pkgverify_level digest" \
+	/tmp/${pkg} 2>&1 | sed -e 's/;.*$//g'
+],
+[0],
+[INSTALL 1
+error: unpacking of archive failed on file /usr/share/doc/hello-2.0/COPYING
+error: hello-2.0-1.x86_64: install failed
+INSTALL 2
+error: /tmp/hello-2.0-1.x86_64.rpm: Header SHA256 digest: BAD (Expected ef920781af3bf072ae9888eec3de1c589143101dff9cc0b561468d395fb766d9 != 29fdfe92782fb0470a9a164a6c94af87d3b138c63b39d4c30e0223ca1202ba82)
+error: /tmp/hello-2.0-1.x86_64.rpm: Header SHA1 digest: BAD (Expected 5cd9874c510b67b44483f9e382a1649ef7743bac != 4261b2c1eb861a4152c2239bce20bfbcaa8971ba)
+error: /tmp/hello-2.0-1.x86_64.rpm cannot be installed
+INSTALL 3
+	package hello-2.0-1.x86_64 does not verify: no digest
+INSTALL 4
+error: unpacking of archive failed on file /usr/share/doc/hello-2.0/COPYING
+error: hello-2.0-1.x86_64: install failed
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <corrupted unsigned 2>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+pkg="hello-2.0-1.x86_64.rpm"
+cp "${RPMTEST}"/data/RPMS/${pkg} "${RPMTEST}"/tmp/${pkg}
+dd if=/dev/zero of="${RPMTEST}"/tmp/${pkg} \
+   conv=notrunc bs=1 seek=7777 count=6 2> /dev/null
+
+echo "INSTALL 1"
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	--define "_pkgverify_level none" \
+	/tmp/${pkg} 2>&1
+echo "INSTALL 2"
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	--define "_pkgverify_level digest" \
+	/tmp/${pkg} 2>&1
+echo "INSTALL 3"
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	--define "_pkgverify_flags 0x30300" \
+	--define "_pkgverify_level digest" \
+	/tmp/${pkg} 2>&1
+echo "INSTALL 4"
+runroot rpm -U --ignorearch --ignoreos --nodeps --nodigest --noverify \
+	--define "_pkgverify_level digest" \
+	/tmp/${pkg} 2>&1
+],
+[1],
+[INSTALL 1
+error: unpacking of archive failed: cpio: Bad magic
+error: hello-2.0-1.x86_64: install failed
+INSTALL 2
+	package hello-2.0-1.x86_64 does not verify: Payload SHA256 digest: BAD (Expected 84a7338287bf19715c4eed0243f5cdb447eeb0ade37b2af718d4060aefca2f7c != bea903609dceac36e1f26a983c493c98064d320fdfeb423034ed63d649b2c8dc)
+INSTALL 3
+	package hello-2.0-1.x86_64 does not verify: no digest
+INSTALL 4
+error: unpacking of archive failed: cpio: Bad magic
+error: hello-2.0-1.x86_64: install failed
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <signed nokey 1>])
+AT_KEYWORDS([install])
+AT_SKIP_IF([test x$PGP = xdummy])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/data/RPMS/hello-2.0-1.x86_64-signed.rpm
+],
+[0],
+[],
+[warning: /data/RPMS/hello-2.0-1.x86_64-signed.rpm: Header V4 RSA/SHA256 Signature, key ID 1964c5fc: NOKEY
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <signed nokey 2>])
+AT_KEYWORDS([install])
+AT_SKIP_IF([test x$PGP = xdummy])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	--define "_pkgverify_level signature" \
+	/data/RPMS/hello-2.0-1.x86_64-signed.rpm
+],
+[1],
+[],
+[warning: /data/RPMS/hello-2.0-1.x86_64-signed.rpm: Header V4 RSA/SHA256 Signature, key ID 1964c5fc: NOKEY
+	package hello-2.0-1.x86_64 does not verify: Header V4 RSA/SHA256 Signature, key ID 1964c5fc: NOKEY
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <signed 1>])
+AT_KEYWORDS([install])
+AT_SKIP_IF([test x$PGP = xdummy])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmkeys --import /data/keys/rpm.org-rsa-2048-test.pub
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/data/RPMS/hello-2.0-1.x86_64-signed.rpm
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <signed 2>])
+AT_KEYWORDS([install])
+AT_SKIP_IF([test x$PGP = xdummy])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmkeys --import /data/keys/rpm.org-rsa-2048-test.pub
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	--define "_pkgverify_level signature" \
+	/data/RPMS/hello-2.0-1.x86_64-signed.rpm
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <corrupted signed 1>])
+AT_KEYWORDS([install])
+AT_SKIP_IF([test x$PGP = xdummy])
+RPMTEST_CHECK_UNQUOTED([
+RPMDB_INIT
+
+pkg="hello-2.0-1.x86_64-signed.rpm"
+cp "${RPMTEST}"/data/RPMS/${pkg} "${RPMTEST}"/tmp/${pkg}
+dd if=/dev/zero of="${RPMTEST}"/tmp/${pkg} \
+   conv=notrunc bs=1 seek=264 count=2 2> /dev/null
+
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/tmp/${pkg}
+],
+[1],
+[],
+[`if test x$PGP = xlegacy; then
+    echo 'error: /tmp/hello-2.0-1.x86_64-signed.rpm: Header RSA signature: BAD (package tag 268: invalid OpenPGP signature: Corrupt PGP packet)'
+else
+    echo 'error: /tmp/hello-2.0-1.x86_64-signed.rpm: Header RSA signature: BAD (package tag 268: invalid OpenPGP signature: Parsing an OpenPGP packet:'
+    echo '  Failed to parse Signature Packet'
+    echo '      because: Malformed packet: Subpacket extends beyond the end of the subpacket area)'
+fi`
+error: /tmp/hello-2.0-1.x86_64-signed.rpm cannot be installed
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <corrupted signed 2>])
+AT_KEYWORDS([install])
+AT_SKIP_IF([test x$PGP = xdummy])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+pkg="hello-2.0-1.x86_64-signed.rpm"
+cp "${RPMTEST}"/data/RPMS/${pkg} "${RPMTEST}"/tmp/${pkg}
+dd if=/dev/zero of="${RPMTEST}"/tmp/${pkg} \
+   conv=notrunc bs=1 seek=5555 count=6 2> /dev/null
+
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	/tmp/${pkg}
+],
+[1],
+[],
+[error: /tmp/hello-2.0-1.x86_64-signed.rpm: Header V4 RSA/SHA256 Signature, key ID 1964c5fc: BAD
+error: /tmp/hello-2.0-1.x86_64-signed.rpm: Header SHA256 digest: BAD (Expected ef920781af3bf072ae9888eec3de1c589143101dff9cc0b561468d395fb766d9 != 29fdfe92782fb0470a9a164a6c94af87d3b138c63b39d4c30e0223ca1202ba82)
+error: /tmp/hello-2.0-1.x86_64-signed.rpm: Header SHA1 digest: BAD (Expected 5cd9874c510b67b44483f9e382a1649ef7743bac != 4261b2c1eb861a4152c2239bce20bfbcaa8971ba)
+error: /tmp/hello-2.0-1.x86_64-signed.rpm cannot be installed
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <corrupted signed 3>])
+AT_KEYWORDS([install])
+AT_SKIP_IF([test x$PGP = xdummy])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+pkg="hello-2.0-1.x86_64-signed.rpm"
+cp "${RPMTEST}"/data/RPMS/${pkg} "${RPMTEST}"/tmp/${pkg}
+dd if=/dev/zero of="${RPMTEST}"/tmp/${pkg} \
+   conv=notrunc bs=1 seek=7711 count=6 2> /dev/null
+
+echo "INSTALL 1"
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	--define "_pkgverify_level none" \
+	/tmp/${pkg} 2>&1
+
+echo "INSTALL 2"
+runroot rpm -U --ignorearch --ignoreos --nodeps --nosignature \
+	--define "_pkgverify_level none" \
+	/tmp/${pkg} 2>&1
+
+echo "INSTALL 3"
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	--define "_pkgverify_level signature" \
+	/tmp/${pkg} 2>&1
+
+echo "INSTALL 4"
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	--define "_pkgverify_flags 0xc0c00" \
+	--define "__vsflags 0xc0c00" \
+	--define "_pkgverify_level signature" \
+	/tmp/${pkg} 2>&1
+
+echo "INSTALL 5"
+runroot rpm -U --ignorearch --ignoreos --nodeps --noverify \
+	--define "_pkgverify_level signature" \
+	/tmp/${pkg} 2>&1
+],
+[1],
+[INSTALL 1
+warning: /tmp/hello-2.0-1.x86_64-signed.rpm: Header V4 RSA/SHA256 Signature, key ID 1964c5fc: NOKEY
+error: unpacking of archive failed: cpio: Bad magic
+error: hello-2.0-1.x86_64: install failed
+INSTALL 2
+error: unpacking of archive failed: cpio: Bad magic
+error: hello-2.0-1.x86_64: install failed
+INSTALL 3
+warning: /tmp/hello-2.0-1.x86_64-signed.rpm: Header V4 RSA/SHA256 Signature, key ID 1964c5fc: NOKEY
+	package hello-2.0-1.x86_64 does not verify: Header V4 RSA/SHA256 Signature, key ID 1964c5fc: NOKEY
+INSTALL 4
+	package hello-2.0-1.x86_64 does not verify: no signature
+INSTALL 5
+warning: /tmp/hello-2.0-1.x86_64-signed.rpm: Header V4 RSA/SHA256 Signature, key ID 1964c5fc: NOKEY
+error: unpacking of archive failed: cpio: Bad magic
+error: hello-2.0-1.x86_64: install failed
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <glob>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	"/data/RPMS/hello-2.0-1.{i686,x86_64}.rpm"
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <glob notfound>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	"/data/RPMS/hello-not-there-*.x86_64.rpm" \
+	/data/RPMS/hello-not-there-1.0-1.x86_64.rpm \
+	/data/RPMS/hello-not-there-2.0-1.x86_64.rpm
+],
+[3],
+[],
+[error: open of /data/RPMS/hello-not-there-*.x86_64.rpm failed: No such file or directory
+error: open of /data/RPMS/hello-not-there-1.0-1.x86_64.rpm failed: No such file or directory
+error: open of /data/RPMS/hello-not-there-2.0-1.x86_64.rpm failed: No such file or directory
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <glob fallback>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+cp "${RPMTEST}/data/RPMS/hello-1.0-1.i386.rpm" \
+   "${RPMTEST}/tmp/fallback-[[123]].0-1.i386.rpm"
+
+runroot rpm -U --ignorearch --ignoreos --nodeps \
+	"/tmp/fallback-[[123]].0-1.i386.rpm"
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# Test tid/time overrides using SOURCE_DATE_EPOCH
+AT_SETUP([rpm -i <overridden time>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+pkg="hello-2.0-1.x86_64"
+timestamp=97445
+
+runroot rpm -i --ignorearch --ignoreos --nodeps \
+	/data/RPMS/foo-1.0-1.noarch.rpm
+runroot --setenv SOURCE_DATE_EPOCH $timestamp \
+	rpm -i --ignorearch --ignoreos --nodeps \
+	/data/RPMS/hello-2.0-1.x86_64.rpm
+runroot rpm -q --tid $timestamp
+runroot rpm -qi $pkg | grep "Install Date"
+runroot rpm -qa
+
+],
+[0],
+[hello-2.0-1.x86_64
+Install Date: Fri Jan  2 03:04:05 1970
+foo-1.0-1.noarch
+hello-2.0-1.x86_64
+],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# Test multiple installs using SOURCE_DATE_EPOCH
+AT_SETUP([rpm -i <overridden time keeps ticking>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+timestamp=1445412535
+
+runroot --setenv SOURCE_DATE_EPOCH $timestamp \
+	rpm -i --ignorearch --ignoreos --nodeps \
+	/data/RPMS/foo-1.0-1.noarch.rpm /data/RPMS/hello-2.0-1.x86_64.rpm
+runroot rpm -q --tid $timestamp
+for pkg in `runroot rpm -q --tid $timestamp`; do
+	runroot rpm -qi $pkg | grep "Install Date"
+done
+],
+[0],
+[hello-2.0-1.x86_64
+foo-1.0-1.noarch
+Install Date: Wed Oct 21 07:28:55 2015
+Install Date: Wed Oct 21 07:28:56 2015
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -i --nodb])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm \
+  -U --nodb /data/RPMS/hlinktest-1.0-1.noarch.rpm
+runroot rpm -qa
+runroot_other find /foo|sort
+],
+[0],
+[/foo
+/foo/aaaa
+/foo/copyllo
+/foo/hello
+/foo/hello-bar
+/foo/hello-foo
+/foo/hello-world
+/foo/zzzz
+],
+[])
+
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -i --justdb])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+# avoid having to deal with non-existent /foo in the find below
+runroot_other mkdir /foo
+runroot rpm \
+  -U --justdb /data/RPMS/hlinktest-1.0-1.noarch.rpm
+runroot rpm -qa
+runroot_other find /foo|sort
+],
+[0],
+[hlinktest-1.0-1.noarch
+/foo
+],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# Check if rpm -U *.src.rpm works
+AT_SETUP([rpm -U *.src.rpm])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+rpm \
+  --define "_topdir $PWD/build" \
+  -U /data/SRPMS/hello-1.0-1.src.rpm
+ls build/*
+],
+[0],
+[build/SOURCES:
+hello-1.0.tar.gz
+
+build/SPECS:
+hello.spec
+],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# Check if rpm -i *.src.rpm works
+AT_SETUP([rpm -i *.src.rpm])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+rpm \
+  --define "_topdir $PWD/build" \
+  -i /data/SRPMS/hello-1.0-1.src.rpm
+ls build/*
+],
+[0],
+[build/SOURCES:
+hello-1.0.tar.gz
+
+build/SPECS:
+hello.spec
+],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# Check if rpm -i *.src.rpm *.rpm works
+AT_SETUP([rpm -i *.src.rpm *.rpm])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot_other sh -c 'rm /build/*/*'
+runroot rpm \
+  --ignorearch --ignoreos --nodeps \
+  -i /data/SRPMS/hello-1.0-1.src.rpm \
+     /data/RPMS/hello-2.0-1.x86_64.rpm
+runroot rpm -q hello; echo
+runroot_other sh -c 'ls /build/*'
+],
+[0],
+[hello-2.0-1.x86_64
+
+/build/SOURCES:
+hello-1.0.tar.gz
+
+/build/SPECS:
+hello.spec
+],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# Various error behavior tests
+#
+AT_SETUP([rpm -i <nonexistent file>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm \
+  -i no_such_file
+],
+[1],
+[],
+[error: open of no_such_file failed: No such file or directory
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -i --nomanifest <garbage text file>])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+junk="${RPMTEST}/textfile"
+cat << EOF > "${junk}"
+no_such.file
+not_an.rpm
+EOF
+
+runroot rpm \
+  -Uv --nomanifest /textfile
+],
+[1],
+[],
+[error: /textfile cannot be installed
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -i <garbage text file])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+junk="${RPMTEST}/not_an.rpm"
+cat << EOF > "${junk}"
+no_such.file
+not_pkg.rpm
+EOF
+
+runroot rpm \
+  -Uv /not_an.rpm
+],
+[2],
+[],
+[error: open of no_such.file failed: No such file or directory
+error: open of not_pkg.rpm failed: No such file or directory
+])
+RPMTEST_CLEANUP
+
+# ------------------------------
+AT_SETUP([rpm upgrade/downgrade])
+RPMDB_INIT
+
+for v in "1.0" "2.0"; do
+    runroot rpmbuild --quiet -bb \
+        --define "ver $v" \
+          /data/SPECS/versiontest.spec
+done
+
+# Test normal upgrade
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /build/RPMS/noarch/versiontest-1.0-1.noarch.rpm
+runroot rpm -U /build/RPMS/noarch/versiontest-2.0-1.noarch.rpm
+runroot rpm -q versiontest
+],
+[0],
+[versiontest-2.0-1.noarch
+],
+[])
+
+# Test upgrading to older package (should fail)
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -U /build/RPMS/noarch/versiontest-2.0-1.noarch.rpm
+runroot rpm -U /build/RPMS/noarch/versiontest-1.0-1.noarch.rpm
+],
+[2],
+[],
+[	package versiontest-2.0-1.noarch (which is newer than versiontest-1.0-1.noarch) is already installed
+])
+
+# Test downgrading to older package with --oldpackage
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -U /build/RPMS/noarch/versiontest-2.0-1.noarch.rpm
+runroot rpm -U --oldpackage /build/RPMS/noarch/versiontest-1.0-1.noarch.rpm
+runroot rpm -q versiontest
+],
+[0],
+[versiontest-1.0-1.noarch
+],
+[ignore])
+
+# Test upgrade of different versions in same transaction
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -Uv \
+  /build/RPMS/noarch/versiontest-1.0-1.noarch.rpm \
+  /build/RPMS/noarch/versiontest-2.0-1.noarch.rpm
+runroot rpm -q versiontest
+],
+[0],
+[Verifying packages...
+Preparing packages...
+versiontest-2.0-1.noarch
+versiontest-2.0-1.noarch
+],
+[warning: package versiontest-1.0-1.noarch was already added, replacing with versiontest-2.0-1.noarch
+])
+
+# Test upgrade of different versions in same transaction
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -Uv \
+  /build/RPMS/noarch/versiontest-2.0-1.noarch.rpm \
+  /build/RPMS/noarch/versiontest-1.0-1.noarch.rpm
+runroot rpm -q versiontest
+],
+[0],
+[Verifying packages...
+Preparing packages...
+versiontest-2.0-1.noarch
+versiontest-2.0-1.noarch
+],
+[warning: package versiontest-2.0-1.noarch was already added, skipping versiontest-1.0-1.noarch
+])
+
+# Test install of two different versions in same transaction
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -i \
+  /build/RPMS/noarch/versiontest-1.0-1.noarch.rpm \
+  /build/RPMS/noarch/versiontest-2.0-1.noarch.rpm
+runroot rpm -q versiontest
+],
+[0],
+[versiontest-2.0-1.noarch
+versiontest-1.0-1.noarch
+],
+[])
+
+# Test install of two different versions in same transaction
+# TODO: test only one was installed
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -i \
+  /build/RPMS/noarch/versiontest-1.0-1.noarch.rpm \
+  /build/RPMS/noarch/versiontest-1.0-1.noarch.rpm
+runroot rpm -q versiontest
+],
+[0],
+[versiontest-1.0-1.noarch
+],
+[])
+
+# Test freshen
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /build/RPMS/noarch/versiontest-1.0-1.noarch.rpm
+runroot rpm -F /build/RPMS/noarch/versiontest-2.0-1.noarch.rpm
+runroot rpm -q versiontest
+],
+[0],
+[versiontest-2.0-1.noarch
+],
+[])
+
+# Test freshen on uninstalled package
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -F /build/RPMS/noarch/versiontest-2.0-1.noarch.rpm
+runroot rpm -q versiontest
+],
+[1],
+[package versiontest is not installed
+],
+[])
+
+# Test freshen with older package
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /build/RPMS/noarch/versiontest-2.0-1.noarch.rpm
+runroot rpm -F /build/RPMS/noarch/versiontest-1.0-1.noarch.rpm
+runroot rpm -q versiontest
+],
+[0],
+[versiontest-2.0-1.noarch
+],
+[])
+
+# Test freshen --oldpackage
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /build/RPMS/noarch/versiontest-2.0-1.noarch.rpm
+runroot rpm -F --oldpackage /build/RPMS/noarch/versiontest-1.0-1.noarch.rpm
+runroot rpm -q versiontest
+],
+[0],
+[versiontest-1.0-1.noarch
+],
+[])
+
+# Test freshen --oldpackage same version
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /build/RPMS/noarch/versiontest-2.0-1.noarch.rpm
+runroot rpm -F --oldpackage /build/RPMS/noarch/versiontest-2.0-1.noarch.rpm
+runroot rpm -q versiontest
+],
+[0],
+[versiontest-2.0-1.noarch
+],
+[])
+
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm upgrade/downgrade epoch])
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb --define "ver 1.0" /data/SPECS/versiontest.spec
+runroot_other cp /build/RPMS/noarch/versiontest-1.0-1.noarch.rpm /tmp/noepoch.rpm
+for e in 1 2; do
+    runroot rpmbuild --quiet -bb --define "ver 1.0" --define "epoch ${e}" /data/SPECS/versiontest.spec
+    runroot_other cp /build/RPMS/noarch/versiontest-1.0-1.noarch.rpm /tmp/epoch${e}.rpm
+done
+# for testing sanity
+echo '%_query_all_fmt %%{nevra}' > ${HOME}/.rpmmacros
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /tmp/noepoch.rpm
+runroot rpm -U /tmp/epoch1.rpm
+runroot rpm -q versiontest
+],
+[0],
+[versiontest-1:1.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /tmp/epoch1.rpm
+runroot rpm -U /tmp/epoch2.rpm
+runroot rpm -q versiontest
+],
+[0],
+[versiontest-2:1.0-1.noarch
+],
+[])
+
+# XXX this should be FAIL, but don't want to fail all the test just because...
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /tmp/epoch1.rpm
+runroot rpm -U /tmp/noepoch.rpm
+],
+[2],
+[],
+[	package versiontest-1:1.0-1.noarch (which is newer than versiontest-1.0-1.noarch) is already installed
+])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /tmp/epoch2.rpm
+runroot rpm -U /tmp/epoch1.rpm
+],
+[2],
+[],
+[	package versiontest-2:1.0-1.noarch (which is newer than versiontest-1:1.0-1.noarch) is already installed
+])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /tmp/epoch2.rpm
+runroot rpm -U --oldpackage /tmp/epoch1.rpm
+runroot rpm -q versiontest
+],
+[0],
+[versiontest-1:1.0-1.noarch
+],
+[])
+
+# XXX this should be FAIL, but don't want to fail all the test just because...
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /tmp/epoch1.rpm
+runroot rpm -U --oldpackage /tmp/noepoch.rpm
+runroot rpm -q versiontest
+],
+[0],
+[versiontest-1.0-1.noarch
+],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /tmp/noepoch.rpm
+runroot rpm -e versiontest-1.0-1
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /tmp/epoch1.rpm
+runroot rpm -e versiontest-1.0-1
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -i /tmp/noepoch.rpm
+runroot rpm -i /tmp/epoch1.rpm
+
+# gah, versions listed on stdout but error message on stderr
+runroot rpm -e versiontest 1>&2
+runroot rpm -e versiontest-1.0-1 1>&2
+runroot rpm -e versiontest-1:1.0-1 1>&2
+runroot rpm -q versiontest
+],
+[0],
+[versiontest-1.0-1.noarch
+],
+[error: "versiontest" specifies multiple packages:
+  versiontest-1.0-1.noarch
+  versiontest-1:1.0-1.noarch
+error: "versiontest-1.0-1" specifies multiple packages:
+  versiontest-1.0-1.noarch
+  versiontest-1:1.0-1.noarch
+])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /tmp/noepoch.rpm
+runroot rpm -U --replacepkgs /tmp/noepoch.rpm
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /tmp/epoch1.rpm
+runroot rpm -U --replacepkgs /tmp/epoch1.rpm
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U obsoleted packages])
+AT_KEYWORDS([install obsolete])
+RPMDB_INIT
+runroot rpmbuild --quiet -bb \
+	--define "pkg one" \
+	--define "obs deptest-two <= 1.0" \
+	/data/SPECS/deptest.spec
+runroot rpmbuild --quiet -bb \
+	--define "pkg two" \
+	/data/SPECS/deptest.spec
+runroot rpmbuild --quiet -bb \
+	--define "obs deptest-two < 2.0" \
+	--define "pkg obsoletes" \
+	/data/SPECS/deptest.spec
+
+# Test package obsoleting another
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -U /build/RPMS/noarch/deptest-two-1.0-1.noarch.rpm
+runroot rpm -U /build/RPMS/noarch/deptest-obsoletes-1.0-1.noarch.rpm
+runroot rpm -q deptest-two deptest-obsoletes
+],
+[1],
+[package deptest-two is not installed
+deptest-obsoletes-1.0-1.noarch
+],
+[])
+
+# Test upgrade of obsoleted package in same transaction
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -Uv \
+  /build/RPMS/noarch/deptest-two-1.0-1.noarch.rpm \
+  /build/RPMS/noarch/deptest-one-1.0-1.noarch.rpm
+runroot rpm -q deptest-one
+],
+[0],
+[Verifying packages...
+Preparing packages...
+deptest-one-1.0-1.noarch
+deptest-one-1.0-1.noarch
+],
+[warning: package deptest-two-1.0-1.noarch was already added, replacing with deptest-one-1.0-1.noarch
+])
+
+# Test upgrade of obsoleted package in same transaction
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpm -Uv \
+  /build/RPMS/noarch/deptest-one-1.0-1.noarch.rpm \
+  /build/RPMS/noarch/deptest-two-1.0-1.noarch.rpm
+runroot rpm -q deptest-one
+],
+[0],
+[Verifying packages...
+Preparing packages...
+deptest-one-1.0-1.noarch
+deptest-one-1.0-1.noarch
+],
+[warning: package deptest-one-1.0-1.noarch was already added, skipping deptest-two-1.0-1.noarch
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U with invalid --relocate])
+AT_KEYWORDS([install relocate])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb /data/SPECS/hello-script.spec
+
+runroot rpm -U --test --ignoreos --relocate /usr=/opt \
+  /build/RPMS/noarch/hello-script-1.0-1.noarch.rpm
+],
+[1],
+[],
+[	path /usr in package hello-script-1.0-1.noarch is not relocatable
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U --badreloc with invalid --relocate])
+AT_KEYWORDS([install relocate])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb /data/SPECS/hello-script.spec
+
+runroot rpm -U --test --ignoreos --badreloc --relocate /usr=/opt \
+  /build/RPMS/noarch/hello-script-1.0-1.noarch.rpm
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -i relocatable package])
+AT_KEYWORDS([install relocate])
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb /data/SPECS/reloc.spec
+runroot rpmbuild --quiet -bb /data/SPECS/fakeshell.spec
+
+runroot rpm -U /build/RPMS/noarch/fakeshell-1.0-1.noarch.rpm
+
+RPMTEST_CHECK([
+runroot rpm -U \
+  /build/RPMS/noarch/reloc-1.0-1.noarch.rpm
+],
+[0],
+[1: /opt/bin
+2: /opt/etc
+3: /opt/lib
+0: /opt/bin
+1: /opt/etc
+2: /opt/lib
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -e reloc
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U --relocate /opt/bin=/bin \
+  /build/RPMS/noarch/reloc-1.0-1.noarch.rpm
+],
+[0],
+[1: /bin
+2: /opt/etc
+3: /opt/lib
+0: /bin
+1: /opt/etc
+2: /opt/lib
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -i relocatable package 2])
+AT_KEYWORDS([install relocate])
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb /data/SPECS/reloc.spec
+runroot rpmbuild --quiet -bb /data/SPECS/fakeshell.spec
+
+runroot rpm -U /build/RPMS/noarch/fakeshell-1.0-1.noarch.rpm
+
+RPMTEST_CHECK([
+runroot rpm -U \
+  --relocate /opt/bin=/opt/bin/foo/bar \
+  --relocate /opt/etc=/opt/etc/foo/bar \
+  --relocate /opt/lib=/opt/lib/foo/bar \
+  /build/RPMS/noarch/reloc-1.0-1.noarch.rpm
+runroot rpm -ql reloc
+],
+[0],
+[1: /opt/bin/foo/bar
+2: /opt/etc/foo/bar
+3: /opt/lib/foo/bar
+0: /opt/bin/foo/bar
+1: /opt/etc/foo/bar
+2: /opt/lib/foo/bar
+/opt
+/opt/bin/foo/bar
+/opt/bin/foo/bar/typo
+/opt/etc/foo/bar
+/opt/etc/foo/bar/conf
+/opt/lib/foo/bar
+/opt/lib/foo/bar/notlib
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -i relocatable package 3])
+AT_KEYWORDS([install relocate])
+RPMTEST_USER
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb /data/SPECS/rootfs.spec
+
+RPMTEST_CHECK([
+runroot_user \
+  rpm -U --prefix \$PWD/root --dbpath \$PWD/rpmdb \
+  /build/RPMS/noarch/rootfs-1.0-1.noarch.rpm
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+runroot_user rpm -e --dbpath \$PWD/rpmdb rootfs
+runroot_user test ! -d \$PWD/root
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -i with/without --excludedocs])
+AT_KEYWORDS([install excludedocs])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb /data/SPECS/testdoc.spec
+
+runroot rpm -i --excludedocs \
+  /build/RPMS/noarch/testdoc-1.0-1.noarch.rpm
+
+RPM_DOCDIR=$(runroot rpm --eval '%_defaultdocdir')
+RPM_DATADIR=$(runroot rpm --eval '%_datadir')
+
+test ! -e ${RPMTEST}${RPM_DOCDIR}/testdoc || exit 1
+test -e ${RPMTEST}${RPM_DATADIR}/testdoc/nodoc || exit 1
+
+runroot rpm -e testdoc
+
+runroot rpm -i \
+  /build/RPMS/noarch/testdoc-1.0-1.noarch.rpm
+test -e ${RPMTEST}${RPM_DOCDIR}/testdoc/documentation1 || exit 1
+test -e ${RPMTEST}${RPM_DOCDIR}/testdoc/documentation2 || exit 1
+test -e ${RPMTEST}${RPM_DOCDIR}/testdoc/examples/example1 || exit 1
+test -e ${RPMTEST}${RPM_DOCDIR}/testdoc/examples/example2 || exit 1
+test -e ${RPMTEST}${RPM_DATADIR}/testdoc/nodoc || exit 1
+
+runroot rpm -e testdoc
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -i --excludeartifacts])
+AT_KEYWORDS([install])
+RPMDB_INIT
+runroot rpmbuild --quiet -bb /data/SPECS/vattrtest.spec
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -i --excludeartifacts /build/RPMS/noarch/vattrtest-1.0-1.noarch.rpm
+test -e ${RPMTEST}/opt/vattrtest/a && exit 1
+runroot rpm -e vattrtest
+runroot rpm -i /build/RPMS/noarch/vattrtest-1.0-1.noarch.rpm
+test -e ${RPMTEST}/opt/vattrtest/a || exit 1
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U <suicidal>])
+AT_KEYWORDS([install])
+RPMDB_INIT
+
+for r in 1 2; do
+    runroot rpmbuild -bb --quiet \
+		--define "rel ${r}" \
+		/data/SPECS/suicidal.spec
+done
+
+RPMTEST_CHECK([
+RPMDB_INIT
+
+for r in 1 2; do
+    runroot rpm -U \
+	--define "_minimize_writes 0" \
+	/build/RPMS/noarch/suicidal-1-${r}.noarch.rpm
+done
+runroot rpm -V --nouser --nogroup suicidal
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+
+for r in 1 2; do
+    runroot rpm -U \
+	--define "_minimize_writes 1" \
+	/build/RPMS/noarch/suicidal-1-${r}.noarch.rpm
+done
+runroot rpm -V --nouser --nogroup suicidal
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+# ------------------------------
+# hardlink tests
+AT_SETUP([rpm -i hardlinks])
+AT_KEYWORDS([build install])
+RPMDB_INIT
+
+pkg="/data/RPMS/hlinktest-1.0-1.noarch.rpm"
+
+cp "${RPMTEST}/${pkg}" "${RPMTEST}/tmp/1.rpm"
+dd if=/dev/zero of="${RPMTEST}/tmp/1.rpm" \
+   conv=notrunc bs=1 seek=8180 count=6 2> /dev/null
+
+cp "${RPMTEST}/${pkg}" "${RPMTEST}/tmp/2.rpm"
+dd if=/dev/zero of="${RPMTEST}/tmp/2.rpm" \
+   conv=notrunc bs=1 seek=8150 count=6 2> /dev/null
+
+cp "${RPMTEST}/${pkg}" "${RPMTEST}/tmp/3.rpm"
+dd if=/dev/zero of="${RPMTEST}/tmp/3.rpm" \
+   conv=notrunc bs=1 seek=8050 count=6 2> /dev/null
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -i --noverify /tmp/1.rpm
+# test that nothing of the contents remains after failure
+test -d "${RPMTEST}/foo"
+],
+[1],
+[],
+[error: unpacking of archive failed: cpio: Archive file not in header
+error: hlinktest-1.0-1.noarch: install failed
+])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -i --noverify /tmp/2.rpm
+# test that nothing of the contents remains after failure
+test -d "${RPMTEST}/foo"
+],
+[1],
+[],
+[error: unpacking of archive failed: cpio: Bad/unreadable  header
+error: hlinktest-1.0-1.noarch: install failed
+])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -i --noverify /tmp/3.rpm 2>&1| sed 's/;.*:/:/g'
+# test that nothing of the contents remains after failure
+test -d "${RPMTEST}/foo"
+],
+[1],
+[error: unpacking of archive failed on file /foo/hello-world: Digest mismatch
+error: hlinktest-1.0-1.noarch: install failed
+],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -i "${pkg}"
+runroot rpm -q --qf "[[%{filenlinks} %{filenames}\n]]%{longsize}\n" hlinktest
+ls -i "${RPMTEST}"/foo/hello* | awk {'print $1'} | sort -u | wc -l
+runroot rpm -e hlinktest
+
+],
+[0],
+[1 /foo
+2 /foo/aaaa
+1 /foo/copyllo
+4 /foo/hello
+4 /foo/hello-bar
+4 /foo/hello-foo
+4 /foo/hello-world
+2 /foo/zzzz
+87
+1
+],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -i --excludepath=/foo/zzzz "${pkg}"
+runroot rpm -Vv --nogroup --nouser hlinktest
+runroot rpm -e hlinktest
+],
+[0],
+[.........    /foo
+.........    /foo/aaaa
+.........    /foo/copyllo
+.........    /foo/hello
+.........    /foo/hello-bar
+.........    /foo/hello-foo
+.........    /foo/hello-world
+.........    /foo/zzzz (not installed)
+],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -i --excludepath=/foo/aaaa "${pkg}"
+runroot rpm -Vv --nogroup --nouser hlinktest
+runroot rpm -e hlinktest
+],
+[0],
+[.........    /foo
+.........    /foo/aaaa (not installed)
+.........    /foo/copyllo
+.........    /foo/hello
+.........    /foo/hello-bar
+.........    /foo/hello-foo
+.........    /foo/hello-world
+.........    /foo/zzzz
+],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -i --excludepath=/foo/aaaa --excludepath=/foo/zzzz "${pkg}"
+runroot rpm -Vv --nogroup --nouser hlinktest
+runroot rpm -e hlinktest
+],
+[0],
+[.........    /foo
+.........    /foo/aaaa (not installed)
+.........    /foo/copyllo
+.........    /foo/hello
+.........    /foo/hello-bar
+.........    /foo/hello-foo
+.........    /foo/hello-world
+.........    /foo/zzzz (not installed)
+],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpm -i --excludepath=/foo/hello-foo "${pkg}"
+runroot rpm -Vv --nogroup --nouser hlinktest
+runroot rpm -e hlinktest
+],
+[0],
+[.........    /foo
+.........    /foo/aaaa
+.........    /foo/copyllo
+.........    /foo/hello
+.........    /foo/hello-bar
+.........    /foo/hello-foo (not installed)
+.........    /foo/hello-world
+.........    /foo/zzzz
+],
+[])
+
+RPMTEST_CHECK([
+RPMDB_INIT
+runroot rpmbuild -bb --quiet --with crossdir_links /data/SPECS/hlinktest.spec
+runroot rpm -U /build/RPMS/noarch/hlinktest-1.0-1.noarch.rpm
+runroot rpm -Vav --nouser --nogroup
+],
+[0],
+[.........    /foo/aaaa
+.........    /foo/copyllo
+.........    /foo/hello
+.........    /foo/hello-bar
+.........    /foo/hello-foo
+.........    /foo/hello-world
+.........    /foo/zzzz
+.........    /xmark
+.........    /xmark/aaaa
+.........    /xmark/hello
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U filesystem])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmbuild -bb --quiet /data/SPECS/fs.spec
+runroot rpm -U --ignoreos /build/RPMS/noarch/fs-1.0-1.noarch.rpm
+runroot rpm -Va --nouser --nogroup
+runroot rpm -q --whatprovides /
+],
+[0],
+[fs-1.0-1.noarch
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U fifo])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmbuild -bb --quiet /data/SPECS/fifo.spec
+runroot rpm -U --ignoreos /build/RPMS/noarch/fifo-1.0-1.noarch.rpm
+runroot rpm -Vv --nouser --nogroup fifo
+],
+[0],
+[.........    /test-fifo
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U dev])
+AT_KEYWORDS([install])
+AT_SKIP_IF([$MKNOD_DISABLED])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmbuild -bb --quiet /data/SPECS/dev.spec
+runroot rpm -U --ignoreos /build/RPMS/noarch/dev-1.0-1.noarch.rpm
+runroot rpm -Vv --nouser --nogroup dev
+],
+[0],
+[.........    /test-block
+.........    /test-char
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U with Obsoletes])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmbuild -bb --quiet --define "pkg obsoletes" \
+  /data/SPECS/deptest.spec
+runroot rpmbuild -bb --quiet --define "pkg test-obsoletes" \
+  --define "obs deptest-obsoletes \< 2.0" /data/SPECS/deptest.spec
+runroot rpm -i /build/RPMS/noarch/deptest-obsoletes-1.0-1.noarch.rpm
+runroot rpm -U /build/RPMS/noarch/deptest-test-obsoletes-1.0-1.noarch.rpm
+runroot rpm -q deptest-obsoletes deptest-test-obsoletes
+],
+[1],
+[package deptest-obsoletes is not installed
+deptest-test-obsoletes-1.0-1.noarch
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -i create user])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmbuild -bb --quiet --define "pkg user" --define "provs %{add_sysuser u myuser 876 - /home/myuser /bin/sh}"\
+  /data/SPECS/deptest.spec
+runroot rpm -U --root /alt /build/RPMS/noarch/deptest-user-1.0-1.noarch.rpm 2> /dev/null
+runroot_other tail -1 /alt/etc/passwd
+runroot rpm -V --root /alt ${VERIFYOPTS} deptest-user
+],
+[0],
+[myuser:x:876:876::/home/myuser:/bin/sh
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -i create group])
+AT_KEYWORDS([install])
+RPMTEST_CHECK([
+RPMDB_INIT
+
+runroot rpmbuild -bb --quiet --define "pkg user" --define "provs %{add_sysuser g mygroup 678}"\
+  /data/SPECS/deptest.spec
+runroot rpm -i /build/RPMS/noarch/deptest-user-1.0-1.noarch.rpm 2> /dev/null
+runroot_other tail -1 /etc/group
+runroot rpm -V ${VERIFYOPTS} deptest-user
+],
+[0],
+[mygroup:x:678:
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -i sysusers])
+AT_KEYWORDS([install build sysusers])
+RPMDB_INIT
+
+RPMTEST_CHECK([
+runroot rpmbuild -bb -D "_use_weak_usergroup_deps 1" --quiet /data/SPECS/klang.spec
+echo Requires
+runroot rpm -q --requires /build/RPMS/noarch/klang*.rpm | grep -E "user|group"
+echo Recommends
+runroot rpm -q --recommends /build/RPMS/noarch/klang*.rpm | grep -E "user|group"
+echo Provides
+runroot rpm -q --provides /build/RPMS/noarch/klang*.rpm | grep -E "user|group"
+],
+[0],
+[Requires
+Recommends
+group(klang)
+group(klang)
+group(klangd)
+group(klong)
+group(klong)
+user(klangd)
+user(klangd)
+user(plong)
+Provides
+group(klang) = ZyBrbGFuZyAt
+group(klangd)
+group(klong) = ZyBrbG9uZyAt
+group(plong)
+groupmember(klangd/klong) = bSBrbGFuZ2Qga2xvbmcA
+user(klangd) = dSBrbGFuZ2QgLSAiS2xhbmcgc2VydmVyIiAvdmFyL2xpYi9rbGFuZ2QgL3NiaW4vbm9sb2dpbgAA
+user(plong) = dSEgcGxvbmcgLSAiUGxvbmcgZnUiIC92YXIvbGliL3Bsb25nIC9zYmluL25vbG9naW4A
+],
+[warning: ignoring unsupported sysuser type: r
+])
+
+RPMTEST_CHECK([
+runroot rpmbuild -bb --quiet /data/SPECS/klang.spec
+echo Requires
+runroot rpm -q --requires /build/RPMS/noarch/klang*.rpm | grep -E "user|group"
+echo Provides
+runroot rpm -q --provides /build/RPMS/noarch/klang*.rpm | grep -E "user|group"
+],
+[0],
+[Requires
+group(klang)
+group(klang)
+group(klangd)
+group(klong)
+group(klong)
+user(klangd)
+user(klangd)
+user(plong)
+Provides
+group(klang) = ZyBrbGFuZyAt
+group(klangd)
+group(klong) = ZyBrbG9uZyAt
+group(plong)
+groupmember(klangd/klong) = bSBrbGFuZ2Qga2xvbmcA
+user(klangd) = dSBrbGFuZ2QgLSAiS2xhbmcgc2VydmVyIiAvdmFyL2xpYi9rbGFuZ2QgL3NiaW4vbm9sb2dpbgAA
+user(plong) = dSEgcGxvbmcgLSAiUGxvbmcgZnUiIC92YXIvbGliL3Bsb25nIC9zYmluL25vbG9naW4A
+],
+[warning: ignoring unsupported sysuser type: r
+])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/klang-client-1.0-1.noarch.rpm
+],
+[1],
+[],
+[error: Failed dependencies:
+	group(klang) is needed by klang-client-1.0-1.noarch
+])
+
+RPMTEST_CHECK([
+runroot_other mkdir -p /etc/sysusers.d/
+runroot_other touch /etc/sysusers.d/klang.conf
+runroot rpm -U \
+	/build/RPMS/noarch/klang-common-1.0-1.noarch.rpm
+runroot_other grep ^klang /etc/group | cut -f1 -d:
+runroot rpm -e klang-common
+runroot_other rm /etc/sysusers.d/klang.conf
+],
+[0],
+[],
+[ignore])
+
+RPMTEST_CHECK([
+runroot rpm -U \
+	/build/RPMS/noarch/klang-client-1.0-1.noarch.rpm \
+	/build/RPMS/noarch/klang-common-1.0-1.noarch.rpm
+runroot_other grep ^klang /etc/group | cut -f1 -d:
+runroot rpm -V ${VERIFYOPTS} klang-client klang-common
+],
+[0],
+[klang
+],
+[ignore])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/klang-server-1.0-1.noarch.rpm
+runroot_other grep ^klangd /etc/passwd | cut -f1 -d:
+runroot_other chage -l klangd | grep "Account expires" | cut -f2 -d:
+runroot_other grep ^klangd /etc/group | cut -f1 -d:
+runroot_other grep ^plong /etc/passwd | cut -f1 -d:
+runroot_other chage -l plong | grep "Account expires" | cut -f2 -d:
+runroot_other grep ^klong /etc/group | cut -f4 -d:
+runroot rpm -V ${VERIFYOPTS} klang-server
+],
+[0],
+[klangd
+ never
+klangd
+plong
+ Jan 02, 1970
+klangd
+],
+[ignore])
+
+RPMTEST_CLEANUP
+
+AT_SETUP([install on invalid symlinked directory])
+AT_KEYWORDS([install])
+RPMDB_INIT
+
+runroot rpmbuild --quiet -bb \
+          /data/SPECS/replacetest.spec
+
+RPMTEST_CHECK([
+runroot_other mv /opt /opt.was
+runroot_other ln -s /opt.was /opt
+runroot_other chown -h nobody:nobody /opt
+runroot --setenv SOURCE_DATE_EPOCH 1699955855 rpm -U /build/RPMS/noarch/replacetest-1.0-1.noarch.rpm
+],
+[1],
+[],
+[error: failed to open dir opt of /opt/: cpio: Unsafe symlink
+error: unpacking of archive failed on file /opt/foo;6553448f: cpio: Unsafe symlink
+error: replacetest-1.0-1.noarch: install failed
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([update on invalid symlinked directory])
+AT_KEYWORDS([install update symlink])
+RPMDB_INIT
+
+RPMTEST_CHECK([
+for r in 1 2; do
+    runroot rpmbuild --quiet --bb \
+		--define "rel ${r}" \
+		/data/SPECS/pamupdate.spec
+done
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -U /build/RPMS/noarch/pamupdate-1.0-1.noarch.rpm
+runroot rpm -V pamupdate
+],
+[0],
+[],
+[])
+
+RPMTEST_CHECK([
+runroot_other chown -h nobody:nobody /var/run
+runroot rpm -U /build/RPMS/noarch/pamupdate-1.0-2.noarch.rpm
+],
+[1],
+[],
+[ignore])
+
+RPMTEST_CHECK([
+# --nomtime shouldn't be needed but fixing that's another story
+runroot rpm -V --nomtime pamupdate
+],
+[0],
+[],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpm -U diskspace])
+AT_KEYWORDS([install diskspace])
+RPMTEST_CHECK([
+
+# Skip RPMDB_INIT to leave the fs read-only for a reproducible result
+runroot rpm -U --nodb --test --ignorearch --ignoreos --nodeps \
+	/data/RPMS/hello-2.0-1.x86_64.rpm
+],
+[1],
+[],
+[	installing package hello-2.0-1.x86_64 needs 36KB more space on the / filesystem
+])
+RPMTEST_CLEANUP

@@ -1,0 +1,14 @@
+Description: Fix init.d path
+Author: Michal Čihař <nijel@debian.org>
+Forwarded: no, Debian-specific
+--- a/platform.in
++++ b/platform.in
+@@ -41,7 +41,7 @@
+ %_oldincludedir		@oldincludedir@
+ %_infodir		@infodir@
+ %_mandir		@mandir@
+-%_initddir		%{_sysconfdir}/rc.d/init.d
++%_initddir		%{_sysconfdir}/init.d
+ # Deprecated misspelling, present for backwards compatibility.
+ %_initrddir		%{_initddir}
+ %_rundir		@rundir@
