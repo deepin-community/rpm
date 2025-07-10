@@ -1,0 +1,76 @@
+AT_TESTED([rpm rpmbuild rpmquery])
+
+m4_define([RPMTEST_SETUP],[[
+export RPMTEST="${PWD}/tree"
+export HOME="${RPMTEST}/root"
+[ -d "$RPMTEST" ] || snapshot mount "${PWD}"
+]])
+
+m4_define([RPMDB_INIT],[
+RPMTEST_SETUP
+rm -rf "${RPMTEST}"`rpm --eval '%_dbpath'`
+runroot rpm --initdb
+])
+
+m4_define([RPMPY_RUN],[[
+cat << EOF > test.py
+# coding=utf-8
+import rpm, sys, os
+dbpath=rpm.expandMacro('%_dbpath')
+rpm.addMacro('_dbpath', '${RPMTEST}%s' % dbpath)
+rpm.addMacro('_db_backend', os.getenv('DBFORMAT'))
+ts = rpm.ts()
+ts.setFlags(rpm.RPMTRANS_FLAG_NOPLUGINS)
+$1
+EOF
+# Python is such a mess wrt ASAN, ignore it for now
+LD_PRELOAD=${ASANLIB} ASAN_OPTIONS=detect_leaks=0 ${PYTHON} test.py
+]])
+
+m4_define([RPMTEST_CHECK],[
+AT_CHECK($@)
+])
+
+m4_define([RPMTEST_CHECK_UNQUOTED],[
+AT_CHECK_UNQUOTED($@)
+])
+
+m4_define([RPMTEST_CLEANUP],[
+# Make sure we unmount RPMTEST even if it was mounted (and thus the variable
+# exported) in an RPMTEST_CHECK subshell, by setting RPMTEST explicitly here.
+export RPMTEST="${PWD}/tree"
+snapshot umount
+AT_CLEANUP
+])
+
+m4_define([RPMTEST_CHECK_PINNED],[
+RPMTEST_CHECK_UNQUOTED(
+[source /pinned/$1.sh],
+[0],
+[$(cat /pinned/$1.txt)
+])
+])
+
+m4_define([RPMPY_CHECK],[
+AT_SKIP_IF([$PYTHON_DISABLED])
+RPMTEST_CHECK([RPMPY_RUN([$1])], [], [$2], [$3])
+])
+
+m4_define([RPMPY_TEST],[
+AT_SETUP([$1])
+AT_KEYWORDS([python])
+RPMDB_INIT
+RPMPY_CHECK([$2], [$3], [$4])
+RPMTEST_CLEANUP
+])
+
+m4_define([RPMTEST_USER],[
+RPMTEST_SETUP
+[[ $# != 0 ]] && export RPMUSER=$1
+useradd -m -R $RPMTEST $RPMUSER
+])
+
+# Enable colored test output if available
+m4_ifdef([AT_COLOR_TESTS], [AT_COLOR_TESTS])
+
+AT_INIT

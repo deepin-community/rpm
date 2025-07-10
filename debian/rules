@@ -1,4 +1,45 @@
 #!/usr/bin/make -f
+# -*- makefile -*-
+# Uncomment this to turn on verbose mode.
+# export DH_VERBOSE=1
+
+# For DEB_HOST_ARCH_OS
+include /usr/share/dpkg/architecture.mk
+
+# For proper pkg-config
+DPKG_EXPORT_BUILDTOOLS = 1
+include /usr/share/dpkg/buildtools.mk
+
+DEB_BUILD_MAINT_OPTIONS = hardening=+all
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+
+include /usr/share/debhelper/dh_package_notes/package-notes.mk
+
+ifeq (linux,$(DEB_HOST_ARCH_OS))
+       configure_flags += -DWITH_CAP=ON -DWITH_SELINUX=ON -DWITH_FSVERITY=ON
+else
+       configure_flags += -DWITH_CAP=OFF -DWITH_SELINUX=OFF -DWITH_FSVERITY=OFF -DWITH_AUDIT=OFF -DWITH_FAPOLICYD=OFF
+endif
+
+ifneq (,$(filter alpha hppa m68k sh4 x32,$(DEB_HOST_ARCH)))
+       configure_flags += -DWITH_SEQUOIA=OFF
+endif
+
+configure_flags += \
+	-DWITH_LEGACY_OPENPGP=ON \
+	-DENABLE_TESTSUITE=OFF \
+	-DMKTREE_BACKEND=rootfs \
+	-DENABLE_PYTHON=ON \
+	-DENABLE_BDB_RO=ON \
+	-DENABLE_NDB=ON
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(configure_flags)
+
+execute_after_dh_auto_install:
+	# Fix permissions
+	chmod +x debian/tmp/usr/lib/rpm/rpm.daily
 
 %:
 	dh $@

@@ -1,0 +1,830 @@
+#    rpmpython.at: test rpm python bindings
+#    TODO: conditionalize on python availability
+
+AT_BANNER([Python bindings])
+
+RPMPY_TEST([module import],[
+print(rpm.__version__)
+],
+[AT_PACKAGE_VERSION]
+)
+
+RPMPY_TEST([macro manipulation],[
+def prexp(m):
+    print(rpm.expandMacro('%%{?%s}' % m))
+
+mname = '__no_such_macro_yet'
+prexp(mname)
+rpm.addMacro(mname, '/bin/sh')
+prexp(mname)
+rpm.addMacro(mname, '/bin/false')
+prexp(mname)
+rpm.delMacro(mname)
+prexp(mname)
+rpm.delMacro(mname)
+prexp(mname)
+],
+[
+/bin/sh
+/bin/false
+/bin/sh
+
+],
+[])
+
+RPMPY_TEST([basic rpmio],[
+msg = b'Killroy was here\n'
+data = msg * 10
+# TODO: test other compression types too if built in
+for iot in [ 'fpio', 'fdio', 'ufdio', 'gzdio' ]:
+    fn = 'pyio.%s' % iot
+    fd = rpm.fd(fn, 'w', iot)
+    pos = fd.tell()
+    if pos != -2 and pos != 0:
+        print('bad start pos %d' % fd.tell())
+    if fd.write(data) != len(data):
+        print('%s write fail' % iot)
+    if fn != fd.name:
+        print('bad file name %s' % fd.name)
+    fd.flush()
+    pos = fd.tell()
+    if pos != -2 and pos != len(data):
+        print('bad end pos %d' % fd.tell())
+    fd = rpm.fd(fn, 'r', iot)
+    rdata = fd.read()
+    if rdata != data:
+        print('%s read fail (got %d bytes)\n%s' % (iot, len(rdata), rdata))
+    # compressed io types can't seek
+    if iot == 'ufdio':
+        fd.seek(0)
+    else:
+        fd = rpm.fd(fn, 'r', iot)
+    if fn != fd.name:
+        print('bad file name %s' % fd.name)
+    rdata = fd.read(len(msg))
+    if rdata != msg:
+        print('%s sized read fail (got %d bytes)\n%s' % (iot, len(rdata), rdata))
+],
+[])
+
+RPMPY_TEST([spec parse 1],[
+# TODO: add a better test spec with sub-packages etc
+spec = rpm.spec('${RPMDATA}/SPECS/hello.spec')
+for (name, num, flags) in spec.sources:
+    print('src %s %d %d' % (name, num, flags))
+for pkg in spec.packages:
+    print(pkg.header.format('%{nvr}'))
+print(spec.sourceHeader.format('%{nvr}'))
+],
+[src hello-1.0-modernize.patch 0 2
+src hello-1.0.tar.gz 0 1
+hello-1.0-1
+hello-1.0-1
+])
+
+RPMPY_TEST([spec parse 2],[
+spec = rpm.spec('${RPMDATA}/SPECS/mini.spec')
+rpm.reloadConfig()
+])
+
+RPMPY_TEST([basic header manipulation],[
+h = rpm.hdr()
+h['name'] = 'testpkg'
+h['version'] = '1.0'
+h['release'] = '1'
+h['epoch'] = 5
+h['arch'] = 'noarch'
+print(h['nevra'])
+del h['epoch']
+print(h['nevra'])
+for a in ['name', 'bugurl', '__foo__', ]:
+    try:
+        x = getattr(h, a)
+        print(x)
+    except AttributeError as exc:
+        print(exc)
+],
+[testpkg-5:1.0-1.noarch
+testpkg-1.0-1.noarch
+testpkg
+None
+'rpm.hdr' object has no attribute '__foo__']
+)
+
+RPMPY_TEST([non-utf8 data in header],[
+str = u'älämölö'
+enc = 'iso-8859-1'
+b = str.encode(enc)
+h = rpm.hdr()
+h['group'] = b
+d = h['group']
+try:
+    # python 3
+    t = bytes(d, 'utf-8', 'surrogateescape')
+except TypeError:
+    # python 2
+    t = bytes(d)
+res = t.decode(enc)
+print(str == res)
+],
+[True]
+)
+
+RPMPY_TEST([invalid header data],[
+h1 = rpm.hdr()
+h1['basenames'] = ['bing', 'bang', 'bong']
+h1['dirnames'] = ['/opt/', '/flopt/']
+h1['dirindexes'] = [ 1, 0, 3 ]
+h2 = rpm.hdr()
+h2['basenames'] = ['bing', 'bang', 'bong']
+h2['dirnames'] = ['/opt/', '/flopt/']
+h2['dirindexes'] = [ 0, 0, 1 ]
+for h in [h1, h2]:
+    try:
+        print(','.join(h['filenames']))
+    except rpm.error as exc:
+        print(exc)
+],
+[invalid header data
+/opt/bing,/opt/bang,/flopt/bong]
+)
+
+RPMPY_TEST([labelCompare],[
+v = '1.0'
+r = '1'
+e = 3
+h = rpm.hdr()
+h['name'] = 'testpkg'
+h['version'] = v
+h['release'] = r
+h['epoch'] = e
+print(rpm.labelCompare((str(h['epoch']), h['version'], h['release']),
+			 (str(e), v, r)))
+print(rpm.labelCompare((None, '1.0', '1'),
+			 (None, '1.1', '2')))
+print(rpm.labelCompare((None, '1.0', '1'),
+			 (None, '1.1', '1')))
+print(rpm.labelCompare((None, '1.1', '1'),
+			 (None, '1.0', '1')))
+print(rpm.labelCompare((None, '1.1', '1'),
+			 (None, '1.0', '2')))
+print(rpm.labelCompare(('1', '1.0', '1'),
+			 ('0', '1.0', '1')))
+print(rpm.labelCompare(('0', '1.0', '1'),
+			 ('1', '1.0', '1')))
+print(rpm.labelCompare(('0', '1.0', '1'),
+			 (None, '1.0', '1')))
+print(rpm.labelCompare("1.0-1", "2.0-1"))
+print(rpm.labelCompare("2:1.0-1", "2.0-1"))
+],
+[0
+-1
+-1
+1
+1
+1
+-1
+0
+-1
+1]
+)
+
+RPMPY_TEST([vfyflags API],[
+dlv = ts.getVfyFlags()
+tlv = dlv | rpm.RPMVSF_NOSHA1HEADER
+olv = ts.setVfyFlags(tlv)
+nlv = ts.getVfyFlags()
+print('%s %s %s' % (hex(dlv), hex(olv), hex(nlv)))
+],
+[0x0 0x0 0x100]
+)
+
+RPMPY_TEST([vfylevel API],[
+dlv = ts.getVfyLevel()
+olv = ts.setVfyLevel(rpm.RPMSIG_SIGNATURE_TYPE|rpm.RPMSIG_DIGEST_TYPE)
+nlv = ts.getVfyLevel()
+print('%s %s %s' % (hex(dlv), hex(olv), hex(nlv)))
+],
+[0x1 0x1 0x3]
+)
+
+
+RPMPY_TEST([reading a package file],[
+h = ts.hdrFromFdno('${RPMDATA}/RPMS/hello-1.0-1.ppc64.rpm')
+print(h['arch'])
+],
+[ppc64]
+)
+
+AT_SETUP([reading a signed package file])
+AT_KEYWORDS([python])
+AT_SKIP_IF([test x$PGP = xdummy])
+RPMPY_CHECK([
+# avoid rpmlog spew with absolute path to package
+sink = open('/dev/null', 'w')
+rpm.setLogFile(sink)
+try:
+    h = ts.hdrFromFdno('${RPMDATA}/RPMS/hello-2.0-1.x86_64-signed.rpm')
+    print(h['arch'])
+except rpm.error as e:
+    print(e)
+sink.close()
+],
+[public key not available
+],
+)
+
+RPMPY_CHECK([
+
+with open('${RPMDATA}/keys/rpm.org-rsa-2048-test.pub', 'rb') as keydata_file:
+    keydata = keydata_file.read()
+pubkey = rpm.pubkey(keydata)
+keyring = rpm.keyring()
+keyring.addKey(pubkey)
+
+ts.setKeyring(keyring)
+try:
+    h = ts.hdrFromFdno('${RPMDATA}/RPMS/hello-2.0-1.x86_64-signed.rpm')
+    print(h['arch'])
+except rpm.error as e:
+    print(e)
+],
+[x86_64]
+)
+RPMTEST_CLEANUP
+
+RPMPY_TEST([add package to transaction],[
+ts.addInstall('${RPMDATA}/RPMS/foo-1.0-1.noarch.rpm', 'u')
+for e in ts:
+    print(e.NEVRA())
+ts.clear()
+for e in ts:
+    print(e.NEVRA())
+],
+[foo-1.0-1.noarch]
+)
+
+RPMPY_TEST([add erasure to transaction],[
+for i in ['foo', 1234]:
+    print('addErase %s' % i)
+    try:
+        ts.addErase(i)
+    except rpm.error as err:
+        print(err)
+print('addErase mi')
+mi = ts.dbMatch('name', 'foo')
+try:
+    ts.addErase(mi)
+except rpm.error as err:
+    print(err)
+],
+[addErase foo
+package not installed
+addErase 1234
+package not installed
+addErase mi]
+)
+
+RPMPY_TEST([add restore to transaction],[
+for i in ['foo', 1234]:
+    print('addRestore %s' % i)
+    try:
+        ts.addRestore(i)
+    except rpm.error as err:
+        print(err)
+print('addRestore mi')
+mi = ts.dbMatch('name', 'foo')
+try:
+    ts.addRestore(mi)
+except rpm.error as err:
+    print(err)
+],
+[addRestore foo
+package not installed
+addRestore 1234
+package not installed
+addRestore mi]
+)
+
+RPMPY_TEST([add bogus package to transaction 1],[
+h = rpm.hdr()
+h['name'] = "foo"
+try:
+    ts.addInstall(h, 'foo', 'i')
+except rpm.error as err:
+    print(err)
+for e in ts:
+    print(e.NEVRA())
+],
+[adding install to transaction failed]
+)
+
+RPMPY_TEST([add bogus package to transaction 2],[
+h = rpm.hdr()
+h['name'] = 'foo'
+h['version'] = '1.0'
+h['release'] = '1'
+h['os'] = 'linux'
+h['arch'] = 'noarch'
+h['basenames'] = ['bing', 'bang', 'bong']
+h['dirnames'] = ['/opt' '/flopt']
+h['dirindexes'] = [ 1, 2, 3 ]
+try:
+    ts.addInstall(h, 'foo', 'u')
+except rpm.error as err:
+    print(err)
+for e in ts:
+    print(e.NEVRA())
+],
+[adding upgrade to transaction failed]
+)
+
+RPMPY_TEST([add bogus package to transaction 3],[
+
+for tag in ["os", "arch", "name", "version", "release"]:
+    h = ts.hdrFromFdno('${RPMDATA}/RPMS/hello-1.0-1.ppc64.rpm')
+    del h[tag]
+    try:
+        ts.addInstall(h, 'foo', 'u')
+    except rpm.error as err:
+        print(err)
+for e in ts:
+    print(e.NEVRA())
+],
+[adding upgrade to transaction failed
+adding upgrade to transaction failed
+adding upgrade to transaction failed
+adding upgrade to transaction failed
+adding upgrade to transaction failed
+],
+[])
+
+RPMPY_TEST([add bogus package to transaction 4],[
+
+h = ts.hdrFromFdno('${RPMDATA}/RPMS/hello-1.0-1.ppc64.rpm')
+del h["name"]
+h["name"] = "gpg-pubkey"
+try:
+    ts.addInstall(h, 'foo', 'u')
+except rpm.error as err:
+    print(err)
+for e in ts:
+    print(e.NEVRA())
+],
+[adding upgrade to transaction failed
+],
+[error: public keys can not be installed as gpg-pubkey packages; use rpmkeys --import <keyfile> for that
+])
+
+RPMPY_TEST([transaction element userdata],[
+mydata = { 'foo': 'bar', 'capstest': 'lock' }
+ts.addInstall('${RPMDATA}/RPMS/foo-1.0-1.noarch.rpm', 'u')
+ts.addInstall('${RPMDATA}/RPMS/capstest-1.0-1.noarch.rpm', 'u')
+for e in ts:
+    e.SetUserdata(mydata[e.N()])
+for e in ts:
+    print(e.Userdata())
+],
+[bar
+lock]
+)
+
+RPMPY_TEST([transaction callback 1],[
+def ocb(what, amount, total, key, data):
+    print(what, amount, total, type(key), data)
+    return -1
+
+def ncb(arg, what, amount, total, data):
+    print(type(arg), what, amount, total, data)
+    return -1
+
+cbd = "mine"
+ts.addInstall('${RPMDATA}/RPMS/foo-1.0-1.noarch.rpm', 'mykey', 'u')
+ts.setFlags(rpm.RPMTRANS_FLAG_TEST)
+print("- old -")
+ts.run(callback=ocb, data=cbd)
+ts.cbStyle = 1
+print("- new -")
+ts.run(callback=ncb, data=cbd)
+],
+[- old -
+2097152 0 1 <class 'NoneType'> mine
+1048576 0 1 <class 'str'> mine
+4 0 0 <class 'str'> mine
+4194304 1 1 <class 'NoneType'> mine
+32 6 1 <class 'NoneType'> mine
+16 0 1 <class 'NoneType'> mine
+64 6 1 <class 'NoneType'> mine
+- new -
+<class 'NoneType'> 2097152 0 1 mine
+<class 'rpm.te'> 1048576 0 1 mine
+<class 'rpm.te'> 4 0 0 mine
+<class 'NoneType'> 4194304 1 1 mine
+<class 'NoneType'> 32 6 1 mine
+<class 'NoneType'> 16 0 1 mine
+<class 'NoneType'> 64 6 1 mine]
+)
+
+AT_SETUP([database iterators])
+AT_KEYWORDS([python rpmdb])
+RPMDB_INIT
+RPMTEST_CHECK([
+runroot rpm -i \
+  --justdb --nodeps --ignorearch --ignoreos \
+  /data/RPMS/foo-1.0-1.noarch.rpm \
+  /data/RPMS/hello-2.0-1.i686.rpm
+],
+[0],
+[],
+[])
+
+RPMPY_CHECK([
+ix = 0
+mi = ts.dbMatch()
+mi.pattern('name', rpm.RPMMIRE_STRCMP, 'hello')
+for h in mi:
+    ix = h['dbinstance']
+    break
+del mi
+for h in ts.dbMatch('packages', ix):
+    print(h['nevra'])
+],
+[hello-2.0-1.i686
+],
+[])
+
+RPMPY_CHECK([
+mi = ts.dbMatch()
+mi.pattern('name', rpm.RPMMIRE_DEFAULT, 'f*')
+for h in mi:
+    print(h['nevra'])
+],
+[foo-1.0-1.noarch
+],
+[])
+
+RPMPY_CHECK([
+for h in ts.dbMatch('name'):
+    print(h['nevra'])
+],
+[foo-1.0-1.noarch
+hello-2.0-1.i686
+],
+[])
+
+RPMPY_CHECK([
+for h in ts.dbMatch('obsoletes'):
+    print(h['nevra'])
+],
+[foo-1.0-1.noarch
+],
+[])
+
+RPMPY_CHECK([
+for h in ts.dbMatch('provides', 'hi'):
+    print(h['nevra'])
+],
+[foo-1.0-1.noarch
+],
+[])
+
+RPMPY_CHECK([
+for h in ts.dbMatch('basenames', '/usr/share/doc/hello-2.0/FAQ'):
+    print(h['nevra'])
+],
+[hello-2.0-1.i686
+],
+[])
+RPMPY_CHECK([
+for di in sorted(ts.dbIndex('obsoletes')):
+    print(di)
+],
+[howdy
+],
+[])
+
+RPMPY_CHECK([
+for di in sorted(ts.dbIndex('provides')):
+    print(di)
+],
+[foo
+hello
+hello(x86-32)
+hi
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([database cookies])
+AT_KEYWORDS([python rpmdb])
+RPMDB_INIT
+RPMTEST_CHECK([
+],
+[0],
+[],
+[])
+
+RPMPY_CHECK([
+ts.openDB()
+c1 = ts.dbCookie()
+ts.closeDB()
+ts.openDB()
+c2 = ts.dbCookie()
+print(c1 == c2 != None)
+with open("dbcookie", "w+") as dbcookie_file:
+    dbcookie_file.write(c1)
+],
+[True
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -i \
+  --justdb --nodeps --ignorearch --ignoreos \
+  /data/RPMS/foo-1.0-1.noarch.rpm \
+  /data/RPMS/hello-2.0-1.i686.rpm \
+],
+[0],
+[],
+[])
+
+RPMPY_CHECK([
+ts.openDB()
+c1 = ts.dbCookie()
+with open("dbcookie", "r") as dbcookie_file:
+    c2 = dbcookie_file.read()
+print(c1 != c2)
+with open("dbcookie", "w+") as dbcookie_file:
+    dbcookie_file.write(c1)
+],
+[True
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpm -i \
+  --justdb --nodeps --ignorearch --ignoreos \
+  --define "_transaction_color 3" \
+  --define "_prefer_color 2" \
+  /data/RPMS/hello-2.0-1.x86_64.rpm
+],
+[0],
+[],
+[])
+
+RPMPY_CHECK([
+ts.openDB()
+c1 = ts.dbCookie()
+with open("dbcookie", "r") as dbcookie_file:
+    c2 = dbcookie_file.read()
+print(c1 != c2)
+],
+[True
+],
+[])
+RPMTEST_CLEANUP
+
+RPMPY_TEST([dependency sets 1],[
+h = ts.hdrFromFdno('${RPMDATA}/RPMS/hello-1.0-1.ppc64.rpm')
+for dep in rpm.ds(h, 'requires'):
+    print(dep.DNEVR())
+],
+[R /bin/sh
+R /bin/sh
+R /bin/sh
+R /bin/sh
+R libc.so.6
+R libc.so.6(GLIBC_2.0)
+R rpmlib(CompressedFileNames) <= 3.0.4-1
+R rpmlib(PayloadFilesHavePrefix) <= 4.0-1
+R rtld(GNU_HASH)]
+)
+
+RPMPY_TEST([dependency sets 2],[
+import warnings
+h = ts.hdrFromFdno('${RPMDATA}/RPMS/hello-2.0-1.i686.rpm')
+ds = rpm.ds(h, 'provides')
+
+# ds.Count() is a deprecated alias for len(ds).
+# Ensure warnings are always emitted and check that one was emitted correctly.
+with warnings.catch_warnings(record=True) as warns:
+    warnings.simplefilter("always")
+    count = ds.Count()
+assert len(warns) == 1
+assert warns[0].category == PendingDeprecationWarning
+
+print('%d %d %d' % (ds.Instance(), count, len(ds)))
+],
+[0 2 2
+],
+[])
+
+RPMPY_TEST([dependency sets 3],[
+deps = []
+deps.append(rpm.ds(('foo', rpm.RPMSENSE_EQUAL, '2.0'), rpm.RPMTAG_REQUIRENAME))
+deps.append(rpm.ds(('bar', rpm.RPMSENSE_EQUAL, '2.0'), rpm.RPMTAG_RECOMMENDNAME))
+deps.append(rpm.ds(('bar', rpm.RPMSENSE_EQUAL|rpm.RPMSENSE_MISSINGOK, '2.0'), rpm.RPMTAG_REQUIRENAME))
+deps.append(rpm.ds(('(foo if bar)',), rpm.RPMTAG_REQUIRENAME))
+deps.append(rpm.ds(('(foo if bar)',), rpm.RPMTAG_SUGGESTNAME))
+deps.append(rpm.ds(('(foo if bar)',), rpm.RPMTAG_SUPPLEMENTNAME))
+deps.append(rpm.ds(('user(rtkit)', rpm.RPMSENSE_EQUAL, 'dSBydGtpdCAxNzIgIlJlYWx0aW1lS2l0IiAvIC9zYmluL25vbG9naW4A'), rpm.RPMTAG_PROVIDENAME))
+for d in deps:
+    print("%s %s %s %s %s" % (d.DNEVR(), d.IsWeak(), d.IsRich(), d.IsReverse(), d.IsSysuser()))
+],
+[R foo = 2.0 False False False False
+r bar = 2.0 True False False False
+R bar = 2.0 True False False False
+R (foo if bar) False True False False
+s (foo if bar) True True False False
+S (foo if bar) True True True False
+P user(rtkit) = dSBydGtpdCAxNzIgIlJlYWx0aW1lS2l0IiAvIC9zYmluL25vbG9naW4A False False False True
+],
+[])
+
+RPMPY_TEST([file info sets 1],[
+h = ts.hdrFromFdno('${RPMDATA}/RPMS/hello-2.0-1.i686.rpm')
+fi = rpm.files(h)
+print(len(fi))
+for f in fi:
+   print('%x: %s' % (f.fflags, f.name))
+],
+[5
+0: /usr/bin/hello
+0: /usr/share/doc/hello-2.0
+2: /usr/share/doc/hello-2.0/COPYING
+2: /usr/share/doc/hello-2.0/FAQ
+2: /usr/share/doc/hello-2.0/README
+],
+[])
+
+RPMPY_TEST([file sets 1],[
+for p in ['imatest-1.0-1.fc34.noarch.rpm', 'capstest-1.0-1.noarch.rpm']:
+  h = ts.hdrFromFdno('${RPMDATA}/RPMS/%s' % p)
+  files = rpm.files(h)
+  for f in files:
+     sig = f.imasig
+     if sig:
+        sig = sig.hex()
+     print('%s: %s' % (f.name, sig))
+  files = rpm.files(h, flags = rpm.RPMFI_FLAGS_ONLY_FILENAMES)
+  for f in files:
+     sig = f.imasig
+     if sig:
+        sig = sig.hex()
+     print('%s: %s' % (f.name, sig))
+],
+[/usr/share/example1: 030204a598255400483046022100e5117bdafa73baaeb1f1dc46ecaa46981a62d417745a33532572b63dc6d95d16022100c789107ac5b91e2d915e1df3c7b78414f6b3f50899d44c1de381d0e938dfc82b
+/usr/share/example2: 030204a598255400473045022100c10943795bff5d9c0db53dd4f8e4b845615fd08a2be295c30a80f5bdb4e6a41302203038840cc6abaab92acb56cb3e3ce520b17f22ff7444a8d5d0f703a44d5307a3
+/usr/share/example1: None
+/usr/share/example2: None
+/a/emptyCaps1: None
+/a/emptyCaps2: None
+/a/noCaps: None
+/a/emptyCaps1: None
+/a/emptyCaps2: None
+/a/noCaps: None
+],
+[])
+
+RPMPY_TEST([string pool 1],[
+p = rpm.strpool()
+for s in ['foo', 'bar', 'foo', 'zoo']:
+    p.str2id(s)
+print('%s' % len(p))
+for i in range(1, len(p)+1):
+    print('%s: %s' % (i, p[i]))
+],
+[3
+1: foo
+2: bar
+3: zoo
+],
+[])
+
+RPMPY_TEST([string pool 2],[
+p = rpm.strpool()
+d1 = rpm.ds(('foo', rpm.RPMSENSE_EQUAL, '2.0'), rpm.RPMTAG_PROVIDES, pool=p)
+d2 = rpm.ds(('bar', rpm.RPMSENSE_EQUAL, '2.0'), rpm.RPMTAG_PROVIDES, pool=p)
+d3 = rpm.ds(('bar', rpm.RPMSENSE_EQUAL, '2.0'), rpm.RPMTAG_PROVIDES, pool=p)
+print('%s' % len(p))
+del p
+print(d1.DNEVR())
+print(d2.DNEVR())
+print(d3.DNEVR())
+],
+[3
+P foo = 2.0
+P bar = 2.0
+P bar = 2.0
+],
+[])
+
+RPMPY_TEST([archive 1],[
+import hashlib
+fd = rpm.fd.open('${RPMDATA}/SRPMS/hello-1.0-1.src.rpm')
+h = ts.hdrFromFdno(fd)
+payload = rpm.fd.open(fd, flags=h['payloadcompressor'])
+files = rpm.files(h)
+archive = files.archive(payload)
+for f in archive:
+    if not f.fflags & rpm.RPMFILE_SPECFILE:
+        continue
+    spec = archive.read()
+    hash = hashlib.sha256(spec)
+    if f.digest != hash.hexdigest():
+        print('%s should be %s' % (hash.hexdigest(), f.digest))
+    break
+],
+[],
+[])
+
+RPMPY_TEST([header unload],[
+h = ts.hdrFromFdno('${RPMDATA}/RPMS/hello-2.0-1.i686.rpm')
+# Add some garbage to header to make it non-sorted
+h['installtime'] = 0
+# RhBug:1061730 causes export of non-sorted header to be larger than it should
+len1 = len(h.unload())
+# Accessing the header before export forces sorting to take place even on
+# buggy versions
+t = h['installtime']
+len2 = len(h.unload())
+print(len1 == len2)
+],
+[True
+],
+[])
+
+RPMPY_TEST([version objects 1],[
+pv = None
+for vs in [ '1.0', '1.0', '4:1.0', '1.5-1', '3:2.0-1']:
+    v = rpm.ver(vs)
+    v_eq = rpm.ver(vs)
+    print('(%s, %s, %s)' % (v.e, v.v, v.r))
+    if pv:
+        print('%s < %s: %s' % (pv.evr, v.evr, pv < v))
+        print('%s > %s: %s' % (pv.evr, v.evr, pv > v))
+        print('%s == %s: %s' % (pv.evr, v.evr, pv == v))
+        print('%s != %s: %s' % (v.evr, v_eq.evr, v != v_eq))
+    pv = v
+],
+[(None, 1.0, None)
+(None, 1.0, None)
+1.0 < 1.0: False
+1.0 > 1.0: False
+1.0 == 1.0: True
+1.0 != 1.0: False
+(4, 1.0, None)
+1.0 < 4:1.0: True
+1.0 > 4:1.0: False
+1.0 == 4:1.0: False
+4:1.0 != 4:1.0: False
+(None, 1.5, 1)
+4:1.0 < 1.5-1: False
+4:1.0 > 1.5-1: True
+4:1.0 == 1.5-1: False
+1.5-1 != 1.5-1: False
+(3, 2.0, 1)
+1.5-1 < 3:2.0-1: True
+1.5-1 > 3:2.0-1: False
+1.5-1 == 3:2.0-1: False
+3:2.0-1 != 3:2.0-1: False
+],
+[])
+
+RPMPY_TEST([version objects 2],[
+for vt in [ (None, "1.0", None), (None, "1.0", "2"), ("1", "1.0", "3") ]:
+    v = rpm.ver(vt)
+    print(v)
+],
+[1.0
+1.0-2
+1:1.0-3
+],
+[])
+
+RPMPY_TEST([version objects 3],[
+class Foo(rpm.ver):
+    pass
+f1 = Foo('v1.0')
+v1 = rpm.ver('v1.0')
+f2 = Foo('v2.0')
+print('%s > %s: %s' % (f1, f2, f1 > f2))
+print('%s < %s: %s' % (f1, f2, f1 < f2))
+print('%s < %s: %s' % (f1, v1, f1 < v1))
+print('%s > %s: %s' % (f2, v1, f2 > v1))
+print('%s > %s: %s' % (v1, f1, v1 > f1))
+print('%s < %s: %s' % (v1, f2, v1 < f2))
+print('%s == %s: %s' % (v1, f1, v1 == f1))
+print('%s == %s: %s' % (f1, f2, f1 == f2))
+print('%s != %s: %s' % (f1, f2, f1 != f2))
+],
+[v1.0 > v2.0: False
+v1.0 < v2.0: True
+v1.0 < v1.0: False
+v2.0 > v1.0: True
+v1.0 > v1.0: False
+v1.0 < v2.0: True
+v1.0 == v1.0: True
+v1.0 == v2.0: False
+v1.0 != v2.0: True
+])

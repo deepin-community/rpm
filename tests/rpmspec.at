@@ -1,0 +1,382 @@
+# Process this file with autom4te to create testsuite. -*- Autotest -*-
+#
+# This file is part of RPM test suite.
+#
+# Copyright (c) 2019  Dmitry V. Levin <ldv@altlinux.org>
+# All rights reserved.
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+AT_BANNER([RPM Spec Tool])
+
+AT_SETUP([rpmspec --query Requires])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[0],
+[good.0.1 0
+good.0.2 8
+good.1.1 104
+good.19.1 1003fa0
+good.2.1 80c
+good.3.1 202
+good.34.1 120a
+good.4.1 100a
+good.5.1 400
+good.6.1 1000008
+good.7.1 2004
+good.8.1 8c
+good.9.1 22
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --query Requires(,)])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --define 'extra Requires(,): bad' \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex} %{REQUIREVERSION}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[1],
+[],
+[error: line 9: Bad Requirename: qualifiers: Requires(,): bad
+error: query of specfile /data/SPECS/test-parsebits.spec failed, can't parse
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --query Requires(;)])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --define 'extra Requires(;): bad' \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex} %{REQUIREVERSION}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[1],
+[],
+[error: line 9: Bad Requirename: qualifiers: Requires(;): bad
+error: query of specfile /data/SPECS/test-parsebits.spec failed, can't parse
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --query Requires(junk)])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --define 'extra Requires(junk): bad' \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex} %{REQUIREVERSION}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[1],
+[],
+[error: line 9: Bad Requirename: qualifiers: Requires(junk): bad
+error: query of specfile /data/SPECS/test-parsebits.spec failed, can't parse
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --query Requires(pre,junk)])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --define 'extra Requires(pre,junk): bad' \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex} %{REQUIREVERSION}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[1],
+[],
+[error: line 9: Bad Requirename: qualifiers: Requires(pre,junk): bad
+error: query of specfile /data/SPECS/test-parsebits.spec failed, can't parse
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --query Requires(junk,pre)])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --define 'extra Requires(junk,pre): bad' \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex} %{REQUIREVERSION}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[1],
+[],
+[error: line 9: Bad Requirename: qualifiers: Requires(junk,pre): bad
+error: query of specfile /data/SPECS/test-parsebits.spec failed, can't parse
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --query Requires(,pre)])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --define 'extra Requires(,pre): bad' \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex} %{REQUIREVERSION}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[1],
+[],
+[error: line 9: Bad Requirename: qualifiers: Requires(,pre): bad
+error: query of specfile /data/SPECS/test-parsebits.spec failed, can't parse
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --query Requires(pre,)])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --define 'extra Requires(pre,): bad' \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex} %{REQUIREVERSION}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[1],
+[],
+[error: line 9: Bad Requirename: qualifiers: Requires(pre,): bad
+error: query of specfile /data/SPECS/test-parsebits.spec failed, can't parse
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --query Requires(pre,,postun)])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --define 'extra Requires(pre,,postun): bad' \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex} %{REQUIREVERSION}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[1],
+[],
+[error: line 9: Bad Requirename: qualifiers: Requires(pre,,postun): bad
+error: query of specfile /data/SPECS/test-parsebits.spec failed, can't parse
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --query Requires(pre,,junk)])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --define 'extra Requires(pre,,junk): bad' \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex} %{REQUIREVERSION}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[1],
+[],
+[error: line 9: Bad Requirename: qualifiers: Requires(pre,,junk): bad
+error: query of specfile /data/SPECS/test-parsebits.spec failed, can't parse
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --query Requires(;pre)])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --define 'extra Requires(;pre): bad' \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex} %{REQUIREVERSION}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[1],
+[],
+[error: line 9: Bad Requirename: qualifiers: Requires(;pre): bad
+error: query of specfile /data/SPECS/test-parsebits.spec failed, can't parse
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --query Requires(pre;)])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --define 'extra Requires(pre;): bad' \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex} %{REQUIREVERSION}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[1],
+[],
+[error: line 9: Bad Requirename: qualifiers: Requires(pre;): bad
+error: query of specfile /data/SPECS/test-parsebits.spec failed, can't parse
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --query Requires(pre;postun)])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --define 'extra Requires(pre;postun): bad' \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex} %{REQUIREVERSION}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[1],
+[],
+[error: line 9: Bad Requirename: qualifiers: Requires(pre;postun): bad
+error: query of specfile /data/SPECS/test-parsebits.spec failed, can't parse
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --query Requires(pre;junk)])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([[
+runroot rpmspec --query \
+  --define 'extra Requires(pre;junk): bad' \
+  --qf '[%{REQUIRENAME} %{REQUIREFLAGS:hex} %{REQUIREVERSION}\n]' \
+  /data/SPECS/test-parsebits.spec
+]],
+[1],
+[],
+[error: line 9: Bad Requirename: qualifiers: Requires(pre;junk): bad
+error: query of specfile /data/SPECS/test-parsebits.spec failed, can't parse
+])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --parse])
+AT_KEYWORDS([rpmspec])
+RPMTEST_CHECK([runroot rpmspec --parse /data/SPECS/foo.spec],
+[0],
+[
+
+Summary: foo
+Name: foo
+Version: 1.0
+Release: 1
+Source: hello-2.0.tar.gz
+Patch1: hello-1.0-modernize.patch
+Group: Testing
+License: GPLv2+
+BuildArch: noarch
+
+%description
+Simple rpm demonstration.
+
+%package sub
+Summary: foo
+Requires: foo = 1.0-1
+
+%description sub
+foo
+
+%package bus
+Summary: foo
+Requires: foo = 1.0-1
+
+%description bus
+foo
+
+%files
+
+%files sub
+
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --srpm provides])
+AT_KEYWORDS([rpmspec])
+RPMTEST_CHECK([
+runroot rpmspec -q --srpm --provides /data/SPECS/foo.spec
+runroot rpmspec -q --srpm --provides --with bus /data/SPECS/foo.spec
+],
+[0],
+[foo = 1.0-1
+foo-sub = 1.0-1
+foo = 1.0-1
+foo-sub = 1.0-1
+foo-bus = 1.0-1
+],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec --parse])
+AT_KEYWORDS([rpmspec])
+RPMTEST_CHECK([
+RPMTEST_SETUP
+
+# ensure the macros expand to expected values
+# debug packages disabled for simplicity, we're not testing for that here
+runroot rpmspec --parse \
+	--define "__rpmuncompress /usr/lib/rpm/rpmuncompress" \
+	--define "__make /usr/bin/make" \
+	--define "__patch /usr/bin/patch" \
+	--define "__chmod /usr/bin/chmod" \
+	--define "debug_package %{nil}" \
+	--target x86_64 \
+	/data/SPECS/hello.spec
+],
+[0],
+[[
+
+
+
+
+
+Summary: hello -- hello, world rpm
+ Name: hello
+Version: 1.0
+	Release: 1
+ Group: Utilities
+License: GPL
+SourceLicense: GPL, ASL 1.0
+Distribution: RPM test suite.
+URL: http://rpm.org
+	Source0: hello-1.0.tar.gz
+ Patch0: hello-1.0-modernize.patch
+Prefix: /usr
+
+%description
+Simple rpm demonstration.
+
+%prep
+cd '/build/BUILD/hello-1.0-build'
+rm -rf 'hello-1.0'
+/usr/lib/rpm/rpmuncompress -x '/build/SOURCES/hello-1.0.tar.gz'
+STATUS=$?
+if [ $STATUS -ne 0 ]; then
+  exit $STATUS
+fi
+cd 'hello-1.0'
+/usr/bin/chmod -Rf a+rX,u+w,g-w,o-w .
+
+echo "Patch #0 (hello-1.0-modernize.patch):"
+/usr/bin/patch --no-backup-if-mismatch -f -p1 -b --suffix .modernize --fuzz=0 < /build/SOURCES/hello-1.0-modernize.patch
+
+
+
+%build
+make
+
+%install
+mkdir -p $RPM_BUILD_ROOT/usr/local/bin
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%files
+%defattr(-,root,root)
+%doc	FAQ
+%attr(0751,root,root)	/usr/local/bin/hello
+
+%changelog
+* Tue Oct 20 1998 Jeff Johnson <jbj@redhat.com>
+- create.
+]],
+[])
+RPMTEST_CLEANUP
+
+AT_SETUP([rpmspec -q --rpms and --srpm])
+AT_KEYWORDS([rpmspec query])
+RPMTEST_CHECK([
+runroot rpmspec -q --rpms --target s390x \
+	/data/SPECS/hello.spec
+],
+[0],
+[hello-1.0-1.s390x
+],
+[])
+
+RPMTEST_CHECK([
+runroot rpmspec -q --srpm \
+	/data/SPECS/hello.spec
+],
+[0],
+[hello-1.0-1.src
+],
+[])
+RPMTEST_CLEANUP

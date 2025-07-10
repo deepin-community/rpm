@@ -1,0 +1,4 @@
+fix-directories.patch
+python-rpm-packaging.patch
+restore-pgp-parser.patch
+usermod-root.patch

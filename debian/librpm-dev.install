@@ -1,0 +1,4 @@
+usr/lib/*/librpm*.so
+usr/include/rpm*
+usr/lib/*/pkgconfig/rpm.pc
+usr/lib/*/cmake/rpm/
