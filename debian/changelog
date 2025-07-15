@@ -1,3 +1,10 @@
+rpm (4.20.1+dfsg-3deepin1) unstable; urgency=medium
+
+  * Fix check_c_compiler_flag cmake tests.
+  * Add nettle-dev as Depends, remove it when libarchive has new release.
+
+ -- qaqland <anguoli@uniontech.com>  Tue, 15 Jul 2025 20:52:07 +0800
+
 rpm (4.20.1+dfsg-3) unstable; urgency=medium
 
   [ Helge Kreutzmann ]

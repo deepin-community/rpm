@@ -1,0 +1,11 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -420,7 +420,7 @@
+ 	if (found)
+ 		add_compile_options(${flag})
+ 	endif()
+-	unset(found)
++	unset(found CACHE)
+ endforeach()
+ 
+ # generated sources
