@@ -1,3 +1,9 @@
+rpm (4.20.1+dfsg-3deepin2) unstable; urgency=medium
+
+  * Add the parameter DWITH_SEQUOIA=OFF to the SW64 architecture.
+
+ -- lichenggang <lichenggang@deepin.org>  Thu, 05 Mar 2026 19:37:19 +0800
+
 rpm (4.20.1+dfsg-3deepin1) unstable; urgency=medium
 
   * Fix check_c_compiler_flag cmake tests.
