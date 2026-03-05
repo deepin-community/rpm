@@ -22,7 +22,7 @@ else
        configure_flags += -DWITH_CAP=OFF -DWITH_SELINUX=OFF -DWITH_FSVERITY=OFF -DWITH_AUDIT=OFF -DWITH_FAPOLICYD=OFF
 endif
 
-ifneq (,$(filter alpha hppa m68k sh4 x32,$(DEB_HOST_ARCH)))
+ifneq (,$(filter sw64 alpha hppa m68k sh4 x32,$(DEB_HOST_ARCH)))
        configure_flags += -DWITH_SEQUOIA=OFF
 endif
 
